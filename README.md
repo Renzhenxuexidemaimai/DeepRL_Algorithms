@@ -12,8 +12,8 @@
 *PGs on MountainCar-v0*:
 
 <p float="left">
-    <img src="PolicyGradient/images/reinforce-mountaincar.gif" width="400"/>
-    <img src="PolicyGradient/images/Reinforce%20MountainCar-v0.png" width="400"/>
+    <img src="PolicyGradient/images/reinforce-mountaincar.gif" width="420"/>
+    <img src="PolicyGradient/images/Reinforce%20MountainCar-v0.png" width="420"/>
 </p>
 
 ## 1.算法列表
