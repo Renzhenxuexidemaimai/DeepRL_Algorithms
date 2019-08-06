@@ -19,7 +19,7 @@ PGs on MountainCar-v0:
     - [Dueling DQN][4]
     
 2. [Policy Gradient系列(Reinforce, Vanilla PG, TRPO, PPO etc.)][8]
-    - [REINFORCE][5]
+    - [REINFORCE][10]
 
 [1]: DQN
 [2]: DQN/NaiveDQN.py
