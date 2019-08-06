@@ -4,16 +4,17 @@
 *DQNs on CartPole-v0*:
 
 <p float="left">
-    <img src="DQN/images/DQN.png" width="300"/>
-    <img src="DQN/images/DDQN.png" width="300"/>
-    <img src="DQN/images/DuelingDQN.png" width="300"/>
+    <img src="DQN/images/DQN.png" width="280"/>
+    <img src="DQN/images/DDQN.png" width="280"/>
+    <img src="DQN/images/DuelingDQN.png" width="280"/>
 </p>
 
 *PGs on MountainCar-v0*:
 
-![11]
-
-![9]
+<p float="left">
+    <img src="PolicyGradient/images/reinforce-mountaincar.gif" width="400"/>
+    <img src="PolicyGradient/images/Reinforce%20MountainCar-v0.png" width="400"/>
+</p>
 
 ## 1.算法列表
 1. [DQN系列(Naive DQN, Double DQN, Dueling DQN etc.)][1]
