@@ -1,12 +1,15 @@
 # About Deep Reinforcement Learning
 强化学习和深度学习的结合产生了一系列重要的算法, 本项目将着重参考相关paper并尽可能实现相关算法.
 
-DQNs on CartPole-v0:
+*DQNs on CartPole-v0*:
 
-![5]![6]![7]
+<p float="left">
+    <img src="DQN/images/DQN.png" width="300"/>
+    <img src="DQN/images/DDQN.png" width="300"/>
+    <img src="DQN/images/DuelingDQN.png" width="300"/>
+</p>
 
-
-PGs on MountainCar-v0:
+*PGs on MountainCar-v0*:
 
 ![11]
 
