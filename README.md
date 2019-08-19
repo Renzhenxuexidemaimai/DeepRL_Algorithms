@@ -24,6 +24,7 @@
     
 2. [Policy Gradient系列(Reinforce, Vanilla PG, TRPO, PPO etc.)][8]
     - [REINFORCE][10]
+    - [REINFORCE with Baseline][12]
 
 [1]: DQN
 [2]: DQN/NaiveDQN.py
@@ -36,3 +37,4 @@
 [9]: PolicyGradient/images/Reinforce%20MountainCar-v0.png
 [10]: PolicyGradient/REINFORCE.py
 [11]: PolicyGradient/images/reinforce-mountaincar.gif
+[12]: PolicyGradient/REINFORCE_BaseLine.py

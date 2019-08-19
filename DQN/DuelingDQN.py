@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from DQN.Net import DuelingNet
+from DQN.Nets.Net import DuelingNet
 from DQN.experience_replay import MemoryReplay, Transition
 
 

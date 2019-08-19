@@ -3,15 +3,15 @@ import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 from torch.distributions.categorical import Categorical
 
-from PolicyGradient.Nets.Net import PolicyNet
+from PolicyGradient.Nets.Advance_Policy_Net import AdvancePolicyNet
 from Utils.env_utils import get_env_space
 
 
-class REINFORCE:
+class REINFORCE_Baseline:
     def __init__(self,
                  num_states,
                  num_actions,
-                 learning_rate=0.02,
+                 learning_rate=0.002,
                  gamma=0.995,
                  eps=torch.finfo(torch.float32).eps,
                  enable_gpu=False
@@ -22,14 +22,19 @@ class REINFORCE:
         else:
             self.device = torch.device("cpu")
 
-        self.policy = PolicyNet(num_states, num_actions).to(self.device)
-        self.optimizer = optim.Adam(self.policy.parameters(), lr=learning_rate)
+        self.policy = AdvancePolicyNet(num_states, num_actions).to(self.device)
+        self.value = AdvancePolicyNet(num_states, 1, is_value=True).to(self.device)
+
+        self.optimizer_policy = optim.Adam(self.policy.parameters(), lr=learning_rate)
+        self.optimizer_value = optim.Adam(self.value.parameters(), lr=learning_rate)
+
         self.gamma = gamma
         self.eps = eps
 
-        self.rewards = []  # 记录轨迹的每个 time step 对应的及时回报 r_t
-        self.log_probs = []  # 记录轨迹的每个 time step 对应的 log_probability
-        self.cum_rewards = []  # 记录轨迹的每个 time step 对应的 累计回报 G_t
+        self.values = []  # 记录每个 time step 状态对应的 value 估计
+        self.rewards = []  # 记录每个 time step 对应的及时回报 r_t
+        self.log_probs = []  # 记录每个 time step 对应的 log_probability
+        self.cum_rewards = []  # 记录每个 time step 对应的 累计回报 G_t
 
     def calc_cumulative_rewards(self):
         R = 0.0
@@ -46,38 +51,49 @@ class REINFORCE:
         action = m.sample()
         log_prob = -m.log_prob(action)
         self.log_probs.append(log_prob)
+
+        # 计算 state 状态的 base 值函数
+        value = self.value(state)
+        self.values.append(value)
+
         return action.item()
 
     def update_episode(self):
         self.calc_cumulative_rewards()
 
-        # Normalize reward
-        rewards = torch.tensor(self.cum_rewards).to(self.device)
-        rewards = (rewards - rewards.mean()) / (rewards.std() + self.eps)
-        # 梯度上升更新策略参数
+        assert len(self.cum_rewards) == len(self.values)
 
-        loss = torch.cat(self.log_probs).mul(rewards).sum()
+        for k in range(len(self.cum_rewards)):
+            advances = torch.tensor(self.cum_rewards[k]).to(self.device) - self.values[k]
 
-        self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
+            # 梯度上升更新base_value参数
+            self.optimizer_value.zero_grad()
+            loss_advance = - advances.pow(2)
+            loss_advance.backward(retain_graph=True)
+            self.optimizer_value.step()
+
+            # 梯度上升更新策略参数
+            self.optimizer_policy.zero_grad()
+            loss_policy = self.log_probs[k] * advances
+            loss_policy.backward(retain_graph=True)
+
+            self.optimizer_policy.step()
 
         self.rewards.clear()
         self.log_probs.clear()
         self.cum_rewards.clear()
+        self.values.clear()
 
 
 if __name__ == '__main__':
     env_id = 'MountainCar-v0'
-    alg_id = 'REINFORCE'
+    alg_id = 'REINFORCE_Baseline'
     env, num_states, num_actions = get_env_space(env_id)
 
-    agent = REINFORCE(num_states, num_actions, enable_gpu=True)
+    agent = REINFORCE_Baseline(num_states, num_actions, enable_gpu=True)
     episodes = 400
 
     writer = SummaryWriter()
-    iterations_ = []
-    rewards_ = []
 
     # 迭代所有episodes进行采样
     for i in range(episodes):
@@ -85,7 +101,7 @@ if __name__ == '__main__':
         state = env.reset()
         episode_reward = 0
 
-        for t in range(10000):
+        for t in range(5000):
             env.render()
             action = agent.choose_action(state)
             state, reward, done, info = env.step(action)
@@ -95,9 +111,6 @@ if __name__ == '__main__':
 
             # 当前episode　结束
             if done:
-                iterations_.append(i)
-                rewards_.append(episode_reward)
-
                 writer.add_scalar(alg_id, episode_reward, i)
                 print("episode: {} , the episode reward is {}".format(i, round(episode_reward, 3)))
                 break

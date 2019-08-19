@@ -1,5 +1,5 @@
 import torch
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
 from DQN.DoubleDQN import DoubleDQN
 from DQN.DuelingDQN import DuelingDQN

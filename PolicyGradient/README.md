@@ -22,6 +22,7 @@
 
 ![4]
 
+- *REINFORCE with Baseline*
 
 
 [1]: https://arxiv.org/abs/1506.05254

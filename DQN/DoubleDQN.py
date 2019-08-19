@@ -1,10 +1,9 @@
-import gym
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from DQN.Net import Net
+from DQN.Nets.Net import Net
 from DQN.experience_replay import MemoryReplay, Transition
 
 
