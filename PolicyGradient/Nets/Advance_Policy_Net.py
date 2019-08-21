@@ -21,13 +21,15 @@ class AdvancePolicyNet(nn.Module):
 
         self.common = nn.Sequential(
             nn.Linear(n_input, 128),
-            nn.Tanh(),
+            nn.ReLU(),
             nn.Linear(128, n_output)
         )
 
         self.policy = nn.Sequential(
             nn.Softmax(dim=1)
         )
+
+        self.apply(init_weight)
 
     def forward(self, x):
         x = self.common(x)

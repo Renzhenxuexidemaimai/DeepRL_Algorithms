@@ -11,7 +11,8 @@ class REINFORCE_Baseline:
     def __init__(self,
                  num_states,
                  num_actions,
-                 learning_rate=0.002,
+                 learning_rate_policy=0.002,
+                 learning_rate_value=0.005,
                  gamma=0.995,
                  eps=torch.finfo(torch.float32).eps,
                  enable_gpu=False
@@ -25,8 +26,8 @@ class REINFORCE_Baseline:
         self.policy = AdvancePolicyNet(num_states, num_actions).to(self.device)
         self.value = AdvancePolicyNet(num_states, 1, is_value=True).to(self.device)
 
-        self.optimizer_policy = optim.Adam(self.policy.parameters(), lr=learning_rate)
-        self.optimizer_value = optim.Adam(self.value.parameters(), lr=learning_rate)
+        self.optimizer_policy = optim.Adam(self.policy.parameters(), lr=learning_rate_policy)
+        self.optimizer_value = optim.Adam(self.value.parameters(), lr=learning_rate_value)
 
         self.gamma = gamma
         self.eps = eps
@@ -63,22 +64,32 @@ class REINFORCE_Baseline:
 
         assert len(self.cum_rewards) == len(self.values)
 
-        for k in range(len(self.cum_rewards)):
-            advances = torch.tensor(self.cum_rewards[k]).to(self.device) - self.values[k]
+        rewards = torch.tensor(self.cum_rewards).unsqueeze(-1).to(self.device)
+        values = torch.stack(self.values).squeeze(-1)
 
-            # 梯度上升更新base_value参数
+        # rewards = (rewards - rewards.mean()) / (rewards.std() + self.eps)
+        # values = (values - values.mean()) / (values.std() + self.eps)
+
+        log_probs = torch.stack(self.log_probs).squeeze(-1)
+        advances = rewards - values
+
+        # advances = (advances - advances.mean()) / (advances.std() + self.eps)
+        # print(advances)
+        # 梯度下降更新 base_value 参数
+        for _ in range(5):
             self.optimizer_value.zero_grad()
-            loss_advance = - advances.pow(2)
+            loss_advance = torch.nn.MSELoss()(rewards, values)
+
             loss_advance.backward(retain_graph=True)
             self.optimizer_value.step()
 
-            # 梯度上升更新策略参数
-            self.optimizer_policy.zero_grad()
-            loss_policy = self.log_probs[k] * advances
-            loss_policy.backward(retain_graph=True)
+        # 梯度上升更新策略参数
+        self.optimizer_policy.zero_grad()
+        loss_policy = log_probs.mul(advances).mean()
+        loss_policy.backward()
+        self.optimizer_policy.step()
 
-            self.optimizer_policy.step()
-
+        # 清空 buffer
         self.rewards.clear()
         self.log_probs.clear()
         self.cum_rewards.clear()
