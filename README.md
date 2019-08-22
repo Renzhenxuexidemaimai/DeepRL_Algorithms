@@ -16,6 +16,12 @@
     <img src="PolicyGradient/images/Reinforce%20MountainCar-v0.png" width="420"/>
 </p>
 
+*Actor-Critics on MountainCar-v0*:
+
+<p float="left">
+    <img src="ActorCritic/imgs/Actor-Critic.png" width="420"/>
+</p>
+
 ## 1.算法列表
 1. [DQN系列(Naive DQN, Double DQN, Dueling DQN etc.)][1]
     - [Naive DQN][2]
@@ -25,6 +31,9 @@
 2. [Policy Gradient系列(Reinforce, Vanilla PG, TRPO, PPO etc.)][8]
     - [REINFORCE][10]
     - [REINFORCE with Baseline][12]
+
+3. [Actor-Critic系列][13]
+    - [Actor-Critic][14]
 
 [1]: DQN
 [2]: DQN/NaiveDQN.py
@@ -38,3 +47,5 @@
 [10]: PolicyGradient/REINFORCE.py
 [11]: PolicyGradient/images/reinforce-mountaincar.gif
 [12]: PolicyGradient/REINFORCE_BaseLine.py
+[13]: ActorCritic
+[14]: ActorCritic/Actor_Critic.py
