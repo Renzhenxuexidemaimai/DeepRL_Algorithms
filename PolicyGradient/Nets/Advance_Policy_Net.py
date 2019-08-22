@@ -21,7 +21,7 @@ class AdvancePolicyNet(nn.Module):
 
         self.common = nn.Sequential(
             nn.Linear(n_input, 128),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Linear(128, n_output)
         )
 

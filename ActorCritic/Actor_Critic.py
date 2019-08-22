@@ -3,16 +3,15 @@ import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 from torch.distributions.categorical import Categorical
 
-from PolicyGradient.Nets.Advance_Policy_Net import AdvancePolicyNet
+from ActorCritic.Nets.Actor_Critic_Net import ActorCriticNet
 from Utils.env_utils import get_env_space
 
 
-class REINFORCE_Baseline:
+class ActorCritic:
     def __init__(self,
                  num_states,
                  num_actions,
-                 learning_rate_policy=0.002,
-                 learning_rate_value=0.05,
+                 learning_rate=0.002,
                  gamma=0.995,
                  eps=torch.finfo(torch.float32).eps,
                  enable_gpu=False
@@ -23,11 +22,9 @@ class REINFORCE_Baseline:
         else:
             self.device = torch.device("cpu")
 
-        self.policy = AdvancePolicyNet(num_states, num_actions).to(self.device)
-        self.value = AdvancePolicyNet(num_states, 1, is_value=True).to(self.device)
+        self.actor_critc = ActorCriticNet(num_states, num_actions).to(self.device)
 
-        self.optimizer_policy = optim.Adam(self.policy.parameters(), lr=learning_rate_policy)
-        self.optimizer_value = optim.Adam(self.value.parameters(), lr=learning_rate_value)
+        self.optimizer = optim.Adam(self.actor_critc.parameters(), lr=learning_rate)
 
         self.gamma = gamma
         self.eps = eps
@@ -45,16 +42,14 @@ class REINFORCE_Baseline:
 
     def choose_action(self, state):
         state = torch.tensor(state).unsqueeze(0).to(self.device).float()
-        probs = self.policy(state)
+        probs, value = self.actor_critc(state)
 
         # 对action进行采样,并计算log probability
         m = Categorical(probs)
         action = m.sample()
         log_prob = m.log_prob(action)
-        self.log_probs.append(log_prob)
 
-        # 计算 state 状态的 base 值函数
-        value = self.value(state)
+        self.log_probs.append(log_prob)
         self.values.append(value)
 
         return action.item()
@@ -69,22 +64,12 @@ class REINFORCE_Baseline:
 
         rewards = (rewards - rewards.mean()) / (rewards.std() + self.eps)
         advances = rewards - values
-        # advances = (advances - advances.mean()) / (advances.std() + self.eps)
 
-        # batch 梯度下降更新 base_value 参数
-        loss_advance_criterion = torch.nn.MSELoss()
+        loss = -log_probs.mul(advances).mean() + advances.pow(2).mean()
 
-        self.optimizer_value.zero_grad()
-        loss_advance = loss_advance_criterion(rewards, values)
-        print(loss_advance.item())
-        loss_advance.backward(retain_graph=True)
-        self.optimizer_value.step()
-
-        # 梯度上升更新策略参数
-        self.optimizer_policy.zero_grad()
-        loss_policy = -log_probs.mul(advances).mean()
-        loss_policy.backward()
-        self.optimizer_policy.step()
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
 
         # 清空 buffer
         self.rewards.clear()
@@ -95,10 +80,10 @@ class REINFORCE_Baseline:
 
 if __name__ == '__main__':
     env_id = 'MountainCar-v0'
-    alg_id = 'REINFORCE_Baseline'
+    alg_id = 'ActorCritic'
     env, num_states, num_actions = get_env_space(env_id)
 
-    agent = REINFORCE_Baseline(num_states, num_actions, enable_gpu=True)
+    agent = ActorCritic(num_states, num_actions, enable_gpu=True)
     episodes = 400
 
     writer = SummaryWriter()
