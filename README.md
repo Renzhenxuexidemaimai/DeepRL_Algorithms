@@ -19,7 +19,7 @@
 *Actor-Critics on MountainCar-v0*:
 
 <p float="left">
-    <img src="ActorCritic/imgs/Actor-Critic.png" width="420"/>
+    <img src="ActorCritic/imgs/Actor-Critic.png"/>
 </p>
 
 ## 1.算法列表

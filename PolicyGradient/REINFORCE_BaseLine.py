@@ -76,7 +76,6 @@ class REINFORCE_Baseline:
 
         self.optimizer_value.zero_grad()
         loss_advance = loss_advance_criterion(rewards, values)
-        print(loss_advance.item())
         loss_advance.backward(retain_graph=True)
         self.optimizer_value.step()
 
