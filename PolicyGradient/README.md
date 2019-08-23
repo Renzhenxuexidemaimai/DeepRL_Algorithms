@@ -23,9 +23,10 @@
 ![4]
 
 - *REINFORCE with Baseline*
-
+![5]
 
 [1]: https://arxiv.org/abs/1506.05254
 [2]: images/REINFORCE%20alg.png
 [3]: images/reinforce-mountaincar.gif
 [4]: images/Reinforce%20MountainCar-v0.png
+[5]: images/Reinforce%20with%20Baseline%20MountainCar-v0.png
