@@ -14,7 +14,7 @@
 <p float="left">
     <img src="PolicyGradient/images/reinforce-mountaincar.gif" width="280"/>
     <img src="PolicyGradient/images/Reinforce%20MountainCar-v0.png" width="280"/>
-    <img src="PolicyGradient/images/Reinforce%20with%20Baseline%20MountainCar-v0.png width="280"/>
+    <img src="PolicyGradient/images/Reinforce%20with%20Baseline%20MountainCar-v0.png" width="280"/>
 </p>
 
 *Actor-Critics on MountainCar-v0*:
