@@ -1,31 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Created at 2020/1/2 下午9:30
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
+import torch.nn as nn
 
 
-# Q-network　结构
-class Net(nn.Module):
+class DuelingMLPPolicy(nn.Module):
     def __init__(self, num_states, num_actions):
-        super(Net, self).__init__()
-
-        self.net = nn.Sequential(
-            nn.Linear(num_states, 50),
-            nn.ReLU(),
-            nn.Linear(50, num_actions)
-        )
-
-        for m in self.modules():
-            if isinstance(m, nn.Linear):
-                m.weight.data.normal_(0, 0.1)
-
-    def forward(self, x):
-        out = self.net(x)
-        return out
-
-
-class DuelingNet(nn.Module):
-    def __init__(self, num_states, num_actions):
-        super(DuelingNet, self).__init__()
+        super(DuelingMLPPolicy, self).__init__()
         self.fc1 = nn.Linear(num_states, 50)
         self.fc1.weight.data.normal_(0, 0.1)
         self.state_out = nn.Linear(50, 1)

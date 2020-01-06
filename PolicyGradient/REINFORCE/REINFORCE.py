@@ -1,9 +1,9 @@
 import torch
 import torch.optim as optim
+from torch.distributions import Categorical
 from torch.utils.tensorboard import SummaryWriter
-from torch.distributions.categorical import Categorical
 
-from PolicyGradient.Nets.Net import PolicyNet
+from PolicyGradient.Models.Reinforce_policy import Policy
 from Utils.env_utils import get_env_space
 
 
@@ -22,7 +22,7 @@ class REINFORCE:
         else:
             self.device = torch.device("cpu")
 
-        self.policy = PolicyNet(num_states, num_actions).to(self.device)
+        self.policy = Policy(num_states, num_actions).to(self.device)
         self.optimizer = optim.Adam(self.policy.parameters(), lr=learning_rate)
         self.gamma = gamma
         self.eps = eps

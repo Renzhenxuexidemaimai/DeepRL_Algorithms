@@ -1,10 +1,9 @@
 import torch.nn as nn
 
 
-# Policy-network　结构
-class PolicyNet(nn.Module):
+class Policy(nn.Module):
     def __init__(self, num_states, num_actions):
-        super(PolicyNet, self).__init__()
+        super(Policy, self).__init__()
         self.net = nn.Sequential(
             nn.Linear(num_states, 50),
             nn.ReLU(),

@@ -35,6 +35,6 @@
 [7]: DQN/images/DuelingDQN.png
 [8]: PolicyGradient
 [9]: PolicyGradient/images/Reinforce%20MountainCar-v0.png
-[10]: PolicyGradient/REINFORCE.py
+[10]: PolicyGradient/REINFORCE/REINFORCE.py
 [11]: PolicyGradient/images/reinforce-mountaincar.gif
-[12]: PolicyGradient/REINFORCE_BaseLine.py
+[12]: PolicyGradient/REINFORCE/REINFORCE_BaseLine.py

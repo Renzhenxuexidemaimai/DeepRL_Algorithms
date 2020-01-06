@@ -3,8 +3,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from DQN.Nets.Net import Net
-from DQN.experience_replay import MemoryReplay, Transition
+from DQN.Models.Policy import MLPPolicy
+from Utils.replay_memory import Memory
 
 
 class DoubleDQN:
@@ -31,8 +31,9 @@ class DoubleDQN:
 
         self.num_learn_step = 0
 
-        self.memory = MemoryReplay(memory_size)
-        self.eval_net, self.target_net = Net(num_states, num_actions).to(self.device), Net(num_states, num_actions).to(
+        self.memory = Memory(memory_size)
+        self.eval_net, self.target_net = MLPPolicy(num_states, num_actions).to(self.device), MLPPolicy(num_states,
+                                                                                                       num_actions).to(
             self.device)
         self.optimizer = optim.Adam(self.eval_net.parameters(), lr=learning_rate)
         self.loss_func = nn.MSELoss()
@@ -55,8 +56,7 @@ class DoubleDQN:
         self.num_learn_step += 1
 
         # 从Memory中采batch
-        sample = self.memory.sample(self.batch_size)
-        batch = Transition(*zip(*sample))
+        batch = self.memory.sample(self.batch_size)
         batch_state = torch.cat(batch.state).to(self.device)
         batch_action = torch.stack(batch.action, 0).to(self.device)
         batch_reward = torch.stack(batch.reward, 0).to(self.device)

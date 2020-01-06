@@ -49,7 +49,8 @@ class Bechmark:
                 agent.memory.push(torch.tensor([state]),
                                   torch.tensor([action]),
                                   torch.tensor([r]),
-                                  torch.tensor([next_state]))
+                                  torch.tensor([next_state]),
+                                  torch.tensor([done]))
                 episode_reward += r
 
                 if len(agent.memory) >= memory_size:
@@ -59,10 +60,6 @@ class Bechmark:
                         rewards_.append(episode_reward)
 
                         writer.add_scalar(alg_id, episode_reward, i)
-                        # model_data[alg_id + '_x'] = iterations_
-                        # model_data[alg_id + '_y'] = rewards_
-                        # plot.add_plot(iterations_, rewards_, color, label=alg_id, x_label='Iterations',
-                        #               y_label='Rewards', title=env_id)
                         print("episode: {} , the episode reward is {}".format(i, round(episode_reward, 3)))
                 # 当前episode　结束
                 if done:

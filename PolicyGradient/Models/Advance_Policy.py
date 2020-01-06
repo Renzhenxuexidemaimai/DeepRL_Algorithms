@@ -7,7 +7,7 @@ def init_weight(m):
         nn.init.constant_(m.bias, 0.0)
 
 
-class AdvancePolicyNet(nn.Module):
+class AdvancePolicy(nn.Module):
     """
     策略和 Q_value 网络
     策略网络的输出为 n_actions
@@ -15,7 +15,7 @@ class AdvancePolicyNet(nn.Module):
     """
 
     def __init__(self, n_input, n_output, is_value=False):
-        super(AdvancePolicyNet, self).__init__()
+        super(AdvancePolicy, self).__init__()
 
         self.is_value = is_value
 

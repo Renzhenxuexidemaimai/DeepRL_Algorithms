@@ -1,9 +1,9 @@
 import torch
 import torch.optim as optim
+from torch.distributions import Categorical
 from torch.utils.tensorboard import SummaryWriter
-from torch.distributions.categorical import Categorical
 
-from PolicyGradient.Nets.Advance_Policy_Net import AdvancePolicyNet
+from PolicyGradient.Models.Advance_Policy import AdvancePolicy
 from Utils.env_utils import get_env_space
 
 
@@ -22,8 +22,8 @@ class REINFORCE_Baseline:
         else:
             self.device = torch.device("cpu")
 
-        self.policy = AdvancePolicyNet(num_states, num_actions).to(self.device)
-        self.value = AdvancePolicyNet(num_states, 1, is_value=True).to(self.device)
+        self.policy = AdvancePolicy(num_states, num_actions).to(self.device)
+        self.value = AdvancePolicy(num_states, 1, is_value=True).to(self.device)
 
         self.optimizer_policy = optim.Adam(self.policy.parameters(), lr=learning_rate)
         self.optimizer_value = optim.Adam(self.value.parameters(), lr=learning_rate)
@@ -66,18 +66,18 @@ class REINFORCE_Baseline:
         for k in range(len(self.cum_rewards)):
             advances = torch.tensor(self.cum_rewards[k]).to(self.device) - self.values[k]
 
-            # 梯度上升更新base_value参数
-            self.optimizer_value.zero_grad()
-            loss_advance = - advances.pow(2)
-            loss_advance.backward(retain_graph=True)
-            self.optimizer_value.step()
-
             # 梯度上升更新策略参数
             self.optimizer_policy.zero_grad()
             loss_policy = self.log_probs[k] * advances
             loss_policy.backward(retain_graph=True)
 
             self.optimizer_policy.step()
+
+            # 梯度上升更新base_value参数
+            self.optimizer_value.zero_grad()
+            loss_advance = advances.pow(2)
+            loss_advance.backward(retain_graph=True)
+            self.optimizer_value.step()
 
         self.rewards.clear()
         self.log_probs.clear()
@@ -91,17 +91,19 @@ if __name__ == '__main__':
     env, num_states, num_actions = get_env_space(env_id)
 
     agent = REINFORCE_Baseline(num_states, num_actions, enable_gpu=True)
-    episodes = 400
+
+    max_episodes = 1000
+    max_timestep = 10000
 
     writer = SummaryWriter()
 
     # 迭代所有episodes进行采样
-    for i in range(episodes):
+    for i in range(max_episodes):
         # 当前episode开始
         state = env.reset()
         episode_reward = 0
 
-        for t in range(5000):
+        for t in range(max_timestep):
             env.render()
             action = agent.choose_action(state)
             state, reward, done, info = env.step(action)
