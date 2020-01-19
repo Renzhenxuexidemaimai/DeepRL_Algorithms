@@ -17,10 +17,11 @@ from Utils.env_utils import get_env_space
 @click.option("--lr_v", type=float, default=3e-4, help="Learning rate for Value Net")
 @click.option("--gamma", type=float, default=0.99, help="Discount factor")
 @click.option("--tau", type=float, default=0.95, help="GAE factor")
+@click.option("--render", type=bool, default=True, help="Render environment or not")
 @click.option("--epsilon", type=float, default=0.1, help="Clip rate for PPO")
-@click.option("--batch_size", type=int, default=256, help="Batch size")
+@click.option("--batch_size", type=int, default=2048, help="Batch size")
 @click.option("--num_episodes", type=int, default=1000, help="Episodes to run")
-def main(env_id, enable_gpu, lr_p, lr_v, gamma, tau, epsilon, batch_size, num_episodes):
+def main(env_id, enable_gpu, lr_p, lr_v, gamma, tau, render, epsilon, batch_size, num_episodes):
     env, num_states, num_actions = get_env_space(env_id)
 
     memory_size = 100000
@@ -33,8 +34,9 @@ def main(env_id, enable_gpu, lr_p, lr_v, gamma, tau, epsilon, batch_size, num_ep
         print(f"episode {i}")
         state = env.reset()
         episode_reward = 0
-        for step in range(4000):
-            env.render()
+        for step in range(10000):
+            if render:
+                env.render()
             action = agent.choose_action(state)
             next_state, reward, done, info = env.step(action)
 
@@ -42,7 +44,7 @@ def main(env_id, enable_gpu, lr_p, lr_v, gamma, tau, epsilon, batch_size, num_ep
                               torch.tensor([action]).float(),
                               torch.tensor([reward]).float(),
                               torch.tensor([next_state]).float(),
-                              torch.tensor([1]).float() if done else torch.tensor([0]).float())
+                              torch.tensor([0]).float() if done else torch.tensor([1]).float())
             episode_reward += reward
 
             # 当前episode　结束
@@ -50,12 +52,15 @@ def main(env_id, enable_gpu, lr_p, lr_v, gamma, tau, epsilon, batch_size, num_ep
                 break
             state = next_state
 
-        agent.learn()
+        v_loss, p_loss = agent.learn()
         agent.memory.clear()
         iterations_.append(i)
         rewards_.append(episode_reward)
 
-        writer.add_scalar(env_id, episode_reward, i)
+        writer.add_scalar("{}/episode reward".format(env_id), episode_reward, i)
+        writer.add_scalar("{}/v loss".format(env_id), v_loss, i)
+        writer.add_scalar("{}/p loss".format(env_id), p_loss, i)
+
         print(f"episode: {i} , the episode reward is {episode_reward:.4f}")
     env.close()
 

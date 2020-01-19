@@ -19,8 +19,8 @@ class PPOAgent:
                  gamma=0.995,
                  tau=0.96,
                  clip_epsilon=0.1,
-                 batch_size=64,
-                 memory_size=100000,
+                 batch_size=2048,
+                 memory_size=10000,
                  enable_gpu=False):
 
         if enable_gpu:
@@ -34,8 +34,8 @@ class PPOAgent:
         self.clip_epsilon = clip_epsilon
 
         self.memory = Memory(memory_size)
-        self.policy_net_new, self.policy_net_old = Policy(num_states, num_actions, 64, nn.Tanh).to(self.device), \
-                                                   Policy(num_states, num_actions, 64, nn.Tanh).to(self.device)
+        self.policy_net_new, self.policy_net_old = Policy(num_states, num_actions).to(self.device), \
+                                                   Policy(num_states, num_actions).to(self.device)
 
         self.policy_net_old.load_state_dict(self.policy_net_new.state_dict())
 
@@ -47,15 +47,16 @@ class PPOAgent:
     #  策略动作选择
     def choose_action(self, state):
         state = torch.tensor(state).float().unsqueeze(0).to(self.device)
-        action = self.policy_net_new.get_action(state)[0].detach().cpu().numpy()
+        with torch.no_grad():
+            action = self.policy_net_new.get_action(state)[0].cpu().numpy()
         return action
 
     def learn(self):
         batch = self.memory.sample()
-        batch_state = torch.stack(batch.state, 0).to(self.device).squeeze(1)
-        batch_action = torch.stack(batch.action, 0).to(self.device).squeeze(1)
-        batch_reward = torch.stack(batch.reward, 0).to(self.device).squeeze(1)
-        batch_mask = torch.stack(batch.mask, 0).to(self.device).squeeze(1)
+        batch_state = torch.stack(batch.state, 0).to(self.device).squeeze(1).detach()
+        batch_action = torch.stack(batch.action, 0).to(self.device).squeeze(1).detach()
+        batch_reward = torch.stack(batch.reward, 0).to(self.device).squeeze(1).detach()
+        batch_mask = torch.stack(batch.mask, 0).to(self.device).squeeze(1).detach()
 
         with torch.no_grad():
             batch_values = self.value_net(batch_state)
@@ -63,20 +64,26 @@ class PPOAgent:
 
         batch_advantages, batch_returns = estimate_advantages(batch_reward, batch_mask, batch_values, self.gamma,
                                                               self.tau, self.device)
-        for _ in range(10):
-            self.ppo_step(self.policy_net_new, self.value_net, self.optimizer_p, self.optimizer_v, 1, batch_state,
-                          batch_action, batch_returns, batch_advantages, old_log_pi, self.clip_epsilon)
 
-            self.policy_net_old.load_state_dict(self.policy_net_new.state_dict())
+        v_loss, p_loss = self.ppo_step(self.policy_net_new, self.value_net, self.optimizer_p, self.optimizer_v, 1,
+                                       batch_state,
+                                       batch_action, batch_returns, batch_advantages, old_log_pi, self.clip_epsilon)
+
+        self.policy_net_old.load_state_dict(self.policy_net_new.state_dict())
+
+        return v_loss, p_loss
 
     def ppo_step(self, policy, value, opt_p, opt_v, iter_v, state, action, reward, advantage, old_log_pi, clip_epsilon):
         # update value net
         for i in range(iter_v):
-            opt_v.zero_grad()
 
             v = value(state)
             v_loss = nn.MSELoss()(v, reward)
+            # weight decay
+            for param in value.parameters():
+                v_loss += param.pow(2).sum() * 1e-3
 
+            opt_v.zero_grad()
             v_loss.backward()
             opt_v.step()
 
@@ -85,9 +92,11 @@ class PPOAgent:
         ratio = (log_pi - old_log_pi).exp()
         clipped_ratio = torch.clamp(ratio, 1 - clip_epsilon, 1 + clip_epsilon)
 
-        opt_p.zero_grad()
         p_loss = -torch.min(clipped_ratio * advantage, ratio * advantage).mean()
-        torch.nn.utils.clip_grad_norm_(policy.parameters(), 40)
 
+        opt_p.zero_grad()
+        torch.nn.utils.clip_grad_norm_(policy.parameters(), 40)
         p_loss.backward()
         opt_p.step()
+
+        return v_loss.item(), p_loss.item()
