@@ -12,8 +12,15 @@
 *PGs on MountainCar-v0*:
 
 <p float="left">
-    <img src="PolicyGradient/images/reinforce-mountaincar.gif" width="420"/>
-    <img src="PolicyGradient/images/Reinforce%20MountainCar-v0.png" width="420"/>
+    <img src="PolicyGradient/images/reinforce-mountaincar.gif" width="280"/>
+    <img src="PolicyGradient/images/Reinforce%20MountainCar-v0.png" width="280"/>
+    <img src="PolicyGradient/images/Reinforce%20with%20Baseline%20MountainCar-v0.png" width="280"/>
+</p>
+
+*Actor-Critics on MountainCar-v0*:
+
+<p float="left">
+    <img src="ActorCritic/imgs/Actor-Critic.png"/>
 </p>
 
 ## 1.算法列表
@@ -26,6 +33,9 @@
     - [REINFORCE][10]
     - [REINFORCE with Baseline][12]
 
+3. [Actor-Critic系列][13]
+    - [Actor-Critic][14]
+
 [1]: DQN
 [2]: DQN/NaiveDQN.py
 [3]: DQN/DoubleDQN.py
@@ -37,4 +47,10 @@
 [9]: PolicyGradient/images/Reinforce%20MountainCar-v0.png
 [10]: PolicyGradient/REINFORCE/REINFORCE.py
 [11]: PolicyGradient/images/reinforce-mountaincar.gif
+<<<<<<< HEAD
 [12]: PolicyGradient/REINFORCE/REINFORCE_BaseLine.py
+=======
+[12]: PolicyGradient/REINFORCE_BaseLine.py
+[13]: ActorCritic
+[14]: ActorCritic/Actor_Critic.py
+>>>>>>> 09f9946b06f6215fe2e0fa9f7bdb499eb28cab55
