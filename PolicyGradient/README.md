@@ -29,6 +29,8 @@
     <img src="images/Reinforce%20with%20Baseline%20MountainCar-v0.png" width="350"/>
 </p>
 
+可以看到，baseline 版本的reward曲线更加平稳，这就是baseline的重要作用：降低Value Net估计值的方差。
+
 [1]: https://arxiv.org/abs/1506.05254
 [2]: images/REINFORCE%20alg.png
 [3]: images/reinforce-mountaincar.gif
