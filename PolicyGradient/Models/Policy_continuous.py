@@ -3,8 +3,12 @@
 # Created at 2020/1/2 下午9:52
 import torch
 import torch.nn as nn
-from torch.distributions import Normal, MultivariateNormal
+from torch.distributions import MultivariateNormal
 
+def init_weight(m):
+    if isinstance(m, nn.Linear):
+        nn.init.xavier_normal_(m.weight)
+        nn.init.constant_(m.bias, 0.0)
 
 class Policy(nn.Module):
     def __init__(self, dim_state, dim_action, dim_hidden=128, activation=nn.LeakyReLU, log_std=0.0):
@@ -21,6 +25,7 @@ class Policy(nn.Module):
             activation(),
             nn.Linear(self.dim_hidden, self.dim_action)
         )
+        self.policy.apply(init_weight)
 
         self.log_std = nn.Parameter(torch.ones(1, self.dim_action) * log_std)
 
@@ -44,23 +49,3 @@ class Policy(nn.Module):
         log_prob = normal.log_prob(action)
         return log_prob
 
-
-class Value(nn.Module):
-    def __init__(self, dim_state, dim_hidden=128, activation=nn.LeakyReLU):
-        super(Value, self).__init__()
-
-        self.dim_state = dim_state
-        self.dim_hidden = dim_hidden
-
-        self.value = nn.Sequential(
-            nn.Linear(self.dim_state, self.dim_hidden),
-            activation(),
-            nn.Linear(self.dim_hidden, self.dim_hidden),
-            activation(),
-            nn.Linear(self.dim_hidden, 1)
-        )
-
-    def forward(self, x):
-        value = self.value(x)
-
-        return value

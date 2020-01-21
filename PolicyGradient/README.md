@@ -18,12 +18,16 @@
 ## 实践效果
 在gym的经典游戏MountainCar-v0中的表现：
 
-![3]
+<p float="left">
+    <img src="images/reinforce-mountaincar.gif" width="350"/>
+    <img src="images/Reinforce%20MountainCar-v0.png" width="350"/>
+</p>
 
-![4]
 
 - *REINFORCE with Baseline*
-![5]
+<p float="left">
+    <img src="images/Reinforce%20with%20Baseline%20MountainCar-v0.png" width="350"/>
+</p>
 
 [1]: https://arxiv.org/abs/1506.05254
 [2]: images/REINFORCE%20alg.png

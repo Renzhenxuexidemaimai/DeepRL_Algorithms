@@ -5,22 +5,15 @@ Transition = namedtuple('Transition', ('state', 'action', 'reward', 'next_state'
 
 
 class Memory(object):
-    def __init__(self, capacity):
-        self.capacity = capacity
+    def __init__(self):
         self.memory = []
-        self.position = 0
 
     # save item
     def push(self, *args):
-        if len(self.memory) <= self.position:
-            self.memory.append(None)
-
-        self.memory[self.position] = Transition(*args)
-        self.position = (self.position + 1) % self.capacity
+        self.memory.append(Transition(*args))
 
     def clear(self):
         self.memory.clear()
-        self.position = 0
 
     # sample a mini_batch
     def sample(self, batch_size=None):

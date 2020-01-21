@@ -7,31 +7,29 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 
 from PolicyGradient.PPO.ppo import PPOAgent
-from Utils.env_utils import get_env_space
+from Utils.env_utils import get_env_space, get_env_info
 
 
 @click.command()
-@click.option("--env_id", type=str, default="Ant-v2", help="Environment Id")
+@click.option("--env_id", type=str, default="MountainCar-v0", help="Environment Id")
 @click.option("--enable_gpu", type=bool, default=True, help='Use CUDA or not')
 @click.option("--lr_p", type=float, default=3e-4, help="Learning rate for Policy Net")
 @click.option("--lr_v", type=float, default=3e-4, help="Learning rate for Value Net")
 @click.option("--gamma", type=float, default=0.99, help="Discount factor")
 @click.option("--tau", type=float, default=0.95, help="GAE factor")
 @click.option("--render", type=bool, default=True, help="Render environment or not")
-@click.option("--epsilon", type=float, default=0.1, help="Clip rate for PPO")
+@click.option("--epsilon", type=float, default=0.2, help="Clip rate for PPO")
 @click.option("--batch_size", type=int, default=2048, help="Batch size")
 @click.option("--num_episodes", type=int, default=1000, help="Episodes to run")
 def main(env_id, enable_gpu, lr_p, lr_v, gamma, tau, render, epsilon, batch_size, num_episodes):
-    env, num_states, num_actions = get_env_space(env_id)
+    env, env_continuous, num_states, num_actions = get_env_info(env_id)
 
-    memory_size = 100000
-    agent = PPOAgent(num_states, num_actions, lr_p, lr_v, gamma, tau, epsilon, batch_size=batch_size,
-                     memory_size=memory_size, enable_gpu=enable_gpu)
+    agent = PPOAgent(num_states, num_actions, env_continuous, lr_p, lr_v, gamma, tau, epsilon, batch_size=batch_size,
+                     enable_gpu=enable_gpu)
 
     iterations_, rewards_ = [], []
 
     for i in range(num_episodes):
-        print(f"episode {i}")
         state = env.reset()
         episode_reward = 0
         for step in range(10000):
@@ -39,9 +37,8 @@ def main(env_id, enable_gpu, lr_p, lr_v, gamma, tau, render, epsilon, batch_size
                 env.render()
             action = agent.choose_action(state)
             next_state, reward, done, info = env.step(action)
-
             agent.memory.push(torch.tensor([state]).float(),
-                              torch.tensor([action]).float(),
+                              torch.tensor(action),
                               torch.tensor([reward]).float(),
                               torch.tensor([next_state]).float(),
                               torch.tensor([0]).float() if done else torch.tensor([1]).float())

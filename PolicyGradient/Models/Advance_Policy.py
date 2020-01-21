@@ -14,27 +14,31 @@ class AdvancePolicy(nn.Module):
     Q_value 网络的输出为 1
     """
 
-    def __init__(self, n_input, n_output, is_value=False):
+    def __init__(self, n_state, n_action, n_hidden=128):
         super(AdvancePolicy, self).__init__()
 
-        self.is_value = is_value
-
         self.common = nn.Sequential(
-            nn.Linear(n_input, 128),
-            nn.LeakyReLU(),
-            nn.Linear(128, n_output)
+            nn.Linear(n_state, n_hidden),
+            nn.LeakyReLU()
         )
 
         self.policy = nn.Sequential(
+            nn.Linear(n_hidden, n_action),
             nn.Softmax(dim=1)
+        )
+        self.value = nn.Sequential(
+            nn.Linear(n_hidden, 1),
         )
 
         self.apply(init_weight)
 
     def forward(self, x):
-        x = self.common(x)
+        return self.common(x)
 
-        if not self.is_value:
-            x = self.policy(x)
+    def get_action_probs(self, state):
+        common = self.forward(state)
+        return self.policy(common)
 
-        return x
+    def get_value(self, state):
+        common = self.forward(state)
+        return self.value(common)

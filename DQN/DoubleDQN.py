@@ -15,7 +15,6 @@ class DoubleDQN:
                  gamma=0.90,
                  batch_size=128,
                  epsilon=0.90,
-                 memory_size=20000,
                  update_target_gap=50,
                  enable_gpu=False):
 
@@ -31,7 +30,7 @@ class DoubleDQN:
 
         self.num_learn_step = 0
 
-        self.memory = Memory(memory_size)
+        self.memory = Memory()
         self.eval_net, self.target_net = MLPPolicy(num_states, num_actions).to(self.device), MLPPolicy(num_states,
                                                                                                        num_actions).to(
             self.device)
