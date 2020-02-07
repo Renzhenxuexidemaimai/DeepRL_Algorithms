@@ -26,5 +26,4 @@ class Value(nn.Module):
 
     def forward(self, x):
         value = self.value(x)
-
         return value

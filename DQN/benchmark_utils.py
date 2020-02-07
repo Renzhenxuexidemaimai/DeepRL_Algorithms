@@ -19,16 +19,13 @@ class Bechmark:
         env, num_states, num_actions = get_env_space(env_id)
 
         if alg_id == 'DQN':
-            agent = NaiveDQN(gamma=0.99, num_states=num_states, num_actions=num_actions, enable_gpu=enalbe_gpu,
-                             memory_size=memory_size)
+            agent = NaiveDQN(gamma=0.99, num_states=num_states, num_actions=num_actions, enable_gpu=enalbe_gpu)
 
         elif alg_id == 'DoubleDQN':
-            agent = DoubleDQN(gamma=0.99, num_states=num_states, num_actions=num_actions, enable_gpu=enalbe_gpu,
-                              memory_size=memory_size)
+            agent = DoubleDQN(gamma=0.99, num_states=num_states, num_actions=num_actions, enable_gpu=enalbe_gpu)
 
         elif alg_id == 'DuelingDQN':
-            agent = DuelingDQN(gamma=0.99, num_states=num_states, num_actions=num_actions, enable_gpu=enalbe_gpu,
-                               memory_size=memory_size)
+            agent = DuelingDQN(gamma=0.99, num_states=num_states, num_actions=num_actions, enable_gpu=enalbe_gpu)
 
         iterations_, rewards_ = [], []
         # 迭代所有episodes进行采样
