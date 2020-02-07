@@ -9,13 +9,15 @@
     <img src="DQN/images/DuelingDQN.png" width="280"/>
 </p>
 
-*PGs on MountainCar-v0*:
+*REINFORCE on MountainCar-v0*:
 
 <p float="left">
     <img src="PolicyGradient/images/reinforce-mountaincar.gif" width="280"/>
     <img src="PolicyGradient/images/Reinforce%20MountainCar-v0.png" width="280"/>
     <img src="PolicyGradient/images/Reinforce%20with%20Baseline%20MountainCar-v0.png" width="280"/>
 </p>
+
+*PPO on BipedalWalker-v2*:
 
 <p float="left">
     <img src="PolicyGradient/images/ppo-bipedalWalker-v2.gif" width="280"/>

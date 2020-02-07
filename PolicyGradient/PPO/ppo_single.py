@@ -287,7 +287,7 @@ def main():
               f"min reward: {log['min_episode_reward']: .4f}, max reward: {log['max_episode_reward']: .4f}, "
               f"average reward: {log['avg_reward']: .4f}, sample time: {log['sample_time']: .4f}")
 
-        writer.add_scalar("reward", log['max_episode_reward'], iter)
+        writer.add_scalar("PPO", log['max_episode_reward'], iter)
 
         torch.cuda.empty_cache()
 

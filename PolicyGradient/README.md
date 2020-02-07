@@ -48,6 +48,7 @@ PPO能胜任较为复杂的控制任务，在[Mujoco][8]环境中已经能获得
 
 PPO是对TRPO的变种，其优化目标是 Surrogate Loss:
 ![7]
+
 其中 $\epsilon$ 是参数，一般取`0.1 - 0.2`，该目标确保更新策略参数靠近原策略参数，这也就是Proximal的来源。
 
 其算法流程如下:
@@ -65,7 +66,7 @@ PPO是对TRPO的变种，其优化目标是 Surrogate Loss:
 一般用`Mujoco`测试PPO, 但本机上没法装`Mujoco`，等之后在更新吧 :(
 
 实现了基于[`mini_batch`][11]和[`double policy`][12]两个版本，但`double policy`的版本似乎有BUG，没法得到策略效果，
-目前还没没查出来 :(
+目前还没查出来 :(
 
 #### 训练
 
