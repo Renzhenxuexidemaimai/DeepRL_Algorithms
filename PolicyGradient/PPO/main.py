@@ -21,7 +21,7 @@ from PolicyGradient.PPO.ppo_mini_batch import PPO_Minibatch
 @click.option("--tau", type=float, default=0.95, help="GAE factor")
 @click.option("--epsilon", type=float, default=0.2, help="Clip rate for PPO")
 @click.option("--batch_size", type=int, default=4096, help="Batch size")
-@click.option("--mini_batch", type=bool, default=False, help="Update by mini-batch strategy")
+@click.option("--mini_batch", type=bool, default=True, help="Update by mini-batch strategy")
 @click.option("--ppo_mini_batch_size", type=int, default=64, help="PPO mini-batch size")
 @click.option("--ppo_epochs", type=int, default=10, help="PPO step")
 @click.option("--max_iter", type=int, default=500, help="Maximum iterations to run")

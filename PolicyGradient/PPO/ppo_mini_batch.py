@@ -111,7 +111,7 @@ class PPO_Minibatch:
               f"average reward: {log['avg_reward']: .4f}, sample time: {log['sample_time']: .4f}")
 
         # record reward information
-        writer.add_scalars("PPO",
+        writer.add_scalars("PPO_mini_batch",
                            {"total reward": log['total_reward'],
                             "average reward": log['avg_reward'],
                             "min reward": log['min_episode_reward'],

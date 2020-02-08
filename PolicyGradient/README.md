@@ -61,6 +61,7 @@ PPO是对TRPO的变种，其优化目标是 Surrogate Loss:
 <p float="left">
     <img src="images/ppo-bipedalWalker-v2.gif" width="350"/>
     <img src="images/PPO%20BipedalWalker-v2.png" width="350"/>
+    <img src="images/PPO-mini_batch%20BipedalWalker-v2.png" width="350">
 </p>
 
 一般用`Mujoco`测试PPO, 但本机上没法装`Mujoco`，等之后在更新吧 :(

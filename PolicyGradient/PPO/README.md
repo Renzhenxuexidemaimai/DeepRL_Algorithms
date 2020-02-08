@@ -35,10 +35,10 @@ Options:
 训练好的模型保存在[trained_models][7]下, 执行[test.py][5]加载对应的模型以测试模型性能。其命令行参数与[main.py][3]基本一致。
 
 
-[1]: PPO/ppo_mini_batch.py
-[2]: PPO/ppo.py
-[3]: PPO/main.py
+[1]: ppo_mini_batch.py
+[2]: ppo.py
+[3]: main.py
 [4]: https://click.palletsprojects.com/en/7.x/
-[5]: PPO/test.py
+[5]: test.py
 [6]: https://gym.openai.com/envs/BipedalWalker-v2/
-[7]: PPO/trained_models
+[7]: trained_models
