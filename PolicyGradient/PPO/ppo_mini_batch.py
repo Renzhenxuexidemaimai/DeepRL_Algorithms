@@ -50,20 +50,17 @@ class PPO_Minibatch:
 
         self._init_model()
 
-    """init model from parameters"""
-
     def _init_model(self):
+        """init model from parameters"""
         self.env, env_continuous, num_states, num_actions = get_env_info(self.env_id)
         # seeding
         torch.manual_seed(self.seed)
         self.env.seed(self.seed)
 
         if self.model_path:
-            print("Loading Saved Model ....")
+            print("Loading Saved Model {}_ppo_mini.p".format(self.env_id))
             self.policy_net, self.value_net, self.running_state = pickle.load(
                 open('{}/{}_ppo_mini.p'.format(self.model_path, self.env_id), "rb"))
-            # self.policy_net.load_state_dict(torch.load(f"{self.model_path}/ppo_mini_policy.pth"))
-            # self.value_net.load_state_dict(torch.load(f"{self.model_path}/ppo_mini_value.pth"))
         else:
             if env_continuous:
                 self.policy_net = Policy(num_states, num_actions).to(device)
@@ -80,17 +77,15 @@ class PPO_Minibatch:
         self.optimizer_p = optim.Adam(self.policy_net.parameters(), lr=self.lr_p)
         self.optimizer_v = optim.Adam(self.value_net.parameters(), lr=self.lr_v)
 
-    """select action according to policy"""
-
     def choose_action(self, state):
+        """select action according to policy"""
         state = FLOAT(state).unsqueeze(0).to(device)
         with torch.no_grad():
             action, log_prob = self.policy_net.get_action_log_prob(state)
         return action, log_prob
 
-    """evaluate current model"""
-
     def eval(self, i_iter):
+        """evaluate current model"""
         state = self.env.reset()
         test_reward = 0
         while True:
@@ -107,9 +102,8 @@ class PPO_Minibatch:
         print(f"Iter: {i_iter}, test Reward: {test_reward}")
         self.env.close()
 
-    """learn model"""
-
     def learn(self, writer, i_iter):
+        """learn model"""
         memory, log = self.collector.collect_samples(self.min_batch_size)
 
         print(f"Iter: {i_iter}, num steps: {log['num_steps']}, total reward: {log['total_reward']: .4f}, "
@@ -158,10 +152,7 @@ class PPO_Minibatch:
 
         return v_loss, p_loss
 
-    """save model"""
-
     def save(self, save_path):
+        """save model"""
         pickle.dump((self.policy_net, self.value_net, self.running_state),
                     open('{}/{}_ppo_mini.p'.format(save_path, self.env_id), 'wb'))
-        # torch.save(self.policy_net.state_dict(), f"{save_path}/ppo_mini_policy.pth")
-        # torch.save(self.value_net.state_dict(), f"{save_path}/ppo_mini_value.pth")

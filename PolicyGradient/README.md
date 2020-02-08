@@ -56,7 +56,7 @@ PPO是对TRPO的变种，其优化目标是 Surrogate Loss:
 
 #### 实践效果
 
-在gym的Box2d环境下[`BipedalWalker-v2`][16]中的表现(参数方面我参照了比较官方的参数）：
+在gym的Box2d环境下[BipedalWalker-v2][16]中的表现(参数方面我参照了比较官方的参数）：
 
 <p float="left">
     <img src="images/ppo-bipedalWalker-v2.gif" width="350"/>
@@ -65,8 +65,9 @@ PPO是对TRPO的变种，其优化目标是 Surrogate Loss:
 
 一般用`Mujoco`测试PPO, 但本机上没法装`Mujoco`，等之后在更新吧 :(
 
-实现了基于[mini_batch][11]和[double policy][12]两个版本;两个版本的区别在于更新的策略。
+实现了基于[mini_batch][11]和[double policy][12]两个版本,两个版本的区别在于更新的策略。
 
+两者在性能上还是有一定的差异的, 从两者在BipedalWalker-v2上的表现来看,[double policy][12]更稳定。
 
 [1]: https://arxiv.org/abs/1506.05254
 [2]: images/REINFORCE%20alg.png

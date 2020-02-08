@@ -46,30 +46,28 @@ class PPO:
         self.seed = seed
         self._init_model()
 
-    """init model from parameters"""
-
     def _init_model(self):
+        """init model from parameters"""
         self.env, env_continuous, num_states, num_actions = get_env_info(self.env_id)
 
         # seeding
         torch.manual_seed(self.seed)
         self.env.seed(self.seed)
 
-        if self.model_path:
-            print("Loading Saved Model ....")
-            self.policy_net, self.value_net, self.running_state = pickle.load(
-                open('{}/{}_ppo_mini.p'.format(self.model_path, self.env_id), "rb"))
-            # self.policy_net.load_state_dict(torch.load(f"{self.model_path}/ppo_policy.pth"))
-            # self.value_net.load_state_dict(torch.load(f"{self.model_path}/ppo_value.pth"))
+        if env_continuous:
+            self.policy_net = Policy(num_states, num_actions).to(device)  # current policy
+            self.policy_net_old = Policy(num_states, num_actions).to(device)  # old policy
         else:
-            if env_continuous:
-                self.policy_net = Policy(num_states, num_actions).to(device)  # current policy
-                self.policy_net_old = Policy(num_states, num_actions).to(device)  # old policy
-            else:
-                self.policy_net = DiscretePolicy(num_states, num_actions).to(device)
-                self.policy_net_old = DiscretePolicy(num_states, num_actions).to(device)
-            self.value_net = Value(num_states).to(device)
-            self.running_state = ZFilter((num_states,), clip=5)
+            self.policy_net = DiscretePolicy(num_states, num_actions).to(device)
+            self.policy_net_old = DiscretePolicy(num_states, num_actions).to(device)
+
+        self.value_net = Value(num_states).to(device)
+        self.running_state = ZFilter((num_states,), clip=5)
+
+        if self.model_path:
+            print("Loading Saved Model {}_ppo.p".format(self.env_id))
+            self.policy_net, self.value_net, self.running_state = pickle.load(
+                open('{}/{}_ppo.p'.format(self.model_path, self.env_id), "rb"))
 
         self.policy_net_old.load_state_dict(self.policy_net.state_dict())
         self.collector = MemoryCollector(self.env, self.policy_net_old, render=self.render,
@@ -79,17 +77,15 @@ class PPO:
         self.optimizer_p = optim.Adam(self.policy_net.parameters(), lr=self.lr_p)
         self.optimizer_v = optim.Adam(self.value_net.parameters(), lr=self.lr_v)
 
-    """select action"""
-
     def choose_action(self, state):
+        """select action"""
         state = FLOAT(state).unsqueeze(0).to(device)
         with torch.no_grad():
             action, log_prob = self.policy_net.get_action_log_prob(state)
         return action, log_prob
 
-    """init model from parameters"""
-
     def eval(self, i_iter):
+        """init model from parameters"""
         state = self.env.reset()
         test_reward = 0
         while True:
@@ -106,9 +102,8 @@ class PPO:
         print(f"Iter: {i_iter}, test Reward: {test_reward}")
         self.env.close()
 
-    """learn model"""
-
     def learn(self, writer, i_iter):
+        """learn model"""
         memory, log = self.collector.collect_samples(self.min_batch_size)
 
         print(f"Iter: {i_iter}, num steps: {log['num_steps']}, total reward: {log['total_reward']: .4f}, "
@@ -146,10 +141,7 @@ class PPO:
         self.policy_net_old.load_state_dict(self.policy_net.state_dict())
         return v_loss, p_loss
 
-    """save model"""
-
     def save(self, save_path):
+        """save model"""
         pickle.dump((self.policy_net, self.value_net, self.running_state),
                     open('{}/{}_ppo.p'.format(save_path, self.env_id), 'wb'))
-        # torch.save(self.policy_net.state_dict(), f"{save_path}/ppo_policy.pth")
-        # torch.save(self.value_net.state_dict(), f"{save_path}/ppo_value.pth")
