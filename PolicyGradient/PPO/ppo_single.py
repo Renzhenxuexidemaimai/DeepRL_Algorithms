@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.optim as opt
 from gym.spaces import Discrete
-from torch.distributions import MultivariateNormal, Categorical
+from torch.distributions import MultivariateNormal, Categorical, Normal
 from torch.utils.tensorboard import SummaryWriter
 
 from Common.MemoryCollector import MemoryCollector
@@ -52,7 +52,8 @@ class ActorContinuous(nn.Module):
         action_log_std = self.action_log_std.expand_as(action_mean)
         action_std = torch.exp(action_log_std)
 
-        dist = MultivariateNormal(action_mean, torch.diag_embed(action_std))
+        # dist = MultivariateNormal(action_mean, torch.diag_embed(action_std))
+        dist = Normal(action_mean, action_std)
         return dist
 
     def get_action_log_prob(self, states):

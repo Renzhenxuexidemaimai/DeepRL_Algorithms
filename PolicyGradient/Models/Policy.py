@@ -14,10 +14,10 @@ def init_weight(m):
         nn.init.constant_(m.bias, 0.0)
 
 
-class ContinuousPolicy(BasePolicy):
+class Policy(BasePolicy):
 
     def __init__(self, dim_state, dim_action, dim_hidden=128, activation=nn.LeakyReLU, log_std=0):
-        super(ContinuousPolicy, self).__init__(dim_state, dim_action, dim_hidden)
+        super(Policy, self).__init__(dim_state, dim_action, dim_hidden)
 
         self.policy = nn.Sequential(
             nn.Linear(self.dim_state, self.dim_hidden),
@@ -35,8 +35,7 @@ class ContinuousPolicy(BasePolicy):
         mean = self.policy(x)
         log_std = self.log_std.expand_as(mean)
         std = torch.exp(log_std)
-        dist = MultivariateNormal(mean, torch.diag_embed(std))
-        # dist = Normal(mean, std) # 收敛更快
+        dist = Normal(mean, std) # 收敛更快
         return dist
 
     def get_log_prob(self, state, action):

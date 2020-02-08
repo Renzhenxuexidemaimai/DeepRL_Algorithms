@@ -56,7 +56,7 @@ PPO是对TRPO的变种，其优化目标是 Surrogate Loss:
 
 #### 实践效果
 
-在gym的Box2d环境下[`BipedalWalker-v2`][16]中的表现(可能算法还有细节上的BUG, 收敛速度较慢, 参数方面我参照了比较官方的参数）：
+在gym的Box2d环境下[`BipedalWalker-v2`][16]中的表现(参数方面我参照了比较官方的参数）：
 
 <p float="left">
     <img src="images/ppo-bipedalWalker-v2.gif" width="350"/>
@@ -70,11 +70,11 @@ PPO是对TRPO的变种，其优化目标是 Surrogate Loss:
 
 #### 训练
 
-执行[main.py][13], 使用[click][14]解析命令行参数, 因此也可以使用命令行配置参数。
+训练PPO的主要代码在[main.py][13], 使用[click][14]解析命令行参数, 因此也可以使用命令行配置参数。
 
 #### 测试
 
-加载已经训练好的模型,执行[test.py][14], 同样也可以使用命令行, 可以测试模型性能。
+训练好的模型保存在[trained_models]下, 执行执行[test.py][14]加载对应的模型, 以测试模型性能。
 
 [1]: https://arxiv.org/abs/1506.05254
 [2]: images/REINFORCE%20alg.png
@@ -92,3 +92,4 @@ PPO是对TRPO的变种，其优化目标是 Surrogate Loss:
 [14]: https://click.palletsprojects.com/en/7.x/
 [15]: PPO/test.py
 [16]: https://gym.openai.com/envs/BipedalWalker-v2/
+[17]: PPO/trained_models

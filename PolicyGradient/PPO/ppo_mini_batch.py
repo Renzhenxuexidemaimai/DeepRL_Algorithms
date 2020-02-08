@@ -10,6 +10,7 @@ import torch.optim as optim
 from Common.MemoryCollector import MemoryCollector
 from Common.GAE import estimate_advantages
 from PolicyGradient.Models.Policy_continuous import ContinuousPolicy
+from PolicyGradient.Models.Policy import Policy
 from PolicyGradient.Models.Policy_discontinuous import DiscretePolicy
 from PolicyGradient.Models.Value import Value
 from PolicyGradient.algorithms.ppo_step import ppo_step
@@ -66,7 +67,7 @@ class PPO_Minibatch:
             # self.value_net.load_state_dict(torch.load(f"{self.model_path}/ppo_mini_value.pth"))
         else:
             if env_continuous:
-                self.policy_net = ContinuousPolicy(num_states, num_actions).to(device)
+                self.policy_net = Policy(num_states, num_actions).to(device)
             else:
                 self.policy_net = DiscretePolicy(num_states, num_actions).to(device)
 
