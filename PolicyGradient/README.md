@@ -65,16 +65,8 @@ PPO是对TRPO的变种，其优化目标是 Surrogate Loss:
 
 一般用`Mujoco`测试PPO, 但本机上没法装`Mujoco`，等之后在更新吧 :(
 
-实现了基于[`mini_batch`][11]和[`double policy`][12]两个版本，但`double policy`的版本似乎有BUG，没法得到策略效果，
-目前还没查出来 :(
+实现了基于[mini_batch][11]和[double policy][12]两个版本;两个版本的区别在于更新的策略。
 
-#### 训练
-
-训练PPO的主要代码在[main.py][13], 使用[click][14]解析命令行参数, 因此也可以使用命令行配置参数。
-
-#### 测试
-
-训练好的模型保存在[trained_models]下, 执行执行[test.py][14]加载对应的模型, 以测试模型性能。
 
 [1]: https://arxiv.org/abs/1506.05254
 [2]: images/REINFORCE%20alg.png

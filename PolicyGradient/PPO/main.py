@@ -12,7 +12,7 @@ from PolicyGradient.PPO.ppo_mini_batch import PPO_Minibatch
 
 
 @click.command()
-@click.option("--env_id", type=str, default="MountainCar-v0", help="Environment Id")
+@click.option("--env_id", type=str, default="BipedalWalker-v2", help="Environment Id")
 @click.option("--render", type=bool, default=False, help="Render environment or not")
 @click.option("--num_process", type=int, default=1, help="Number of process to run environment")
 @click.option("--lr_p", type=float, default=3e-4, help="Learning rate for Policy Net")
@@ -21,10 +21,10 @@ from PolicyGradient.PPO.ppo_mini_batch import PPO_Minibatch
 @click.option("--tau", type=float, default=0.95, help="GAE factor")
 @click.option("--epsilon", type=float, default=0.2, help="Clip rate for PPO")
 @click.option("--batch_size", type=int, default=4096, help="Batch size")
-@click.option("--mini_batch", type=bool, default=True, help="Update by mini-batch strategy")
+@click.option("--mini_batch", type=bool, default=False, help="Update by mini-batch strategy")
 @click.option("--ppo_mini_batch_size", type=int, default=64, help="PPO mini-batch size")
 @click.option("--ppo_epochs", type=int, default=10, help="PPO step")
-@click.option("--max_iter", type=int, default=200, help="Maximum iterations to run")
+@click.option("--max_iter", type=int, default=500, help="Maximum iterations to run")
 @click.option("--eval_iter", type=int, default=50, help="Iterations to evaluate the model")
 @click.option("--save_iter", type=int, default=50, help="Iterations to save the model")
 @click.option("--model_path", type=str, default="trained_models", help="Directory to store model")

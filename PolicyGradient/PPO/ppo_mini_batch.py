@@ -9,7 +9,6 @@ import torch.optim as optim
 
 from Common.MemoryCollector import MemoryCollector
 from Common.GAE import estimate_advantages
-from PolicyGradient.Models.Policy_continuous import ContinuousPolicy
 from PolicyGradient.Models.Policy import Policy
 from PolicyGradient.Models.Policy_discontinuous import DiscretePolicy
 from PolicyGradient.Models.Value import Value

@@ -3,7 +3,7 @@
 # Created at 2020/1/2 下午9:52
 import torch
 import torch.nn as nn
-from torch.distributions import MultivariateNormal, Normal
+from torch.distributions import Normal
 
 from PolicyGradient.Models.BasePolicy import BasePolicy
 
