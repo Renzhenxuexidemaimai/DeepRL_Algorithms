@@ -20,9 +20,9 @@
 *PPO on BipedalWalker-v2*:
 
 <p float="left">
-    <img src="PolicyGradient/images/ppo-bipedalWalker-v2.gif" width="350"/>
-    <img src="PolicyGradient/images/PPO%20BipedalWalker-v2.png" width="350"/>
-    <img src="PolicyGradient/images/PPO-mini_batch%20BipedalWalker-v2.png" width="350">
+    <img src="PolicyGradient/images/ppo-bipedalWalker-v2.gif" width="280"/>
+    <img src="PolicyGradient/images/PPO%20BipedalWalker-v2.png" width="280"/>
+    <img src="PolicyGradient/images/PPO-mini_batch%20BipedalWalker-v2.png" width="280">
 </p>
 
 *Actor-Critics on MountainCar-v0*:
