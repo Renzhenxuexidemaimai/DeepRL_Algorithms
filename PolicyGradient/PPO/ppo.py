@@ -65,7 +65,10 @@ class PPOAgent:
         batch_advantages, batch_returns = estimate_advantages(batch_reward, batch_mask, batch_values, self.gamma,
                                                               self.tau, self.device)
 
-        v_loss, p_loss = self.ppo_step(self.policy_net_new, self.value_net, self.optimizer_p, self.optimizer_v, 1,
+        v_loss = torch.empty(1)
+        p_loss = torch.empty(1)
+        for _ in range(3):
+            v_loss, p_loss = self.ppo_step(self.policy_net_new, self.value_net, self.optimizer_p, self.optimizer_v, 1,
                                        batch_state,
                                        batch_action, batch_returns, batch_advantages, old_log_pi, self.clip_epsilon)
 

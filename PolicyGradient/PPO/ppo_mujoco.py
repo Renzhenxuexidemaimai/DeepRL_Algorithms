@@ -31,7 +31,6 @@ def main(env_id, enable_gpu, lr_p, lr_v, gamma, tau, render, epsilon, batch_size
     iterations_, rewards_ = [], []
 
     for i in range(num_episodes):
-        print(f"episode {i}")
         state = env.reset()
         episode_reward = 0
         for step in range(10000):
