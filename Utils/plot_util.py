@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 
+plt.style.use('bmh')
 
 class Plot(object):
     def __init__(self, refresh_time=0.01):

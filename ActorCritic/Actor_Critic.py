@@ -3,7 +3,7 @@ import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 from torch.distributions.categorical import Categorical
 
-from ActorCritic.Nets.Actor_Critic_Net import ActorCriticNet
+from ActorCritic.Models.Actor_Critic_Net import ActorCriticNet
 from Utils.env_utils import get_env_space
 
 
@@ -54,7 +54,7 @@ class ActorCritic:
 
         return action.item()
 
-    def update_episode(self):
+    def learn(self):
         self.calc_cumulative_rewards()
         assert len(self.cum_rewards) == len(self.values)
 
@@ -65,7 +65,7 @@ class ActorCritic:
         rewards = (rewards - rewards.mean()) / (rewards.std() + self.eps)
         advances = rewards - values
 
-        loss = -log_probs.mul(advances).mean() + advances.pow(2).mean()
+        loss = -(log_probs *advances).mean() + advances.pow(2).mean()
 
         self.optimizer.zero_grad()
         loss.backward()
@@ -108,6 +108,6 @@ if __name__ == '__main__':
                 print("episode: {} , the episode reward is {}".format(i, round(episode_reward, 3)))
                 break
 
-        agent.update_episode()
+        agent.learn()
 
     env.close()

@@ -44,7 +44,7 @@ class REINFORCE:
         # 对action进行采样,并计算log probability
         m = Categorical(probs)
         action = m.sample()
-        log_prob = -m.log_prob(action)
+        log_prob = m.log_prob(action)
         self.log_probs.append(log_prob)
         return action.item()
 
@@ -56,7 +56,7 @@ class REINFORCE:
         rewards = (rewards - rewards.mean()) / (rewards.std() + self.eps)
         # 梯度上升更新策略参数
 
-        loss = torch.cat(self.log_probs).mul(rewards).sum()
+        loss = - (torch.cat(self.log_probs) * rewards).mean()
 
         self.optimizer.zero_grad()
         loss.backward()
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     env, num_states, num_actions = get_env_space(env_id)
 
     agent = REINFORCE(num_states, num_actions, enable_gpu=True)
-    episodes = 400
+    episodes = 1000
 
     writer = SummaryWriter()
     iterations_ = []
@@ -95,12 +95,13 @@ if __name__ == '__main__':
 
             # 当前episode　结束
             if done:
-                iterations_.append(i)
-                rewards_.append(episode_reward)
-
-                writer.add_scalar(alg_id, episode_reward, i)
-                print("episode: {} , the episode reward is {}".format(i, round(episode_reward, 3)))
                 break
+
+        iterations_.append(i)
+        rewards_.append(episode_reward)
+
+        writer.add_scalar(alg_id, episode_reward, i)
+        print("Episode: {} , the episode reward is {}".format(i, round(episode_reward, 3)))
 
         agent.update_episode()
 

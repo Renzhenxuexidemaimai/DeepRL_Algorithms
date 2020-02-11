@@ -11,7 +11,7 @@ class REINFORCE_Baseline:
     def __init__(self,
                  num_states,
                  num_actions,
-                 learning_rate=0.002,
+                 learning_rate=0.005,
                  gamma=0.995,
                  eps=torch.finfo(torch.float32).eps,
                  enable_gpu=False
@@ -23,10 +23,8 @@ class REINFORCE_Baseline:
             self.device = torch.device("cpu")
 
         self.policy = AdvancePolicy(num_states, num_actions).to(self.device)
-        self.value = AdvancePolicy(num_states, 1, is_value=True).to(self.device)
 
         self.optimizer_policy = optim.Adam(self.policy.parameters(), lr=learning_rate)
-        self.optimizer_value = optim.Adam(self.value.parameters(), lr=learning_rate)
 
         self.gamma = gamma
         self.eps = eps
@@ -43,17 +41,17 @@ class REINFORCE_Baseline:
             self.cum_rewards.insert(0, R)
 
     def choose_action(self, state):
-        state = torch.tensor(state).unsqueeze(0).to(self.device).float()
-        probs = self.policy(state)
+        state = torch.tensor(state).float().unsqueeze(0).to(self.device)
+        probs = self.policy.get_action_probs(state)
 
         # 对action进行采样,并计算log probability
         m = Categorical(probs)
         action = m.sample()
-        log_prob = -m.log_prob(action)
+        log_prob = m.log_prob(action)
         self.log_probs.append(log_prob)
 
         # 计算 state 状态的 base 值函数
-        value = self.value(state)
+        value = self.policy.get_value(state)
         self.values.append(value)
 
         return action.item()
@@ -63,21 +61,13 @@ class REINFORCE_Baseline:
 
         assert len(self.cum_rewards) == len(self.values)
 
-        for k in range(len(self.cum_rewards)):
-            advances = torch.tensor(self.cum_rewards[k]).to(self.device) - self.values[k]
 
-            # 梯度上升更新策略参数
-            self.optimizer_policy.zero_grad()
-            loss_policy = self.log_probs[k] * advances
-            loss_policy.backward(retain_graph=True)
-
-            self.optimizer_policy.step()
-
-            # 梯度上升更新base_value参数
-            self.optimizer_value.zero_grad()
-            loss_advance = advances.pow(2)
-            loss_advance.backward(retain_graph=True)
-            self.optimizer_value.step()
+        advances = torch.tensor(self.cum_rewards).float().to(self.device) - torch.cat(self.values)
+        advances = (advances - advances.mean()) / (advances.std() + self.eps)
+        loss_policy = - (torch.cat(self.log_probs) * advances).mean() + advances.pow(2).mean()
+        self.optimizer_policy.zero_grad()
+        loss_policy.backward()
+        self.optimizer_policy.step()
 
         self.rewards.clear()
         self.log_probs.clear()
@@ -98,7 +88,7 @@ if __name__ == '__main__':
     writer = SummaryWriter()
 
     # 迭代所有episodes进行采样
-    for i in range(max_episodes):
+    for episode in range(max_episodes):
         # 当前episode开始
         state = env.reset()
         episode_reward = 0
@@ -113,9 +103,10 @@ if __name__ == '__main__':
 
             # 当前episode　结束
             if done:
-                writer.add_scalar(alg_id, episode_reward, i)
-                print("episode: {} , the episode reward is {}".format(i, round(episode_reward, 3)))
                 break
+
+        writer.add_scalar(alg_id, episode_reward, episode)
+        print("Episode: {} , the episode reward is {}".format(episode, round(episode_reward, 3)))
 
         agent.update_episode()
 
