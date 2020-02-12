@@ -116,6 +116,7 @@ class PPO_Minibatch:
                             "average reward": log['avg_reward'],
                             "min reward": log['min_episode_reward'],
                             "max reward": log['max_episode_reward'],
+                            "num steps": log['num_steps']
                             }, i_iter)
 
         batch = memory.sample()  # sample all items in memory

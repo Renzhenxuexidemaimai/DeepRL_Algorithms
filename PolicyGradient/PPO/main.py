@@ -20,18 +20,19 @@ from PolicyGradient.PPO.ppo_mini_batch import PPO_Minibatch
 @click.option("--gamma", type=float, default=0.99, help="Discount factor")
 @click.option("--tau", type=float, default=0.95, help="GAE factor")
 @click.option("--epsilon", type=float, default=0.2, help="Clip rate for PPO")
-@click.option("--batch_size", type=int, default=4096, help="Batch size")
+@click.option("--batch_size", type=int, default=3000, help="Batch size")
 @click.option("--mini_batch", type=bool, default=True, help="Update by mini-batch strategy")
 @click.option("--ppo_mini_batch_size", type=int, default=64, help="PPO mini-batch size")
 @click.option("--ppo_epochs", type=int, default=10, help="PPO step")
-@click.option("--max_iter", type=int, default=500, help="Maximum iterations to run")
+@click.option("--max_iter", type=int, default=1000, help="Maximum iterations to run")
 @click.option("--eval_iter", type=int, default=50, help="Iterations to evaluate the model")
 @click.option("--save_iter", type=int, default=50, help="Iterations to save the model")
 @click.option("--model_path", type=str, default="trained_models", help="Directory to store model")
+@click.option("--log_path", type=str, default="log/", help="Directory to save logs")
 @click.option("--seed", type=int, default=1, help="Seed for reproducing")
 def main(env_id, render, num_process, lr_p, lr_v, gamma, tau, epsilon, batch_size, mini_batch,
-         ppo_mini_batch_size, ppo_epochs, max_iter, eval_iter, save_iter, model_path, seed):
-    writer = SummaryWriter()
+         ppo_mini_batch_size, ppo_epochs, max_iter, eval_iter, save_iter, model_path, log_path, seed):
+    writer = SummaryWriter(log_path+env_id+"/ppo_minibatch" if mini_batch else log_path+env_id+"/ppo")
 
     if mini_batch:
         ppo = PPO_Minibatch(env_id, render, num_process, batch_size, lr_p, lr_v, gamma, tau, epsilon,
