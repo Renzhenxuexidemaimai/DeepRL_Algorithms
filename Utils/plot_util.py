@@ -1,22 +1,120 @@
+import traceback
+
+import seaborn as sns
+import pandas as pd
 import matplotlib.pyplot as plt
+import os
+import numpy as np
+from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 
-plt.style.use('bmh')
+DEFAULT_SIZE_GUIDANCE = {
+    "scalars": 0,
+}
 
-class Plot(object):
-    def __init__(self, refresh_time=0.01):
-        _, self.fig = plt.subplots()
-        self.refresh_time = refresh_time
-        plt.ion()
-        plt.show()
+sns.set(style="darkgrid", font_scale=1.5)
 
-    def set_label_and_title(self, x_label=None, y_label=None, title=None):
-        self.fig.set_xlabel(x_label)
-        self.fig.set_ylabel(y_label)
-        self.fig.set_title(title)
 
-    def add_plot(self, x_data, y_data, color, label=None, **kw_args):
-        self.fig.cla()
-        self.fig.plot(x_data, y_data, label=label, c=color)
-        self.set_label_and_title(**kw_args)
-        plt.pause(self.refresh_time)
-        plt.legend()
+# plt.style.use('bmh')
+
+
+def plot_data(data, xaxis='num steps', value="average reward", hue="algorithm", smooth=1, ax=None, **kwargs):
+    if smooth > 1:
+        """
+        smooth data with moving window average.
+        that is,
+            smoothed_y[t] = average(y[t-k], y[t-k+1], ..., y[t+k-1], y[t+k])
+        where the "smooth" param is width of that window (2k+1)
+        """
+        y = np.ones(smooth)
+        for datum in data:
+            x = np.asarray(datum[value])
+            z = np.ones(len(x))
+            smoothed_x = np.convolve(x, y, 'same') / np.convolve(z, y, 'same')
+            datum[value] = smoothed_x
+
+    if isinstance(data, list):
+        data = pd.concat(data, ignore_index=True)
+
+    sns.lineplot(data=data, x=xaxis, y=value, hue=hue, ci='sd', ax=ax, **kwargs)
+
+    ax.legend(loc='best').set_draggable(True)
+    """Spining up style"""
+    # plt.legend(loc='upper center', ncol=6, handlelength=1,
+    #            mode="expand", borderaxespad=0.02, prop={'size': 13})
+
+    xscale = np.max(np.asarray(data[xaxis])) > 5e3
+    if xscale:
+        # Just some formatting niceness: x-axis scale in scientific notation if max x is large
+        ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
+    plt.tight_layout(pad=1.2)
+
+
+def load_event_scalars(log_path):
+    feature = log_path.split(os.sep)[-1]
+    print(f"Processing logfile: {log_path}")
+    try:
+        event_acc = EventAccumulator(log_path, DEFAULT_SIZE_GUIDANCE)
+        event_acc.Reload()
+        tags = event_acc.Tags()["scalars"]
+        for tag in tags:
+            event_list = event_acc.Scalars(tag)
+            values = list(map(lambda x: x.value, event_list))
+            step = list(map(lambda x: x.step, event_list))
+            df = pd.DataFrame({feature: values}, index=step)
+    # Dirty catch of DataLossError
+    except:
+        print("Event file possibly corrupt: {}".format(log_path))
+        traceback.print_exc()
+    return df
+
+
+def get_env_alg_log(log_path):
+    alg = log_path.split(os.sep)[-1]
+    feature = lambda x: os.path.join(log_path, x)
+    alg_features = [feature(fea) for fea in os.listdir(log_path)]
+    df = pd.concat([load_event_scalars(feature) for feature in alg_features if os.path.isdir(feature)], axis=1)
+    df["num steps"] = df["num steps"].cumsum()
+    df["algorithm"] = [alg] * df.shape[0]
+    return df
+
+
+def get_all_logs(log_dir="../log/", xaxis="num steps", values=None, hue="algorithm"):
+    if values is None:
+        values = ['min reward', 'average reward', 'max reward']
+    basedir = os.path.dirname(log_dir)
+    fulldir = lambda x: os.path.join(basedir, x)
+    listdir = os.listdir(basedir)
+    envs_logdirs = sorted([fulldir(x) for x in listdir])
+    envs_fulldir = lambda env_dir, alg_dir: os.path.join(env_dir, alg_dir)
+
+    for value in values:
+        for env_dir in envs_logdirs:
+            fig, axes = plt.subplots(2, 3, figsize=(16, 8))
+            k = 0
+            env = env_dir.split(os.sep)[-1]
+            env_alg_dirs = sorted(
+                [envs_fulldir(env_dir, alg_dir) for alg_dir in os.listdir(env_dir)])
+            env_log_df = pd.concat([get_env_alg_log(env_alg_dir) for env_alg_dir in env_alg_dirs], sort=True)
+            make_plot(data=env_log_df, xaxis=xaxis, value=value, title=env, hue=hue, ax=axes[k // 3][k % 3])
+            k += 1
+
+
+def make_plot(data, xaxis=None, value=None, title=None, hue=None, smooth=1, estimator='mean', ax=None):
+    estimator = getattr(np, estimator)
+    plot_data(data, xaxis=xaxis, value=value, hue=hue, smooth=smooth, ax=ax, estimator=estimator)
+    if title:
+        ax.set_title(title)
+    plt.show()
+
+
+def main():
+    """
+    1.遍历所有环境, 对每个环境下所有算法的log信息进行绘图
+    2.对每个环境下的所有算法数据载入一个 data frame
+    :return:
+    """
+    get_all_logs()
+
+
+if __name__ == "__main__":
+    main()

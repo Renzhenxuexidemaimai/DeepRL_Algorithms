@@ -49,6 +49,7 @@ class Policy(BasePolicy):
         log_prob = dist.log_prob(action)
         return action, log_prob
 
+
     def get_entropy(self, states):
         dist = self.forward(states)
         return dist.entropy()
