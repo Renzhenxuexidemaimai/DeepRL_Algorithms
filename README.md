@@ -27,7 +27,7 @@
 
 *PPO on Mujoco*:
 
-![20]
+![16]
 
 *Actor-Critics on MountainCar-v0*:
 
