@@ -25,6 +25,10 @@
     <img src="PolicyGradient/images/PPO-mini_batch%20BipedalWalker-v2.png" width="280">
 </p>
 
+*PPO on Mujoco*:
+
+![20]
+
 *Actor-Critics on MountainCar-v0*:
 
 <p float="left">
