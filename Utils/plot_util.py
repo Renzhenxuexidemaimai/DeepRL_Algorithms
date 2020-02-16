@@ -133,5 +133,5 @@ def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='
 
 
 if __name__ == "__main__":
-    filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] == "PPO"
-    main(alg_filter_func=filter_func)
+    # filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] == "PPO"
+    main()
