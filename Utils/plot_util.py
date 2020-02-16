@@ -1,5 +1,6 @@
 import traceback
 
+import click
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -11,13 +12,11 @@ DEFAULT_SIZE_GUIDANCE = {
     "scalars": 0,
 }
 
-sns.set(style="darkgrid", font_scale=1.5)
+sns.set(style="darkgrid", font_scale=1.2)
 
 
 # plt.style.use('bmh')
-
-
-def plot_data(data, xaxis='num steps', value="average reward", hue="algorithm", smooth=1, ax=None, **kwargs):
+def plot_data(data, x_axis='num steps', y_axis="average reward", hue="algorithm", smooth=1, ax=None, **kwargs):
     if smooth > 1:
         """
         smooth data with moving window average.
@@ -27,22 +26,21 @@ def plot_data(data, xaxis='num steps', value="average reward", hue="algorithm", 
         """
         y = np.ones(smooth)
         for datum in data:
-            x = np.asarray(datum[value])
+            x = np.asarray(datum[y_axis])
             z = np.ones(len(x))
             smoothed_x = np.convolve(x, y, 'same') / np.convolve(z, y, 'same')
-            datum[value] = smoothed_x
+            datum[y_axis] = smoothed_x
 
     if isinstance(data, list):
         data = pd.concat(data, ignore_index=True)
 
-    sns.lineplot(data=data, x=xaxis, y=value, hue=hue, ci='sd', ax=ax, **kwargs)
-
+    sns.lineplot(data=data, x=x_axis, y=y_axis, hue=hue, ci='sd', ax=ax, **kwargs)
     ax.legend(loc='best').set_draggable(True)
     """Spining up style"""
     # plt.legend(loc='upper center', ncol=6, handlelength=1,
     #            mode="expand", borderaxespad=0.02, prop={'size': 13})
 
-    xscale = np.max(np.asarray(data[xaxis])) > 5e3
+    xscale = np.max(np.asarray(data[x_axis])) > 5e3
     if xscale:
         # Just some formatting niceness: x-axis scale in scientific notation if max x is large
         ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
@@ -69,52 +67,71 @@ def load_event_scalars(log_path):
 
 
 def get_env_alg_log(log_path):
+    """
+    拆分Envxia
+    :param log_path:
+    :return:
+    """
     alg = log_path.split(os.sep)[-1]
-    feature = lambda x: os.path.join(log_path, x)
-    alg_features = [feature(fea) for fea in os.listdir(log_path)]
-    df = pd.concat([load_event_scalars(feature) for feature in alg_features if os.path.isdir(feature)], axis=1)
+    if alg.find("_") != -1:
+        alg = alg.rsplit("_", maxsplit=1)[0]
+    env_alg_fulldir = lambda x: os.path.join(log_path, x)
+    alg_features = [env_alg_fulldir(fea) for fea in os.listdir(log_path) if os.path.isdir(env_alg_fulldir(fea))]
+    df = pd.concat([load_event_scalars(feature) for feature in alg_features], axis=1)
     df["num steps"] = df["num steps"].cumsum()
     df["algorithm"] = [alg] * df.shape[0]
     return df
 
 
-def get_all_logs(log_dir="../log/", xaxis="num steps", values=None, hue="algorithm"):
-    if values is None:
-        values = ['min reward', 'average reward', 'max reward']
-    basedir = os.path.dirname(log_dir)
-    fulldir = lambda x: os.path.join(basedir, x)
-    listdir = os.listdir(basedir)
-    envs_logdirs = sorted([fulldir(x) for x in listdir])
+def get_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, alg_filter_func=None):
+    if y_axis is None:
+        y_axis = ['min reward', 'average reward', 'max reward', 'total reward']
+    basedir = os.path.dirname(log_dir)  # ../log/
+    fulldir = lambda x: os.path.join(basedir, x)  # ../log/Ant-v3/
+    envs_logdirs = sorted(
+        [fulldir(x) for x in os.listdir(basedir) if os.path.isdir(fulldir(x))])  # [../log/Ant-v3/, ../log/Hopper-v3/]
     envs_fulldir = lambda env_dir, alg_dir: os.path.join(env_dir, alg_dir)
-
-    for value in values:
+    for y_ax in y_axis:
+        k = 0
+        fig, axes = plt.subplots(2, 3, figsize=(16, 8))
         for env_dir in envs_logdirs:
-            fig, axes = plt.subplots(2, 3, figsize=(16, 8))
-            k = 0
+            ax = axes[k // 3][k % 3]
             env = env_dir.split(os.sep)[-1]
             env_alg_dirs = sorted(
-                [envs_fulldir(env_dir, alg_dir) for alg_dir in os.listdir(env_dir)])
-            env_log_df = pd.concat([get_env_alg_log(env_alg_dir) for env_alg_dir in env_alg_dirs], sort=True)
-            make_plot(data=env_log_df, xaxis=xaxis, value=value, title=env, hue=hue, ax=axes[k // 3][k % 3])
+                filter(os.path.isdir, [envs_fulldir(env_dir, alg_dir) for alg_dir in os.listdir(env_dir)]))
+            if alg_filter_func:
+                env_alg_dirs = sorted(filter(alg_filter_func, env_alg_dirs))
+            print(env_alg_dirs)
+            env_log_df = pd.concat(
+                [get_env_alg_log(env_alg_dir) for env_alg_dir in env_alg_dirs], sort=True)
+            make_plot(data=env_log_df, x_axis=x_axis, y_axis=y_ax, title=env, hue=hue, ax=ax)
             k += 1
-
-
-def make_plot(data, xaxis=None, value=None, title=None, hue=None, smooth=1, estimator='mean', ax=None):
-    estimator = getattr(np, estimator)
-    plot_data(data, xaxis=xaxis, value=value, hue=hue, smooth=smooth, ax=ax, estimator=estimator)
-    if title:
-        ax.set_title(title)
     plt.show()
 
 
-def main():
+def make_plot(data, x_axis=None, y_axis=None, title=None, hue=None, smooth=1, estimator='mean', ax=None):
+    estimator = getattr(np, estimator)
+    plot_data(data, x_axis=x_axis, y_axis=y_axis, hue=hue, smooth=smooth, ax=ax, estimator=estimator)
+    if title:
+        ax.set_title(title)
+
+
+# @click.command()
+# @click.option("--log_dir", type=str, default="../log/", help="Directory to load tensorboard logs")
+# @click.option("--x_axis", type=str, default="num steps", help="X axis data")
+# @click.option("--y_axis", type=list, default=["average reward"], help="Y axis data(can be multiple)")
+# @click.option("--hue", type=str, default="algorithm", help="Hue for legend")
+# def main(log_dir, x_axis, y_axis, hue):
+def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='algorithm', alg_filter_func=None):
     """
     1.遍历所有环境, 对每个环境下所有算法的log信息进行绘图
     2.对每个环境下的所有算法数据载入一个 data frame
     :return:
     """
-    get_all_logs()
+    get_all_logs(log_dir=log_dir, x_axis=x_axis, y_axis=y_axis, hue=hue,
+                 alg_filter_func=alg_filter_func)
 
 
 if __name__ == "__main__":
-    main()
+    filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] == "PPO"
+    main(alg_filter_func=filter_func)

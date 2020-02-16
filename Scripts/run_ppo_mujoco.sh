@@ -2,14 +2,17 @@
 
 #envs=(HalfCheetah-v3 Hopper-v3 Walker2d-v3 Swimmer-v3 Ant-v3)
 envs=(BipedalWalker-v2)
-max_iter=500
+seeds=10
+max_iter=1000
 for (( i = 0; i < ${#envs[@]}; ++i )); do
-      echo ============================================
-      echo starting Env: ${envs[$i]} -----
+      for (( j = 1; j <= seeds; ++j )); do
+          echo ============================================
+          echo starting Env: ${envs[$i]} ----- Exp_id $j
 
-      python -m PolicyGradient.PPO.main --env_id ${envs[$i]} --max_iter ${max_iter} --model_path PolicyGradient/PPO/trained_models
+          python -m PolicyGradient.PPO.main --env_id ${envs[$i]} --max_iter ${max_iter} --model_path PolicyGradient/PPO/trained_models --seed $j
 
-      echo finishing Env: ${envs[$i]} -----
-      echo ============================================
+          echo finishing Env: ${envs[$i]} ----- Exp_id $j
+          echo ============================================
+      done
 done
 

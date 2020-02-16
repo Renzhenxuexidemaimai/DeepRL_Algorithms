@@ -12,6 +12,7 @@ from Utils.torch_utils import device, FLOAT
 
 
 def collect_samples(pid, queue, env, policy, render, running_state, min_batch_size):
+    torch.randn(pid)
     log = dict()
     memory = Memory()
     num_steps = 0
@@ -45,12 +46,13 @@ def collect_samples(pid, queue, env, policy, render, running_state, min_batch_si
             mask = 0 if done else 1
             # ('state', 'action', 'reward', 'next_state', 'mask', 'log_prob')
             memory.push(state, action, reward, next_state, mask, log_prob)
-            if done:
+            num_steps += 1
+            if done or num_steps >= min_batch_size:
                 break
 
             state = next_state
 
-        num_steps += (t + 1)
+        # num_steps += (t + 1)
         num_episodes += 1
         total_reward += episode_reward
         min_episode_reward = min(episode_reward, min_episode_reward)
@@ -67,6 +69,7 @@ def collect_samples(pid, queue, env, policy, render, running_state, min_batch_si
         queue.put([pid, memory, log])
     else:
         return memory, log
+
 
 def merge_log(log_list):
     log = dict()
@@ -96,10 +99,11 @@ class MemoryCollector:
         workers = []
 
         # don't render other parallel processes
-        for i in range(self.num_process - 1):
+        for i in range(self.num_process):
             worker_args = (i + 1, queue, self.env, self.policy,
                            False, self.running_state, process_batch_size)
             workers.append(multiprocessing.Process(target=collect_samples, args=worker_args))
+
 
         for worker in workers:
             worker.start()

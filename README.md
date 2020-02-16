@@ -56,7 +56,7 @@
 [9]: PolicyGradient/images/Reinforce%20MountainCar-v0.png
 [10]: PolicyGradient/REINFORCE/REINFORCE.py
 [11]: PolicyGradient/images/reinforce-mountaincar.gif
-[12]: PolicyGradient/REINFORCE/REINFORCE_BaseLine.py
+[12]: PolicyGradient/REINFORCE/vpg.py
 [13]: ActorCritic
 [14]: ActorCritic/Actor_Critic.py
 [15]: PolicyGradient/PPO

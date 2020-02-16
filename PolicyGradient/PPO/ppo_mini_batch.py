@@ -14,6 +14,7 @@ from PolicyGradient.Models.Policy_discontinuous import DiscretePolicy
 from PolicyGradient.Models.Value import Value
 from PolicyGradient.algorithms.ppo_step import ppo_step
 from Utils.env_utils import get_env_info
+from Utils.file_util import check_path
 from Utils.torch_utils import FLOAT, device
 from Utils.zfilter import ZFilter
 
@@ -111,7 +112,7 @@ class PPO_Minibatch:
               f"average reward: {log['avg_reward']: .4f}, sample time: {log['sample_time']: .4f}")
 
         # record reward information
-        writer.add_scalars("PPO_mini_batch",
+        writer.add_scalars("PPOMiniBatch_exp{}".format(self.seed),
                            {"total reward": log['total_reward'],
                             "average reward": log['avg_reward'],
                             "min reward": log['min_episode_reward'],
@@ -155,5 +156,6 @@ class PPO_Minibatch:
 
     def save(self, save_path):
         """save model"""
+        check_path(save_path)
         pickle.dump((self.policy_net, self.value_net, self.running_state),
                     open('{}/{}_ppo_mini.p'.format(save_path, self.env_id), 'wb'))

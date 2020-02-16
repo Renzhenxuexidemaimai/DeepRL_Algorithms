@@ -13,6 +13,7 @@ from PolicyGradient.Models.Policy_discontinuous import DiscretePolicy
 from PolicyGradient.Models.Value import Value
 from PolicyGradient.algorithms.trpo_step import trpo_step
 from Utils.env_utils import get_env_info
+from Utils.file_util import check_path
 from Utils.torch_utils import FLOAT, device
 from Utils.zfilter import ZFilter
 
@@ -65,9 +66,9 @@ class TRPO:
         self.running_state = ZFilter((num_states,), clip=5)
 
         if self.model_path:
-            print("Loading Saved Model {}_ppo.p".format(self.env_id))
+            print("Loading Saved Model {}_trpo.p".format(self.env_id))
             self.policy_net, self.value_net, self.running_state = pickle.load(
-                open('{}/{}_ppo.p'.format(self.model_path, self.env_id), "rb"))
+                open('{}/{}_trpo.p'.format(self.model_path, self.env_id), "rb"))
 
         self.policy_net_old.load_state_dict(self.policy_net.state_dict())
         self.collector = MemoryCollector(self.env, self.policy_net_old, render=self.render,
@@ -124,7 +125,7 @@ class TRPO:
               f"average reward: {log['avg_reward']: .4f}, sample time: {log['sample_time']: .4f}")
 
         # record reward information
-        writer.add_scalars("PPO",
+        writer.add_scalars("TRPO_exp{}".format(self.seed),
                            {"total reward": log['total_reward'],
                             "average reward": log['avg_reward'],
                             "min reward": log['min_episode_reward'],
@@ -153,5 +154,6 @@ class TRPO:
 
     def save(self, save_path):
         """save model"""
+        check_path(save_path)
         pickle.dump((self.policy_net, self.value_net, self.running_state),
-                    open('{}/{}_ppo.p'.format(save_path, self.env_id), 'wb'))
+                    open('{}/{}_trpo.p'.format(save_path, self.env_id), 'wb'))

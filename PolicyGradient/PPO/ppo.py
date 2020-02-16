@@ -8,11 +8,13 @@ import torch.optim as optim
 
 from Common.GAE import estimate_advantages
 from Common.MemoryCollector import MemoryCollector
+from Common.MemoryCollectorV2 import MemoryCollectorV2
 from PolicyGradient.Models.Policy import Policy
 from PolicyGradient.Models.Policy_discontinuous import DiscretePolicy
 from PolicyGradient.Models.Value import Value
 from PolicyGradient.algorithms.ppo_step import ppo_step
 from Utils.env_utils import get_env_info
+from Utils.file_util import check_path
 from Utils.torch_utils import FLOAT, device
 from Utils.zfilter import ZFilter
 
@@ -21,7 +23,7 @@ class PPO:
     def __init__(self,
                  env_id,
                  render=False,
-                 num_process=1,
+                 num_process=4,
                  min_batch_size=2048,
                  lr_p=3e-4,
                  lr_v=3e-4,
@@ -111,7 +113,7 @@ class PPO:
               f"average reward: {log['avg_reward']: .4f}, sample time: {log['sample_time']: .4f}")
 
         # record reward information
-        writer.add_scalars("PPO",
+        writer.add_scalars("PPO_exp{}".format(self.seed),
                            {"total reward": log['total_reward'],
                             "average reward": log['avg_reward'],
                             "min reward": log['min_episode_reward'],
@@ -144,5 +146,6 @@ class PPO:
 
     def save(self, save_path):
         """save model"""
+        check_path(save_path)
         pickle.dump((self.policy_net, self.value_net, self.running_state),
                     open('{}/{}_ppo.p'.format(save_path, self.env_id), 'wb'))
