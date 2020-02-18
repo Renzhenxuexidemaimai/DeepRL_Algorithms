@@ -9,6 +9,9 @@ import os
 import numpy as np
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 
+"""
+plot the performance of algorithms from TensorBoard Log History
+"""
 DEFAULT_SIZE_GUIDANCE = {
     "scalars": 0,
 }
@@ -17,6 +20,7 @@ sns.set(style="darkgrid", font_scale=1.2)
 
 
 # plt.style.use('bmh')
+
 def plot_data(data, x_axis='num steps', y_axis="average reward", hue="algorithm", smooth=1, ax=None, **kwargs):
     if smooth > 1:
         """
@@ -89,7 +93,8 @@ def get_env_alg_log(log_path):
     return df
 
 
-def plot_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, smooth=1, env_filter_func=None, alg_filter_func=None):
+def plot_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, smooth=1, env_filter_func=None,
+                  alg_filter_func=None):
     if y_axis is None:
         y_axis = ['min reward', 'average reward', 'max reward', 'total reward']
 
@@ -108,7 +113,7 @@ def plot_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, smooth=1, en
     envs_fulldir = lambda env_dir, alg_dir: os.path.join(env_dir, alg_dir)
     for y_ax in y_axis:
         k = 0
-        fig, axes = plt.subplots(sub_plot_height, sub_plot_width, figsize=(6 * sub_plot_width, 4 * sub_plot_height))
+        fig, axes = plt.subplots(sub_plot_height, sub_plot_width, figsize=(7 * sub_plot_width, 5 * sub_plot_height))
         for env_dir in envs_logdirs:
             if sub_plot_width == 1 and sub_plot_height == 1:
                 ax = axes
@@ -150,11 +155,11 @@ def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='
     """
     plot_all_logs(log_dir=log_dir, x_axis=x_axis, y_axis=y_axis, hue=hue,
                   smooth=11,
-                 env_filter_func=env_filter_func,
-                 alg_filter_func=alg_filter_func)
+                  env_filter_func=env_filter_func,
+                  alg_filter_func=alg_filter_func)
 
 
 if __name__ == "__main__":
-    env_filter_func = lambda x: x.split(os.sep)[-1] == "BipedalWalker-v2"
+    # env_filter_func = lambda x: x.split(os.sep)[-1] == "BipedalWalker-v2"
     # alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] == "PPO"
-    main(env_filter_func=env_filter_func)
+    main(env_filter_func=None)
