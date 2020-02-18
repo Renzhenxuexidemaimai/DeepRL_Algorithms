@@ -15,7 +15,7 @@ from PolicyGradient.Models.Value import Value
 from PolicyGradient.algorithms.ppo_step import ppo_step
 from Utils.env_utils import get_env_info
 from Utils.file_util import check_path
-from Utils.torch_utils import FLOAT, device
+from Utils.torch_utils import DOUBLE, device
 from Utils.zfilter import ZFilter
 
 
@@ -64,11 +64,11 @@ class PPO_Minibatch:
                 open('{}/{}_ppo_mini.p'.format(self.model_path, self.env_id), "rb"))
         else:
             if env_continuous:
-                self.policy_net = Policy(num_states, num_actions).to(device)
+                self.policy_net = Policy(num_states, num_actions).double().to(device)
             else:
-                self.policy_net = DiscretePolicy(num_states, num_actions).to(device)
+                self.policy_net = DiscretePolicy(num_states, num_actions).double().to(device)
 
-            self.value_net = Value(num_states).to(device)
+            self.value_net = Value(num_states).double().to(device)
             self.running_state = ZFilter((num_states,), clip=5)
 
         self.collector = MemoryCollector(self.env, self.policy_net, render=self.render,
@@ -80,7 +80,7 @@ class PPO_Minibatch:
 
     def choose_action(self, state):
         """select action according to policy"""
-        state = FLOAT(state).unsqueeze(0).to(device)
+        state = DOUBLE(state).unsqueeze(0).to(device)
         with torch.no_grad():
             action, log_prob = self.policy_net.get_action_log_prob(state)
         return action, log_prob
@@ -122,11 +122,11 @@ class PPO_Minibatch:
 
         batch = memory.sample()  # sample all items in memory
 
-        batch_state = FLOAT(batch.state).to(device)
-        batch_action = FLOAT(batch.action).to(device)
-        batch_log_prob = FLOAT(batch.log_prob).to(device)
-        batch_reward = FLOAT(batch.reward).to(device)
-        batch_mask = FLOAT(batch.mask).to(device)
+        batch_state = DOUBLE(batch.state).to(device)
+        batch_action = DOUBLE(batch.action).to(device)
+        batch_log_prob = DOUBLE(batch.log_prob).to(device)
+        batch_reward = DOUBLE(batch.reward).to(device)
+        batch_mask = DOUBLE(batch.mask).to(device)
         batch_size = batch_state.shape[0]
 
         with torch.no_grad():

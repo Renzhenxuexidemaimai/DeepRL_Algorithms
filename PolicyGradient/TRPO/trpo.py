@@ -14,7 +14,7 @@ from PolicyGradient.Models.Value import Value
 from PolicyGradient.algorithms.trpo_step import trpo_step
 from Utils.env_utils import get_env_info
 from Utils.file_util import check_path
-from Utils.torch_utils import FLOAT, device
+from Utils.torch_utils import FLOAT, device, DOUBLE
 from Utils.zfilter import ZFilter
 
 
@@ -24,7 +24,6 @@ class TRPO:
                  render=False,
                  num_process=1,
                  min_batch_size=2048,
-                 lr_p=3e-4,
                  lr_v=3e-4,
                  gamma=0.99,
                  tau=0.95,
@@ -39,7 +38,6 @@ class TRPO:
         self.damping = damping
         self.render = render
         self.num_process = num_process
-        self.lr_p = lr_p
         self.lr_v = lr_v
         self.min_batch_size = min_batch_size
 
@@ -56,13 +54,11 @@ class TRPO:
         self.env.seed(self.seed)
 
         if env_continuous:
-            self.policy_net = Policy(num_states, num_actions).to(device)  # current policy
-            self.policy_net_old = Policy(num_states, num_actions).to(device)  # old policy
+            self.policy_net = Policy(num_states, num_actions).double().to(device)  # current policy
         else:
-            self.policy_net = DiscretePolicy(num_states, num_actions).to(device)
-            self.policy_net_old = DiscretePolicy(num_states, num_actions).to(device)
+            self.policy_net = DiscretePolicy(num_states, num_actions).double().to(device)
 
-        self.value_net = Value(num_states).to(device)
+        self.value_net = Value(num_states).double().to(device)
         self.running_state = ZFilter((num_states,), clip=5)
 
         if self.model_path:
@@ -70,30 +66,15 @@ class TRPO:
             self.policy_net, self.value_net, self.running_state = pickle.load(
                 open('{}/{}_trpo.p'.format(self.model_path, self.env_id), "rb"))
 
-        self.policy_net_old.load_state_dict(self.policy_net.state_dict())
-        self.collector = MemoryCollector(self.env, self.policy_net_old, render=self.render,
+        self.collector = MemoryCollector(self.env, self.policy_net, render=self.render,
                                          running_state=self.running_state,
                                          num_process=self.num_process)
 
-        self.optimizer_p = optim.Adam(self.policy_net.parameters(), lr=self.lr_p)
         self.optimizer_v = optim.Adam(self.value_net.parameters(), lr=self.lr_v)
-
-        self.test()
-
-    def test(self):
-        params = []
-        num_params = 0
-        for name, param in self.policy_net.named_parameters():
-            print(name, param.shape)
-            params.append(param.view(-1))
-            num_params += param.numel()
-        print(params)
-        flat_params = torch.cat(params)
-        print(flat_params.shape, num_params)
 
     def choose_action(self, state):
         """select action"""
-        state = FLOAT(state).unsqueeze(0).to(device)
+        state = DOUBLE(state).unsqueeze(0).to(device)
         with torch.no_grad():
             action, log_prob = self.policy_net.get_action_log_prob(state)
         return action, log_prob
@@ -125,7 +106,7 @@ class TRPO:
               f"average reward: {log['avg_reward']: .4f}, sample time: {log['sample_time']: .4f}")
 
         # record reward information
-        writer.add_scalars("TRPO_exp{}".format(self.seed),
+        writer.add_scalars("trpo".format(self.seed),
                            {"total reward": log['total_reward'],
                             "average reward": log['avg_reward'],
                             "min reward": log['min_episode_reward'],
@@ -134,11 +115,11 @@ class TRPO:
 
         batch = memory.sample()  # sample all items in memory
 
-        batch_state = FLOAT(batch.state).to(device)
-        batch_action = FLOAT(batch.action).to(device)
-        batch_reward = FLOAT(batch.reward).to(device)
-        batch_mask = FLOAT(batch.mask).to(device)
-        batch_log_prob = FLOAT(batch.log_prob).to(device)
+        batch_state = DOUBLE(batch.state).to(device)
+        batch_action = DOUBLE(batch.action).to(device)
+        batch_reward = DOUBLE(batch.reward).to(device)
+        batch_mask = DOUBLE(batch.mask).to(device)
+        batch_log_prob = DOUBLE(batch.log_prob).to(device)
 
         with torch.no_grad():
             batch_value = self.value_net(batch_state)
@@ -147,10 +128,8 @@ class TRPO:
                                                             self.tau)
 
         # update by TRPO
-        trpo_step(self.policy_net, self.value_net, self.optimizer_p, self.optimizer_v, 1, batch_state, batch_action,
-                  batch_return, batch_advantage, batch_log_prob, self.max_kl, self.damping, 1e-3)
-
-        self.policy_net_old.load_state_dict(self.policy_net.state_dict())
+        trpo_step(self.policy_net, self.value_net, batch_state, batch_action,
+                  batch_return, batch_advantage, batch_log_prob, self.max_kl, self.damping, 1e-3, None)
 
     def save(self, save_path):
         """save model"""

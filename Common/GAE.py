@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created at 2020/1/3 下午6:48
-from Utils.torch_utils import device, FLOAT
+from Utils.torch_utils import device, FLOAT, DOUBLE
 
 
 def estimate_advantages(rewards, masks, values, gamma, tau):
-    deltas = FLOAT(rewards.size(0), 1).to(device)
-    advantages = FLOAT(rewards.size(0), 1).to(device)
+    deltas = DOUBLE(rewards.size(0), 1).to(device)
+    advantages = DOUBLE(rewards.size(0), 1).to(device)
 
     prev_value = 0
     prev_advantage = 0

@@ -85,6 +85,13 @@ TRPO的目标中考虑了new policy 对于 old policy的提升，同时又要限
 
 ![19]
 
+其算法流程如下:
+![21]
+
+#### 实践效果
+
+还没跑完， 跑完再更新。
+
 [1]: https://arxiv.org/abs/1506.05254
 [2]: images/REINFORCE%20alg.png
 [3]: images/reinforce-mountaincar.gif
@@ -105,3 +112,4 @@ TRPO的目标中考虑了new policy 对于 old policy的提升，同时又要限
 [18]: images/TRPO-1.png
 [19]: images/TRPO-2.png
 [20]: images/ppo_bench.png
+[21]: images/trpo%20alg.png

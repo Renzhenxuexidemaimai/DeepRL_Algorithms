@@ -13,7 +13,7 @@ from torch.utils.tensorboard import SummaryWriter
 from Common.MemoryCollector import MemoryCollector
 from Common.GAE import estimate_advantages
 from PolicyGradient.algorithms.ppo_step import ppo_step
-from Utils.torch_utils import FLOAT, device
+from Utils.torch_utils import DOUBLE, device
 from Utils.zfilter import ZFilter
 
 """
@@ -151,18 +151,18 @@ class PPO(object):
         self.opt_v = opt.Adam(self.value.parameters(), lr=lr)
 
     def select_action(self, states):
-        states_tensor = FLOAT(states).unsqueeze(0).to(device)
+        states_tensor = DOUBLE(states).unsqueeze(0).to(device)
         action, log_prob = self.policy.get_action_log_prob(states_tensor)
 
         return action, log_prob
 
     def train(self, memory):
         batch = memory.sample()
-        batch_states = FLOAT(batch.state).to(device)
-        batch_actions = FLOAT(batch.action).to(device)
-        batch_log_probs = FLOAT(batch.log_prob).to(device)
-        batch_masks = FLOAT(batch.mask).to(device)
-        batch_rewards = FLOAT(batch.reward).to(device)
+        batch_states = DOUBLE(batch.state).to(device)
+        batch_actions = DOUBLE(batch.action).to(device)
+        batch_log_probs = DOUBLE(batch.log_prob).to(device)
+        batch_masks = DOUBLE(batch.mask).to(device)
+        batch_rewards = DOUBLE(batch.reward).to(device)
         batch_size = batch_states.shape[0]
 
         with torch.no_grad():
@@ -234,8 +234,8 @@ if type(env.action_space) == Discrete:
 else:
     num_actions = env.action_space.shape[0]
 
-actor = ActorContinuous(num_states, num_actions).to(device)
-critic = Critic(num_states).to(device)
+actor = ActorContinuous(num_states, num_actions).double().to(device)
+critic = Critic(num_states).double().to(device)
 
 running_state = ZFilter((num_states,), clip=5)
 agent = MemoryCollector(env, actor, running_state=running_state, num_process=4)
@@ -246,11 +246,11 @@ opt_v = opt.Adam(critic.parameters(), lr=lr)
 
 def train(memory):
     batch = memory.sample()
-    batch_states = FLOAT(batch.state).to(device)
-    batch_actions = FLOAT(batch.action).to(device)
-    batch_log_probs = FLOAT(batch.log_prob).to(device)
-    batch_masks = FLOAT(batch.mask).to(device)
-    batch_rewards = FLOAT(batch.reward).to(device)
+    batch_states = DOUBLE(batch.state).to(device)
+    batch_actions = DOUBLE(batch.action).to(device)
+    batch_log_probs = DOUBLE(batch.log_prob).to(device)
+    batch_masks = DOUBLE(batch.mask).to(device)
+    batch_rewards = DOUBLE(batch.reward).to(device)
     batch_size = batch_states.shape[0]
 
     with torch.no_grad():

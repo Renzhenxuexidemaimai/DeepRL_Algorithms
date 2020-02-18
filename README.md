@@ -35,6 +35,9 @@
     <img src="ActorCritic/imgs/Actor-Critic.png" width="280"/>
 </p>
 
+*TRPO on Mujoco*:
+
+
 ## 1.算法列表
 1. [DQN系列(Naive DQN, Double DQN, Dueling DQN etc.)][1]
     - [Naive DQN][2]
@@ -43,8 +46,9 @@
     
 2. [Policy Gradient系列(Reinforce, Vanilla PG, TRPO, PPO etc.)][8]
     - [REINFORCE][10]
-    - [REINFORCE with Baseline][12]
-    - [PPO][15]
+    - [VPG (Vanilla Policy Gradient)[12]
+    - [PPO (Proximal Policy Optimization)][15]
+    - [TRPO (Trust Region Policy Optimization)][17]
 
 3. [Actor-Critic系列][13]
     - [Actor-Critic][14]
@@ -60,8 +64,9 @@
 [9]: PolicyGradient/images/Reinforce%20MountainCar-v0.png
 [10]: PolicyGradient/REINFORCE/REINFORCE.py
 [11]: PolicyGradient/images/reinforce-mountaincar.gif
-[12]: PolicyGradient/REINFORCE/vpg.py
+[12]: PolicyGradient/VPG
 [13]: ActorCritic
 [14]: ActorCritic/Actor_Critic.py
 [15]: PolicyGradient/PPO
 [16]: PolicyGradient/images/ppo_bench.png
+[17]: PolicyGradient/TRPO

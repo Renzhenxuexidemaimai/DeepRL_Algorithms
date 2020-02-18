@@ -68,7 +68,7 @@ def load_event_scalars(log_path):
 
 def get_env_alg_log(log_path):
     """
-    拆分Envxia
+    拆分Env
     :param log_path:
     :return:
     """
