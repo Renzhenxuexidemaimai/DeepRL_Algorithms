@@ -25,7 +25,7 @@ from PolicyGradient.VPG.vpg import VPG
 @click.option("--seed", type=int, default=1, help="Seed for reproducing")
 def main(env_id, render, num_process, lr_p, lr_v, gamma, tau, batch_size,
          vpg_epochs, max_iter, eval_iter, save_iter, model_path, log_path, seed):
-    base_dir = log_path + env_id
+    base_dir = log_path + env_id + "/VPG_exp{}".format(seed)
     writer = SummaryWriter(base_dir)
 
     vpg = VPG(env_id, render, num_process, batch_size, lr_p, lr_v, gamma, tau,

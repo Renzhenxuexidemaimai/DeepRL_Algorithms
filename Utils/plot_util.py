@@ -32,7 +32,7 @@ def plot_data(data, x_axis='num steps', y_axis="average reward", hue="algorithm"
             datum[y_axis] = smoothed_x
 
     if isinstance(data, list):
-        data = pd.concat(data, ignore_index=True)
+        data = pd.concat(data, ignore_index=True, sort=True)
 
     sns.lineplot(data=data, x=x_axis, y=y_axis, hue=hue, ci='sd', ax=ax, **kwargs)
     ax.legend(loc='best').set_draggable(True)
@@ -49,6 +49,8 @@ def plot_data(data, x_axis='num steps', y_axis="average reward", hue="algorithm"
 
 def load_event_scalars(log_path):
     feature = log_path.split(os.sep)[-1]
+    if feature.find("_") != -1:
+        feature = feature.split("_")[-1]
     print(f"Processing logfile: {log_path}")
     try:
         event_acc = EventAccumulator(log_path, DEFAULT_SIZE_GUIDANCE)
@@ -83,7 +85,7 @@ def get_env_alg_log(log_path):
     return df
 
 
-def get_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, alg_filter_func=None):
+def get_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, smooth=1, alg_filter_func=None):
     if y_axis is None:
         y_axis = ['min reward', 'average reward', 'max reward', 'total reward']
     basedir = os.path.dirname(log_dir)  # ../log/
@@ -102,9 +104,8 @@ def get_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, alg_filter_fu
             if alg_filter_func:
                 env_alg_dirs = sorted(filter(alg_filter_func, env_alg_dirs))
             print(env_alg_dirs)
-            env_log_df = pd.concat(
-                [get_env_alg_log(env_alg_dir) for env_alg_dir in env_alg_dirs], sort=True)
-            make_plot(data=env_log_df, x_axis=x_axis, y_axis=y_ax, title=env, hue=hue, ax=ax)
+            env_log_df = [get_env_alg_log(env_alg_dir) for env_alg_dir in env_alg_dirs]
+            make_plot(data=env_log_df, x_axis=x_axis, y_axis=y_ax, smooth=smooth, title=env, hue=hue, ax=ax)
             k += 1
     plt.show()
 
@@ -129,6 +130,7 @@ def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='
     :return:
     """
     get_all_logs(log_dir=log_dir, x_axis=x_axis, y_axis=y_axis, hue=hue,
+                 smooth=11,
                  alg_filter_func=alg_filter_func)
 
 

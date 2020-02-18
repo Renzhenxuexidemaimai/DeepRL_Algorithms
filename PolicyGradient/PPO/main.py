@@ -32,7 +32,7 @@ from PolicyGradient.PPO.ppo_mini_batch import PPO_Minibatch
 @click.option("--seed", type=int, default=1, help="Seed for reproducing")
 def main(env_id, render, num_process, lr_p, lr_v, gamma, tau, epsilon, batch_size, mini_batch,
          ppo_mini_batch_size, ppo_epochs, max_iter, eval_iter, save_iter, model_path, log_path, seed):
-    base_dir = log_path + env_id
+    base_dir = log_path + env_id + "/PPO_exp{}".format(seed)
     writer = SummaryWriter(base_dir)
     if mini_batch:
         ppo = PPO_Minibatch(env_id, render, num_process, batch_size, lr_p, lr_v, gamma, tau, epsilon,
