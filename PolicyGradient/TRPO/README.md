@@ -129,7 +129,7 @@ step = lm * step_dir # update direction for policy nets
 
 #### 3.使用 Line Search 搜索参数更新步长
 数值优化问题的步长更新不一定满足单调性，这里给出一个更弱的条件--- Sufficient Condition
-对一个最小化问题: $ \minimize_{x} f(x)$, 对应的Sufficient Conditon:
+对一个最小化问题: $ min_{x} f(x)$, 对应的Sufficient Conditon:
 
 $$ f(x_{k} + \alpha p_{k}) \leq f(x_{k}) + c {\nabla f(x_{k})}^{T} \alpha p_{k}$$
 ，其中$c \in (0, 1)$，是一个参数，这里取 `0.1`。
