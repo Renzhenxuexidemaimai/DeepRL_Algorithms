@@ -11,6 +11,8 @@
 因此，你可能需要自己推导一份完整的问题求解，其优化目标求解主要是做近似（使用泰勒展式），然后求解
 一个拉格朗日K.K.T条件。
 
+这里给出一份完整的推导: [Deriviation of TRPO.pdf][8] 
+
 ## 2. 核心实现
 
 TRPO更新的核心代码在 [algorithms/trpo_step.py][1] 文件中，带上一堆注释竟然快到200行了 : (，
@@ -166,3 +168,4 @@ def line_search(model, f, x, step_dir, expected_improve, max_backtracks=10, acce
 [5]: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
 [6]: https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence
 [7]: https://en.wikipedia.org/wiki/Hessian_matrix
+[8]: Deriviation%20of%20TRPO.pdf

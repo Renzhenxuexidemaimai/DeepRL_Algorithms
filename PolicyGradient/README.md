@@ -80,10 +80,7 @@ TRPO的原理事实上是不难理解的，但在其推导过程中使用了较�
 TRPO的目标中考虑了new policy 对于 old policy的提升，同时又要限制new policy与old policy之间过大的差异。论文里
 使用KL-Divergence作为策略之间的 *`距离`*。
 
-实现中，考虑了对优化问题的近似。这里给出一个完整的TRPO的近似目标推导:
-![18]
-
-![19]
+实现中，考虑了对优化问题的近似。这里给出一个完整的TRPO的近似目标推导:[Deriviation of TRPO.pdf][8] 
 
 其算法流程如下:
 ![21]
@@ -113,3 +110,4 @@ TRPO的目标中考虑了new policy 对于 old policy的提升，同时又要限
 [19]: images/TRPO-2.png
 [20]: images/ppo_bench.png
 [21]: images/trpo%20alg.png
+[22]: TRPO/Deriviation%20of%20TRPO.pdf
