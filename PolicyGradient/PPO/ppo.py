@@ -15,7 +15,7 @@ from PolicyGradient.Models.Value import Value
 from PolicyGradient.algorithms.ppo_step import ppo_step
 from Utils.env_utils import get_env_info
 from Utils.file_util import check_path
-from Utils.torch_utils import FLOAT, device
+from Utils.torch_utils import DOUBLE, device
 from Utils.zfilter import ZFilter
 
 
@@ -57,13 +57,13 @@ class PPO:
         self.env.seed(self.seed)
 
         if env_continuous:
-            self.policy_net = Policy(num_states, num_actions).to(device)  # current policy
-            self.policy_net_old = Policy(num_states, num_actions).to(device)  # old policy
+            self.policy_net = Policy(num_states, num_actions).double().to(device)  # current policy
+            self.policy_net_old = Policy(num_states, num_actions).double().to(device)  # old policy
         else:
-            self.policy_net = DiscretePolicy(num_states, num_actions).to(device)
-            self.policy_net_old = DiscretePolicy(num_states, num_actions).to(device)
+            self.policy_net = DiscretePolicy(num_states, num_actions).double().to(device)
+            self.policy_net_old = DiscretePolicy(num_states, num_actions).double().to(device)
 
-        self.value_net = Value(num_states).to(device)
+        self.value_net = Value(num_states).double().to(device)
         self.running_state = ZFilter((num_states,), clip=5)
 
         if self.model_path:
@@ -81,7 +81,7 @@ class PPO:
 
     def choose_action(self, state):
         """select action"""
-        state = FLOAT(state).unsqueeze(0).to(device)
+        state = DOUBLE(state).unsqueeze(0).to(device)
         with torch.no_grad():
             action, log_prob = self.policy_net.get_action_log_prob(state)
         return action, log_prob
@@ -123,11 +123,11 @@ class PPO:
 
         batch = memory.sample()  # sample all items in memory
 
-        batch_state = FLOAT(batch.state).to(device)
-        batch_action = FLOAT(batch.action).to(device)
-        batch_reward = FLOAT(batch.reward).to(device)
-        batch_mask = FLOAT(batch.mask).to(device)
-        batch_log_prob = FLOAT(batch.log_prob).to(device)
+        batch_state = DOUBLE(batch.state).to(device)
+        batch_action = DOUBLE(batch.action).to(device)
+        batch_reward = DOUBLE(batch.reward).to(device)
+        batch_mask = DOUBLE(batch.mask).to(device)
+        batch_log_prob = DOUBLE(batch.log_prob).to(device)
 
         with torch.no_grad():
             batch_value = self.value_net(batch_state)

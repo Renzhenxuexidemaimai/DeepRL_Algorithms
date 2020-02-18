@@ -35,7 +35,7 @@ class Policy(BasePolicy):
         mean = self.policy(x)
         log_std = self.log_std.expand_as(mean)
         std = torch.exp(log_std)
-        dist = Normal(mean, std) # 收敛更快
+        dist = Normal(mean, std)  # 收敛更快
         return dist
 
     def get_log_prob(self, state, action):
@@ -49,7 +49,16 @@ class Policy(BasePolicy):
         log_prob = dist.log_prob(action)
         return action, log_prob
 
-
     def get_entropy(self, states):
         dist = self.forward(states)
         return dist.entropy()
+
+    def get_kl(self, x):
+        mean = self.policy(x)
+        mean_old = mean.detach()
+        log_std = self.log_std.expand_as(mean)
+        log_std_old = log_std.detach()
+        std = torch.exp(log_std)
+        std_old = std.detach()
+        kl = -1 / 2 + log_std - log_std_old + (std_old.pow(2) + (mean_old - mean).pow(2)) / (2 * std.pow(2))
+        return kl.sum(dim=1, keepdim=True)

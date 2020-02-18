@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created at 2020/1/2 下午9:52
+import torch
 import torch.nn as nn
 from torch.distributions import Categorical
 
@@ -47,3 +48,9 @@ class DiscretePolicy(BasePolicy):
     def get_entropy(self, states):
         dist = self.forward(states)
         return dist.entropy()
+
+    def get_kl(self, x):
+        action_probs = self.policy(x)
+        action_probs_old = action_probs.detach()
+        kl = action_probs_old * (torch.log(action_probs_old) - torch.log(action_probs))
+        return kl.sum(dim=1, keepdim=True)

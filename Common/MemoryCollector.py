@@ -8,7 +8,7 @@ import time
 import torch
 
 from Utils.replay_memory import Memory
-from Utils.torch_utils import device, FLOAT
+from Utils.torch_utils import device, FLOAT, DOUBLE
 
 
 def collect_samples(pid, queue, env, policy, render, running_state, min_batch_size):
@@ -31,8 +31,7 @@ def collect_samples(pid, queue, env, policy, render, running_state, min_batch_si
         for t in range(10000):
             if render:
                 env.render()
-
-            state_tensor = FLOAT(state).unsqueeze(0)
+            state_tensor = DOUBLE(state).unsqueeze(0)
             with torch.no_grad():
                 action, log_prob = policy.get_action_log_prob(state_tensor)
             action = action.cpu().numpy()[0]
