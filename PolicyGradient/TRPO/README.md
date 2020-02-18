@@ -30,9 +30,12 @@ Value Net 的更新本质上就是最小化loss的过程，不过原始的深度
 ### 2.2 Policy Net 更新
 
 Policy Net 的更新较复杂。其近似问题是:
-![2]
+<p float="center">
+    <img src="PolicyGradient/images/trpo-problem.png" width="280"/>
+</p>
 
-- 1. 计算目标函数的参数梯度 $g^{T}$
+
+#### 1.计算目标函数的参数梯度 $g^{T}$
 
 这里首先计算目标函数:
 ```python
@@ -52,7 +55,7 @@ Policy Net 的更新较复杂。其近似问题是:
 ```
 **为了方便起见，这里的梯度被拉成一维向量，后续的所有网络参数也都拉成一维。**
 
-- 2. 使用 Conjugate Gradient 计算约束下的目标参数更新方向 $H^{-1}g$
+#### 2.使用 Conjugate Gradient 计算约束下的目标参数更新方向 $H^{-1}g$
 
 对于问题: $H x = g$, 这里我们知道$H$是[KL-Divergence][6]的二阶[Hessian][7]矩阵，它的规模是整个Policy Net参数
 的平方，存储 H 需要$O(N^2)$，使用`Vector Product`则不必存储$H$而直接计算$Hx$，求解 $H^{-1}$需要$O(N^{3})$，
@@ -124,7 +127,7 @@ lm = torch.sqrt(2 * max_kl / shs)
 step = lm * step_dir # update direction for policy nets
 ```
 
-- 3. 使用 Line Search 搜索参数更新步长
+#### 3.使用 Line Search 搜索参数更新步长
 数值优化问题的步长更新不一定满足单调性，这里给出一个更弱的条件--- Sufficient Condition
 对一个最小化问题: $ \minimize_{x} f(x)$, 对应的Sufficient Conditon:
 
