@@ -46,7 +46,7 @@
     
 2. [Policy Gradient系列(Reinforce, Vanilla PG, TRPO, PPO etc.)][8]
     - [REINFORCE][10]
-    - [VPG (Vanilla Policy Gradient)[12]
+    - [VPG (Vanilla Policy Gradient)][12]
     - [PPO (Proximal Policy Optimization)][15]
     - [TRPO (Trust Region Policy Optimization)][17]
 
