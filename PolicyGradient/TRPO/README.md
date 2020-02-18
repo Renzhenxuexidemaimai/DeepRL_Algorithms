@@ -31,7 +31,7 @@ Value Net 的更新本质上就是最小化loss的过程，不过原始的深度
 
 Policy Net 的更新较复杂。其近似问题是:
 <p float="center">
-    <img src="PolicyGradient/images/trpo-problem.png" width="280"/>
+    <img src="../images/trpo-problem.png" width="280"/>
 </p>
 
 
