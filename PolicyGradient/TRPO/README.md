@@ -31,7 +31,9 @@ Value Net 的更新本质上就是最小化loss的过程，不过原始的深度
 
 Policy Net 的更新较复杂。其近似问题是:
 
-![2]
+<p float="center">
+    <img src="images/trpo-problem.png" width="300"/>
+</p>
 
 1. 计算目标函数的参数梯度 $g^{T}$
 
