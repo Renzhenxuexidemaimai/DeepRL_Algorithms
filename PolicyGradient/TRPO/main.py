@@ -23,10 +23,12 @@ from PolicyGradient.TRPO.trpo import TRPO
 @click.option("--eval_iter", type=int, default=50, help="Iterations to evaluate the model")
 @click.option("--save_iter", type=int, default=50, help="Iterations to save the model")
 @click.option("--model_path", type=str, default="trained_models", help="Directory to store model")
+@click.option("--log_path", type=str, default="log/", help="Directory to save logs")
 @click.option("--seed", type=int, default=1, help="Seed for reproducing")
 def main(env_id, render, num_process, lr_v, gamma, tau, max_kl, damping, batch_size, max_iter, eval_iter,
-         save_iter, model_path, seed):
-    writer = SummaryWriter()
+         save_iter, log_path, model_path, seed):
+    base_dir = log_path + env_id + "/TRPO_exp{}".format(seed)
+    writer = SummaryWriter(base_dir)
 
     trpo = TRPO(env_id, render, num_process, batch_size, lr_v, gamma, tau, max_kl, damping,
                 seed=seed)
