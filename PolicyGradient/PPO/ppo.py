@@ -113,7 +113,7 @@ class PPO:
               f"average reward: {log['avg_reward']: .4f}, sample time: {log['sample_time']: .4f}")
 
         # record reward information
-        writer.add_scalars("PPO_exp{}".format(self.seed),
+        writer.add_scalars("ppo",
                            {"total reward": log['total_reward'],
                             "average reward": log['avg_reward'],
                             "min reward": log['min_episode_reward'],

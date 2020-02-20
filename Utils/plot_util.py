@@ -161,5 +161,5 @@ def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='
 
 if __name__ == "__main__":
     # env_filter_func = lambda x: x.split(os.sep)[-1] == "BipedalWalker-v2"
-    # alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] == "PPO"
-    main(env_filter_func=None)
+    # alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in ["PPO", "TRPO"]
+    main(env_filter_func=None, alg_filter_func=None)
