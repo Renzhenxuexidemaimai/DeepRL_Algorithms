@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 envs=(HalfCheetah-v3 Hopper-v3 Walker2d-v3 Swimmer-v3 Ant-v3 BipedalWalker-v2)
-#envs=(BipedalWalker-v2)
+# envs=(BipedalWalker-v2)
 seeds=10
 max_iter=1000
 for (( i = 0; i < ${#envs[@]}; ++i )); do
