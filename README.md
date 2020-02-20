@@ -38,9 +38,9 @@
     <img src="PolicyGradient/images/PPO-mini_batch%20BipedalWalker-v2.png" width="280">
 </p>
 
-*PPO on Mujoco*:
+*PGs on Mujoco*:
+![18]
 
-![16]
 
 *Actor-Critics on MountainCar-v0*:
 
@@ -48,7 +48,6 @@
     <img src="ActorCritic/imgs/Actor-Critic.png" width="280"/>
 </p>
 
-*TRPO on Mujoco*:
 
 
 ## 1.算法列表
@@ -83,3 +82,4 @@
 [15]: PolicyGradient/PPO
 [16]: PolicyGradient/images/ppo_bench.png
 [17]: PolicyGradient/TRPO
+[18]: PolicyGradient/images/bench_pg.png

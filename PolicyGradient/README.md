@@ -39,6 +39,9 @@ PG算法主要有两大类:
 
 可以看到，baseline 版本的reward曲线更加平稳，这就是baseline的重要作用：降低Value Net估计值的方差。
 
+VPG在 Mujoco环境上的表现:
+
+![23]
 
 ### 2. PPO (Proximal Policy Optimization)
 
@@ -87,7 +90,9 @@ TRPO的目标中考虑了new policy 对于 old policy的提升，同时又要限
 
 #### 实践效果
 
-还没跑完， 跑完再更新。
+TRPO在 Mujoco环境上的表现:
+
+![24]
 
 [1]: https://arxiv.org/abs/1506.05254
 [2]: images/REINFORCE%20alg.png
@@ -108,6 +113,8 @@ TRPO的目标中考虑了new policy 对于 old policy的提升，同时又要限
 [17]: PPO/trained_models
 [18]: images/TRPO-1.png
 [19]: images/TRPO-2.png
-[20]: images/ppo_bench.png
+[20]: images/bench_ppo.png
 [21]: images/trpo%20alg.png
 [22]: TRPO/Deriviation%20of%20TRPO.pdf
+[23]: images/bench_vpg.png
+[24]: images/bench_trpo.png

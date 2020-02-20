@@ -113,7 +113,7 @@ def plot_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, smooth=1, en
     envs_fulldir = lambda env_dir, alg_dir: os.path.join(env_dir, alg_dir)
     for y_ax in y_axis:
         k = 0
-        fig, axes = plt.subplots(sub_plot_height, sub_plot_width, figsize=(7 * sub_plot_width, 5 * sub_plot_height))
+        fig, axes = plt.subplots(sub_plot_height, sub_plot_width, figsize=(6 * sub_plot_width, 4 * sub_plot_height))
         for env_dir in envs_logdirs:
             if sub_plot_width == 1 and sub_plot_height == 1:
                 ax = axes
@@ -161,5 +161,5 @@ def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='
 
 if __name__ == "__main__":
     # env_filter_func = lambda x: x.split(os.sep)[-1] == "BipedalWalker-v2"
-    # alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in ["PPO", "TRPO"]
+    # alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in ["VPG"]
     main(env_filter_func=None, alg_filter_func=None)
