@@ -27,8 +27,7 @@ Double DQN 的动作值估计形式如下(论文中说对偶形式等价即交�
 
 ![DDQN algorithm](images/Double%20DQN%20Algorithm.png)
 
-### 3.Dueling DQN [Dueling Network Architectures for Deep Reinforcement Learning
-][3]
+### 3.Dueling DQN [Dueling Network Architectures for Deep Reinforcement Learning][3]
 
 更改 Basic DQN 的网络结构.
 ![Dueling DQN Structure](images/Dueling%20DQN%20Network.png)
