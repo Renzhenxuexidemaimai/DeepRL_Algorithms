@@ -7,10 +7,10 @@ Deep Q-learning Network 基于 `Q-learning` 是 `off-policy` 算法。它使用�
 
 ## 算法细节及论文
 
-- *Basic DQN* [Playing Atari with Deep Reinforcement Learning][1]
+### 1.Basic DQN [Playing Atari with Deep Reinforcement Learning][1]
 ![basic DQN](images/DQN%20with%20Experience%20Replay.png)
 
-- *Double DQN* [Deep Reinforcement Learning with Double Q-learning][2]
+### 2.Double DQN [Deep Reinforcement Learning with Double Q-learning][2]
 
 与 Basic DQN 不同，这里使用了两个网络。一个作为在线更新 -> 训练网络(train net)，另一个用于策略评估 -> 目标网络(target policy)。
 在更新上，训练网络立即更新,而目标网络的更新存在一个滞后性(freeze)；策略评估中，用训练网络找到最优动作:
@@ -27,7 +27,7 @@ Double DQN 的动作值估计形式如下(论文中说对偶形式等价即交�
 
 ![DDQN algorithm](images/Double%20DQN%20Algorithm.png)
 
-- *Dueling DQN* [Dueling Network Architectures for Deep Reinforcement Learning
+### 3.Dueling DQN [Dueling Network Architectures for Deep Reinforcement Learning
 ][3]
 
 更改 Basic DQN 的网络结构.
@@ -39,11 +39,11 @@ Double DQN 的动作值估计形式如下(论文中说对偶形式等价即交�
 ## 实践效果
 在gym的经典游戏CartPole-v0中的表现：
 
-    <p float="left">
-        <img src="DQN/images/DQN.png" width="300"/>
-        <img src="DQN/images/DDQN.png" width="300"/>
-        <img src="DQN/images/DuelingDQN.png" width="300"/>
-    </p>
+<p float="left">
+    <img src="images/DQN.png" width="300"/>
+    <img src="images/DDQN.png" width="300"/>
+    <img src="images/DuelingDQN.png" width="300"/>
+</p>
 
 
 [1]: https://arxiv.org/abs/1312.5602
