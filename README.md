@@ -14,7 +14,7 @@
 
 ## 2.实验效果
 
-### 2.1 Deep Q-Learning(DQN):
+### 2.1 [Deep Q-Learning(DQN)][1]:
 
 - *DQNs on CartPole-v0*
 
@@ -24,7 +24,7 @@
         <img src="DQN/images/DuelingDQN.png" width="280"/>
     </p>
 
-### 2.2 Policy Gradient(PG):
+### 2.2 [Policy Gradient(PG)][8]:
 
 - *REINFORCE on MountainCar-v0*
     
