@@ -87,8 +87,8 @@ def get_env_alg_log(log_path):
     df = pd.concat([load_event_scalars(feature) for feature in alg_features], axis=1)
     if "num steps" in df:
         df["num steps"] = df["num steps"].cumsum()
-    else:
-        df["num steps"] = (np.ones((1, df.shape[0])) * 3000).cumsum()
+    # else:
+    #     df["num steps"] = (np.ones((1, df.shape[0])) * 3000).cumsum()
     df["algorithm"] = [alg] * df.shape[0]
     return df
 
