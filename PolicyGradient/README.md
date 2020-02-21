@@ -27,7 +27,7 @@ PG算法主要有两大类:
 
 <p float="left">
     <img src="images/reinforce-mountaincar.gif" width="350"/>
-    <img src="images/Reinforce%20MountainCar-v0.png" width="350"/>
+    <img src="images/reinforce%20MountainCar-v0.png" width="350"/>
 </p>
 
 
@@ -38,7 +38,7 @@ PG算法主要有两大类:
 之后的 PG 算法都将基于 GAE 。
 
 <p float="left">
-    <img src="images/Reinforce%20with%20Baseline%20MountainCar-v0.png" width="350"/>
+    <img src="images/reinforce%20with%20Baseline%20MountainCar-v0.png" width="350"/>
 </p>
 
 可以看到，baseline 版本的 reward 曲线更加平稳，这就是 baseline 的重要作用：降低 Value Net 估计值的方差。
