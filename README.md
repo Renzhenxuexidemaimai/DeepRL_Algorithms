@@ -12,9 +12,23 @@
 就去调用人家写的东西，实验效果不理想，而无从调试，也不知道问题出在哪里。这就是用别人的东西存在的问题，调用高质量的库能够节省时间也能保证质量，但前提是
 ————你了解细节，你已经具备基础。
 
-## 2.实验效果
 
-### 2.1 [Deep Q-Learning(DQN)][1]:
+## 2.算法列表
+1. [DQN系列(Naive DQN, Double DQN, Dueling DQN etc.)][1]
+    - [Naive DQN][2]
+    - [Double DQN][3]
+    - [Dueling DQN][4]
+    
+2. [Policy Gradient系列(Reinforce, Vanilla PG, TRPO, PPO etc.)][8]
+    - [REINFORCE][9]
+    - [VPG (Vanilla Policy Gradient)][10]
+    - [PPO (Proximal Policy Optimization)][11]
+    - [TRPO (Trust Region Policy Optimization)][12]
+
+
+## 3.实验效果
+
+### 3.1 [Deep Q-Learning(DQN)][1]:
 
 - *DQNs on CartPole-v0*
 
@@ -24,7 +38,7 @@
         <img src="DQN/images/DuelingDQN.png" width="280"/>
     </p>
 
-### 2.2 [Policy Gradient(PG)][8]:
+### 3.2 [Policy Gradient(PG)][8]:
 
 - *REINFORCE on MountainCar-v0*
     
@@ -44,19 +58,6 @@
 
 - PGs on Mujoco
 ![Bechmarks for mujoco](PolicyGradient/images/bench_pg.png)
-
-
-## 3.算法列表
-1. [DQN系列(Naive DQN, Double DQN, Dueling DQN etc.)][1]
-    - [Naive DQN][2]
-    - [Double DQN][3]
-    - [Dueling DQN][4]
-    
-2. [Policy Gradient系列(Reinforce, Vanilla PG, TRPO, PPO etc.)][8]
-    - [REINFORCE][9]
-    - [VPG (Vanilla Policy Gradient)][10]
-    - [PPO (Proximal Policy Optimization)][11]
-    - [TRPO (Trust Region Policy Optimization)][12]
 
 
 [1]: DQN
