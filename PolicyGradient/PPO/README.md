@@ -2,8 +2,9 @@
 
 ## 1.训练
 
-训练PPO的主要代码在[main.py][3], 使用[click][4]解析命令行参数, 因此也可以使用命令行配置参数。
-执行` python -m PolicyGradient.PPO.main --help`可以查看所有参数:
+训练PPO的主要代码在 [main.py](main.py), 使用 [click](https://click.palletsprojects.com/en/7.x/) 解析命令行参数, 因此也可以使用命令行配置参数。
+执行 `python -m PolicyGradient.PPO.main --help` 可以查看所有参数:
+
 ``` text
 Options:
   --env_id TEXT                  Environment Id
@@ -25,20 +26,18 @@ Options:
   --seed INTEGER                 Seed for reproducing
 ```
 
-根据命令行参数`  --mini_batch`指定调用PPO算法的版本
-- True 调用[mini-batch版本][1]
-- False 调用[double policy版本][2]
+根据命令行参数 `--mini_batch` 指定调用 PPO 算法的版本
+
+| mini_batch |      算法版本         |
+|------------|----------------------|
+|    True    |  [mini-batch 版本][1]      |
+|    False   |  [target policy 版本][2]   |
 
 
 ## 2.测试
 
-训练好的模型保存在[trained_models][7]下, 执行[test.py][5]加载对应的模型以测试模型性能。其命令行参数与[main.py][3]基本一致。
-
+训练好的模型保存在[trained_models](trained_models)下, 执行 [test.py](test.py) 加载对应的模型以测试模型性能，
+其命令行参数与 [main.py](main.py) 基本一致。
 
 [1]: ppo_mini_batch.py
 [2]: ppo.py
-[3]: main.py
-[4]: https://click.palletsprojects.com/en/7.x/
-[5]: test.py
-[6]: https://gym.openai.com/envs/BipedalWalker-v2/
-[7]: trained_models

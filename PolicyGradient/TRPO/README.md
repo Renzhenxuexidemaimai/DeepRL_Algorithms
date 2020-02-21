@@ -1,19 +1,19 @@
 # TRPO 算法
 
-虽然从实现上和表现上，TRPO已经可以被PPO替代，但从学习的角度来看它还是具有意义，
-毕竟，如果连最简单的VPG都要学的话，TRPO没有不学的道理。
+虽然从实现上和表现上，TRPO 已经可以被 PPO 替代，但从学习的角度来看它还是具有意义，
+毕竟，如果连最简单的 VPG 都要学的话，TRPO 没有不学的道理。
 
-## 1. 理论推导
+## 1.理论推导
 
 主要的理论都参考论文，具体的求解仍然需要进行数学推导（这就是TRPO不那么显然的地方），就是说，
 你可能看了TRPO的论文，仍然不知道如何去实现它……
 
 因此，你可能需要自己推导一份完整的问题求解，其优化目标求解主要是做近似（使用泰勒展式），然后求解
-一个拉格朗日K.K.T条件。
+一个拉格朗日 K.K.T 条件。
 
 这里给出一份完整的推导: [Deriviation of TRPO.pdf][8] 
 
-## 2. 核心实现
+## 2.核心实现
 
 TRPO更新的核心代码在 [algorithms/trpo_step.py][1] 文件中，带上一堆注释竟然快到200行了 : (，
 如果能够实现TRPO算法，那么实现其他算法也就不在话下，毕竟这是（数学+代码）的双重考验。
@@ -128,13 +128,16 @@ step = lm * step_dir # update direction for policy nets
 ```
 
 #### 3.使用 Line Search 搜索参数更新步长
-数值优化问题的步长更新不一定满足单调性，这里给出一个更弱的条件--- Sufficient Condition
-对一个最小化问题: $ min_{x} f(x)$, 对应的Sufficient Conditon:
+
+数值优化问题的步长更新不一定满足单调性，这里给出一个更弱的条件 ———— Sufficient Condition
+对一个最小化问题: $ min_{x} f(x) $, 对应的 Sufficient Condition :
 
 $$ f(x_{k} + \alpha p_{k}) \leq f(x_{k}) + c {\nabla f(x_{k})}^{T} \alpha p_{k}$$
-，其中$c \in (0, 1)$，是一个参数，这里取 `0.1`。
+
+，其中 $c \in (0, 1)$ ，是一个参数，这里取 `0.1`。
 
 Line Search即搜索最优的$\alpha$，具体的实现代码如下:
+
 ```python
 
 def line_search(model, f, x, step_dir, expected_improve, max_backtracks=10, accept_ratio=0.1):
@@ -161,7 +164,7 @@ def line_search(model, f, x, step_dir, expected_improve, max_backtracks=10, acce
             return True, x_new
     return False, x
 ```
-最后将其搜索结果作为网络参数，更新Policy Net。
+最后将其搜索结果作为网络参数，更新 Policy Net。
 
 [1]: ../algorithms/trpo_step.py
 [2]: ../images/trpo-problem.png

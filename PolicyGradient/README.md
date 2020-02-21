@@ -1,26 +1,29 @@
 # Policy Gradient 系列算法
 
-基于策略的梯度算法，包括Vanilla Policy Gradient(REINFORCE), 以及DDPG, TRPO, PPO等算法.
+基于策略的梯度算法，包括 Vanilla Policy Gradient(REINFORCE)，以及 TRPO， PPO， DDPG 等算法.
 
-在理解算法的过程中，有一个难点是对于策略函数$\pi(a | s, \theta)$的梯度优化计算原理，因为策略函数是一个概率分布，
+在理解算法的过程中，有一个难点是对于策略函数 $\pi(a | s, \theta)$ 的梯度优化计算原理，因为策略函数是一个概率分布，
 
-其梯度计算依赖于对分布的随机采样,pytorch等计算图框架中封装了这类的算法，其梯度计算原理见[Gradient Estimation Using Stochastic Computation Graphs][1]
+其梯度计算依赖于对分布的随机采样， `Pytorch` 等计算图框架中封装了这类的算法，其梯度计算原理见 [Gradient Estimation Using Stochastic Computation Graphs][1]。
 
 PG算法主要有两大类:
-- `On-policy`: REINFORCE(VPG), TRPO, PPO (on-policy 算法基于当前策略进行采样, 因此sample efficiency 较低);
-- `Off-policy`: DDPG, TD3, SAC (off-policy 算法可以充分利用old data, 因此sample efficiency 较高, 相应地它无法确保策略的表现是否足够好).
+- `On-policy`: REINFORCE(VPG)， TRPO， PPO (on-policy 算法基于当前策略进行采样, 因此 sample efficiency 较低)；
+- `Off-policy`: DDPG， TD3， SAC (off-policy 算法可以充分利用 old data, 因此 sample efficiency 较高, 相应地它无法确保策略的表现是否足够好)。
 
 两类算法的发展主要是针对各自的问题进行相应地优化, 但它们本质上都是对策略(Policy)的优化。
 
 ## 算法细节及论文
-### 1. REINFORCE(VPG)
 
-这算是PG最基本门的算法了,基于轨迹更新.当然也有基于time step更新的版本, 可以理解为将算法中第二步中对于i的求和式进行分解.
+### 1.[REINFORCE][2]
+
+这算是 PG 最基本门的算法了，基于轨迹更新。当然也有基于 time step更新的版本， 可以理解为将算法中第二步中对于 $i$ 的求和式进行分解。
 其算法流程如下:
-![2]
+
+![reinforce algorithm](images/reinforce-alg.png)
+
 
 #### 实践效果
-在gym的经典游戏MountainCar-v0中的表现：
+在 `gym` 的经典游戏 `MountainCar-v0` 中的表现：
 
 <p float="left">
     <img src="images/reinforce-mountaincar.gif" width="350"/>
@@ -28,93 +31,80 @@ PG算法主要有两大类:
 </p>
 
 
-#### REINFORCE with Baseline
+### 2.[VPG][3]
+
 可以证明，引入Baseline的策略梯度仍是无偏的，同时它能够有效降低方差。
-这里的Baseline为之后的 GAE(Generalized Advantage Estimation) 提供了方向, [GAE论文][9]详细阐述了用Advantage更新的变种和优点。
-之后的PG算法都将基于GAE。
+这里的Baseline为之后的 GAE(Generalized Advantage Estimation) 提供了方向， [GAE论文](https://arxiv.org/abs/1506.02438) 详细阐述了用Advantage更新的变种和优点。
+之后的 PG 算法都将基于 GAE 。
 
 <p float="left">
     <img src="images/Reinforce%20with%20Baseline%20MountainCar-v0.png" width="350"/>
 </p>
 
-可以看到，baseline 版本的reward曲线更加平稳，这就是baseline的重要作用：降低Value Net估计值的方差。
+可以看到，baseline 版本的 reward 曲线更加平稳，这就是 baseline 的重要作用：降低 Value Net 估计值的方差。
 
-VPG在 Mujoco环境上的表现:
+VPG 在 [Mujoco](https://gym.openai.com/envs/#mujoco) 环境上的表现:
 
-![23]
+![benchmarks for vpg](images/bench_vpg.png)
 
-### 2. PPO (Proximal Policy Optimization)
+### 3.[PPO (Proximal Policy Optimization)][4]
 
-这里把PPO放在TRPO之前，原因是其原理和形式简单，实现上也相对简单，其性能接近TRPO，实践效果较好。在PG算法中，PPO目前已经成为主流算法。
+这里把 PPO 放在 TRPO 之前，原因是其原理和形式简单，实现上也相对简单，其性能接近 TRPO ，实践效果较好。在 PG 算法中，PPO 目前已经成为主流算法。
 
-PPO能胜任较为复杂的控制任务，在[Mujoco][8]环境中已经能获得不错的效果。
+PPO 能胜任较为复杂的控制任务，在 `Mujoco` 环境中已经能获得不错的效果。
 
-PPO是对TRPO的变种，其优化目标是 Surrogate Loss:
-![7]
+PPO 是 TRPO 的变种，其优化目标是 Surrogate Loss:
+![ppo surrogate loss](images/ppo-surrogate-loss.png)
 
 其中 $\epsilon$ 是参数，一般取`0.1 - 0.2`，该目标确保更新策略参数靠近原策略参数，这也就是Proximal的来源。
 
 其算法流程如下:
-![6]
+
+![ppo algorithm](images/ppo-alg.png)
+
 
 #### 实践效果
 
-在gym的Box2d环境下[BipedalWalker-v2][16]中的表现(参数方面我参照了比较官方的参数）：
+在 `gym` 的 Box2d 环境下 [BipedalWalker-v2](https://gym.openai.com/envs/BipedalWalker-v2/) 中的表现(参数方面我参照了比较官方的参数）：
 
 <p float="left">
-    <img src="images/ppo-bipedalWalker-v2.gif" width="350"/>
-    <img src="images/PPO%20BipedalWalker-v2.png" width="350"/>
-    <img src="images/PPO-mini_batch%20BipedalWalker-v2.png" width="350">
+        <img src="PolicyGradient/images/ppo-bipedalWalker-v2.gif" width="280"/>
+        <img src="PolicyGradient/images/PPO%20BipedalWalker-v2.png" width="280"/>
+        <img src="PolicyGradient/images/PPO-mini_batch%20BipedalWalker-v2.png" width="280">
 </p>
 
-PPO在 Mujoco环境上的表现:
+PPO 在 Mujoco 环境上的表现:
 
-![20]
+![benchmarks for ppo](images/bench_ppo.png)
 
 一般用`Mujoco`测试PPO，但本机上没法装`Mujoco`，等之后在更新吧 :(
 
-实现了基于[mini_batch][11]和[double policy][12]两个版本,两个版本的区别在于更新的策略。
+实现了基于 [mini_batch](PPO/ppo_mini_batch.py) 和 [target policy](PPO/ppo.py) 两个版本，两个版本的区别在于是否使用 `mini batch` 
+进行更新。两者在性能上还是有一定的差异的，从两者在 `BipedalWalker-v2` 上的表现来看，`target policy` 版本更稳定，在数据量较大时，将倾向于使用
+`mini batch` 进行更新。
 
-两者在性能上还是有一定的差异的，从两者在BipedalWalker-v2上的表现来看，[double policy][12]更稳定。
+### 4.[TRPO(Trust Region Policy Optimization)][5]
 
-### 3. TRPO(Trust Region Policy Optimization)
+TRPO 的原理事实上是不难理解的，但在其推导过程中使用了较多的数学技巧。它对于优化目标使用一阶近似，对优化约束使用二阶近似。
+TRPO 的目标中考虑了 new policy 对于 old policy 的提升，同时又要限制 new policy 与 old policy 之间过大的差异。论文里
+使用 `KL-Divergence` 作为策略之间的 `距离`。
 
-TRPO的原理事实上是不难理解的，但在其推导过程中使用了较多的数学技巧。它对于优化目标使用一阶近似，对优化约束使用二阶近似。
-TRPO的目标中考虑了new policy 对于 old policy的提升，同时又要限制new policy与old policy之间过大的差异。论文里
-使用KL-Divergence作为策略之间的 *`距离`*。
-
-实现中，考虑了对优化问题的近似。这里给出一个完整的TRPO的近似目标推导:[Deriviation of TRPO.pdf][8] 
+实现中，考虑了对优化问题的近似。这里给出一个完整的 TRPO 的近似目标推导: [Deriviation of TRPO.pdf](TRPO/Deriviation%20of%20TRPO.pdf)
 
 其算法流程如下:
-![21]
+
+![trpo algorithm](images/trpo-alg.png)
 
 #### 实践效果
 
-TRPO在 Mujoco环境上的表现:
+TRPO 在 `Mujoco` 环境上的表现:
 
-![24]
+![benchmarks for trpo](images/bench_trpo.png)
+
+这里的 TRPO 表现似乎优于 PPO :(，不过其实现和计算资源耗费相较更多，也不太适合使用 `mini batch`。
 
 [1]: https://arxiv.org/abs/1506.05254
-[2]: images/REINFORCE%20alg.png
-[3]: images/reinforce-mountaincar.gif
-[4]: images/Reinforce%20MountainCar-v0.png
-[5]: images/Reinforce%20with%20Baseline%20MountainCar-v0.png
-[6]: images/PPO%20alg.png
-[7]: images/PPO%20surrogate%20loss.png
-[8]: https://gym.openai.com/envs/#mujoco
-[9]: https://arxiv.org/abs/1506.02438
-[10]: images/PPO%20BipedalWalker-v2.png
-[11]: PPO/ppo_mini_batch.py
-[12]: PPO/ppo.py
-[13]: PPO/main.py
-[14]: https://click.palletsprojects.com/en/7.x/
-[15]: PPO/test.py
-[16]: https://gym.openai.com/envs/BipedalWalker-v2/
-[17]: PPO/trained_models
-[18]: images/TRPO-1.png
-[19]: images/TRPO-2.png
-[20]: images/bench_ppo.png
-[21]: images/trpo%20alg.png
-[22]: TRPO/Deriviation%20of%20TRPO.pdf
-[23]: images/bench_vpg.png
-[24]: images/bench_trpo.png
+[2]: https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf
+[3]: https://spinningup.openai.com/en/latest/algorithms/vpg.html
+[4]: https://arxiv.org/abs/1707.06347
+[5]: https://arxiv.org/abs/1502.05477
