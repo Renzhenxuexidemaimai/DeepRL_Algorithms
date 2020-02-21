@@ -68,16 +68,14 @@ PPO 是 TRPO 的变种，其优化目标是 Surrogate Loss:
 在 `gym` 的 Box2d 环境下 [BipedalWalker-v2](https://gym.openai.com/envs/BipedalWalker-v2/) 中的表现(参数方面我参照了比较官方的参数）：
 
 <p float="left">
-        <img src="PolicyGradient/images/ppo-bipedalWalker-v2.gif" width="280"/>
-        <img src="PolicyGradient/images/PPO%20BipedalWalker-v2.png" width="280"/>
-        <img src="PolicyGradient/images/PPO-mini_batch%20BipedalWalker-v2.png" width="280">
+        <img src="images/ppo-bipedalWalker-v2.gif" width="280"/>
+        <img src="images/ppo%20BipedalWalker-v2.png" width="280"/>
+        <img src="images/ppo-mini_batch%20BipedalWalker-v2.png" width="280">
 </p>
 
 PPO 在 Mujoco 环境上的表现:
 
 ![benchmarks for ppo](images/bench_ppo.png)
-
-一般用`Mujoco`测试PPO，但本机上没法装`Mujoco`，等之后在更新吧 :(
 
 实现了基于 [mini_batch](PPO/ppo_mini_batch.py) 和 [target policy](PPO/ppo.py) 两个版本，两个版本的区别在于是否使用 `mini batch` 
 进行更新。两者在性能上还是有一定的差异的，从两者在 `BipedalWalker-v2` 上的表现来看，`target policy` 版本更稳定，在数据量较大时，将倾向于使用
