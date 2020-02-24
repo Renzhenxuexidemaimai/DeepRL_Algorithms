@@ -11,7 +11,7 @@ from PolicyGradient.DDPG.ddpg import DDPG
 
 
 @click.command()
-@click.option("--env_id", type=str, default="BipedalWalker-v2", help="Environment Id")
+@click.option("--env_id", type=str, default="BipedalWalker-v3", help="Environment Id")
 @click.option("--render", type=bool, default=False, help="Render environment or not")
 @click.option("--num_process", type=int, default=1, help="Number of process to run environment")
 @click.option("--lr_p", type=float, default=1e-3, help="Learning rate for Policy Net")
@@ -36,7 +36,6 @@ def main(env_id, render, num_process, lr_p, lr_v, gamma, polyak, explore_size, m
     base_dir = log_path + env_id + "/DDPG_exp{}".format(seed)
     writer = SummaryWriter(base_dir)
 
-    global_steps = 0
     ddpg = DDPG(env_id,
                  render=render,
                  num_process=num_process,
@@ -54,7 +53,7 @@ def main(env_id, render, num_process, lr_p, lr_v, gamma, polyak, explore_size, m
 
     memory = FixedMemory(size=memory_size)
     for i_iter in range(1, max_iter + 1):
-        ddpg.learn(writer, i_iter, memory, global_steps)
+        ddpg.learn(writer, i_iter, memory)
 
         # if i_iter % eval_iter == 0:
         #     trpo.eval(i_iter)

@@ -20,8 +20,8 @@ class DDPG:
                  env_id,
                  render=False,
                  num_process=1,
-                 lr_p=3e-3,
-                 lr_v=3e-3,
+                 lr_p=1e-3,
+                 lr_v=1e-3,
                  gamma=0.99,
                  polyak=0.995,
                  explore_size=10000,
@@ -84,6 +84,7 @@ class DDPG:
         state = DOUBLE(state).unsqueeze(0).to(device)
         with torch.no_grad():
             action, log_prob = self.policy_net.get_action_log_prob(state)
+        action = action.cpu().numpy()[0]
         action = self.action_high * action + noise_scale * np.random.randn(self.num_actions)
         action = np.clip(action, self.action_low, self.action_high)
         return action, log_prob
@@ -97,7 +98,6 @@ class DDPG:
             state = self.running_state(state)
 
             action, _ = self.choose_action(state, 0)
-            action = action.cpu().numpy()[0]
             state, reward, done, _ = self.env.step(action)
 
             test_reward += reward
@@ -106,8 +106,9 @@ class DDPG:
         print(f"Iter: {i_iter}, test Reward: {test_reward}")
         self.env.close()
 
-    def learn(self, writer, i_iter, memory, global_steps):
+    def learn(self, writer, i_iter, memory):
         """interact"""
+        global_steps = (i_iter - 1) * self.step_per_iter
         log = dict()
         num_steps = 0
         num_episodes = 0
@@ -129,7 +130,6 @@ class DDPG:
                     action = self.env.action_space.sample()
                 else:
                     action, _ = self.choose_action(state, self.action_noise)
-                    action = action.cpu().numpy()[0]
                 next_state, reward, done, _ = self.env.step(action)
                 next_state = self.running_state(next_state)
                 mask = 0 if done else 1
@@ -189,7 +189,7 @@ class DDPG:
 
         # update by DDPG
         ddpg_step(self.policy_net, self.policy_net_target, self.value_net, self.value_net_target, self.optimizer_p,
-                  self.optimizer_v, 1, batch_state, batch_reward, batch_value, batch_next_state, batch_mask,
+                  self.optimizer_v, batch_state, batch_reward, batch_value, batch_next_state, batch_mask,
                   self.gamma, 1e-3, self.polyak)
 
 
