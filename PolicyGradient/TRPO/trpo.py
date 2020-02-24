@@ -8,13 +8,14 @@ import torch.optim as optim
 
 from Common.GAE import estimate_advantages
 from Common.MemoryCollector import MemoryCollector
+# from Common.RemoteMemoryCollector import MemoryCollector
 from PolicyGradient.Models.Policy import Policy
 from PolicyGradient.Models.Policy_discontinuous import DiscretePolicy
 from PolicyGradient.Models.Value import Value
 from PolicyGradient.algorithms.trpo_step import trpo_step
-from Utils.env_utils import get_env_info
+from Utils.env_util import get_env_info
 from Utils.file_util import check_path
-from Utils.torch_utils import FLOAT, device, DOUBLE
+from Utils.torch_util import FLOAT, device, DOUBLE
 from Utils.zfilter import ZFilter
 
 

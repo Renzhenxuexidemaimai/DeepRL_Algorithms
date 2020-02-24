@@ -4,7 +4,7 @@ from torch.utils.tensorboard import SummaryWriter
 from DQN.DoubleDQN import DoubleDQN
 from DQN.DuelingDQN import DuelingDQN
 from DQN.NaiveDQN import NaiveDQN
-from Utils.env_utils import get_env_space
+from Utils.env_util import get_env_space
 
 model_data = {}
 

@@ -5,7 +5,7 @@ import copy
 import random
 
 import numpy as np
-import torch
+from Utils.torch_util import DOUBLE
 
 
 class OU_Noise(object):
@@ -27,4 +27,4 @@ class OU_Noise(object):
         """Update internal state and return it as a noise sample."""
         dx = self.theta * (self.mu - self.state) + self.sigma * np.random.normal(size=self.state.shape)
         self.state += dx
-        return torch.FloatTensor(self.state)
+        return DOUBLE(self.state)

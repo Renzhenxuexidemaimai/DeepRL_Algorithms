@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 from DQN.Models.Policy import MLPPolicy
-from Utils.replay_memory import Memory
+from Common.replay_memory import Memory
 
 
 class DoubleDQN:

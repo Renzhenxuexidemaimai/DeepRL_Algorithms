@@ -29,7 +29,6 @@ def main(env_id, render, num_process, lr_v, gamma, tau, max_kl, damping, batch_s
          save_iter, log_path, model_path, seed):
     base_dir = log_path + env_id + "/TRPO_exp{}".format(seed)
     writer = SummaryWriter(base_dir)
-
     trpo = TRPO(env_id, render, num_process, batch_size, lr_v, gamma, tau, max_kl, damping,
                 seed=seed)
 

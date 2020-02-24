@@ -13,7 +13,7 @@ from torch.utils.tensorboard import SummaryWriter
 from Common.MemoryCollector import MemoryCollector
 from Common.GAE import estimate_advantages
 from PolicyGradient.algorithms.ppo_step import ppo_step
-from Utils.torch_utils import DOUBLE, device
+from Utils.torch_util import DOUBLE, device
 from Utils.zfilter import ZFilter
 
 """

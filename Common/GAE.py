@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created at 2020/1/3 下午6:48
-from Utils.torch_utils import device, FLOAT, DOUBLE
+from Utils.torch_util import device, FLOAT, DOUBLE
 
 
 def estimate_advantages(rewards, masks, values, gamma, tau):

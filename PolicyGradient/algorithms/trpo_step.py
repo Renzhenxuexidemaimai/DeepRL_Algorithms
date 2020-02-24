@@ -3,7 +3,7 @@
 import torch
 import torch.nn as nn
 import torch.autograd as autograd
-from Utils.torch_utils import device, set_flat_params, get_flat_grad_params, get_flat_params, FLOAT, DOUBLE
+from Utils.torch_util import device, set_flat_params, get_flat_grad_params, get_flat_params, FLOAT, DOUBLE
 
 import scipy.optimize as opt
 

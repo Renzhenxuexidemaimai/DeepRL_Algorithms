@@ -7,8 +7,8 @@ import time
 
 import torch
 
-from Utils.replay_memory import Memory
-from Utils.torch_utils import device, FLOAT, DOUBLE
+from Common.replay_memory import Memory
+from Utils.torch_util import device, FLOAT, DOUBLE
 
 
 def collect_samples(pid, queue, env, policy, render, running_state, min_batch_size):
@@ -35,7 +35,7 @@ def collect_samples(pid, queue, env, policy, render, running_state, min_batch_si
             with torch.no_grad():
                 action, log_prob = policy.get_action_log_prob(state_tensor)
             action = action.cpu().numpy()[0]
-            log_prob = log_prob.cpu().numpy()[0]
+            log_prob = log_prob.cpu().numpy()[0] if log_prob else None
             next_state, reward, done, _ = env.step(action)
             episode_reward += reward
 
@@ -98,7 +98,7 @@ class MemoryCollector:
         workers = []
 
         # don't render other parallel processes
-        for i in range(self.num_process):
+        for i in range(self.num_process - 1):
             worker_args = (i + 1, queue, self.env, self.policy,
                            False, self.running_state, process_batch_size)
             workers.append(multiprocessing.Process(target=collect_samples, args=worker_args))

@@ -4,7 +4,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torch.distributions.categorical import Categorical
 
 from ActorCritic.Models.Actor_Critic_Net import ActorCriticNet
-from Utils.env_utils import get_env_space
+from Utils.env_util import get_env_space
 
 
 class ActorCritic:

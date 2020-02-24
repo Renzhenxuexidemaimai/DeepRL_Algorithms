@@ -13,9 +13,9 @@ from PolicyGradient.Models.Policy import Policy
 from PolicyGradient.Models.Policy_discontinuous import DiscretePolicy
 from PolicyGradient.Models.Value import Value
 from PolicyGradient.algorithms.ppo_step import ppo_step
-from Utils.env_utils import get_env_info
+from Utils.env_util import get_env_info
 from Utils.file_util import check_path
-from Utils.torch_utils import DOUBLE, device
+from Utils.torch_util import DOUBLE, device
 from Utils.zfilter import ZFilter
 
 

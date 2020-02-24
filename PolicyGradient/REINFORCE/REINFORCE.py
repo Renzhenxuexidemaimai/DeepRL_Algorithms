@@ -4,7 +4,7 @@ from torch.distributions import Categorical
 from torch.utils.tensorboard import SummaryWriter
 
 from PolicyGradient.Models.Reinforce_policy import Policy
-from Utils.env_utils import get_env_space
+from Utils.env_util import get_env_space
 
 
 class REINFORCE:
