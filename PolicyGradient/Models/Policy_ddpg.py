@@ -11,9 +11,9 @@ def init_weight(m):
         nn.init.constant_(m.bias, 0.0)
 
 class Policy(BasePolicy):
-    def __init__(self, dim_state, dim_action, dim_hidden=128, activation=nn.LeakyReLU):
+    def __init__(self, dim_state, dim_action, max_action=None, dim_hidden=128, activation=nn.LeakyReLU):
         super(Policy, self).__init__(dim_state, dim_action, dim_hidden)
-
+        self.max_action = max_action
         self.action = nn.Sequential(nn.Linear(self.dim_state, self.dim_hidden),
                                     activation(),
                                     nn.Linear(self.dim_hidden, self.dim_hidden),
@@ -24,7 +24,7 @@ class Policy(BasePolicy):
 
     def forward(self, x):
         action = self.action(x)
-        return action
+        return action * self.max_action
 
     def get_action_log_prob(self, states):
         action = self.forward(states)

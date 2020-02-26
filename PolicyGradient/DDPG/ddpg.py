@@ -6,6 +6,7 @@ import numpy as np
 import torch
 import torch.optim as optim
 
+from Common.fixed_size_replay_memory import FixedMemory
 from PolicyGradient.Models.Policy_ddpg import Policy
 from PolicyGradient.Models.Value_ddpg import Value
 from PolicyGradient.algorithms.ddpg_step import ddpg_step
@@ -20,6 +21,7 @@ class DDPG:
                  env_id,
                  render=False,
                  num_process=1,
+                 memory_size=1000000,
                  lr_p=1e-3,
                  lr_v=1e-3,
                  gamma=0.99,
@@ -36,6 +38,7 @@ class DDPG:
         self.env_id = env_id
         self.gamma = gamma
         self.polyak = polyak
+        self.memory = FixedMemory(memory_size)
         self.explore_size = explore_size
         self.step_per_iter = step_per_iter
         self.render = render
@@ -54,15 +57,15 @@ class DDPG:
     def _init_model(self):
         """init model from parameters"""
         self.env, env_continuous, num_states, self.num_actions = get_env_info(self.env_id)
-        self.action_low, self.action_high = self.env.action_space.low, self.env.action_space.high
+        self.action_low, self.action_high = self.env.action_space.low[0], self.env.action_space.high[0]
         # seeding
         torch.manual_seed(self.seed)
         self.env.seed(self.seed)
 
         assert env_continuous, "DDPG is only applicable to continuous environment !!!!"
 
-        self.policy_net = Policy(num_states, self.num_actions).double().to(device)
-        self.policy_net_target = Policy(num_states, self.num_actions).double().to(device)
+        self.policy_net = Policy(num_states, self.num_actions, self.action_high).double().to(device)
+        self.policy_net_target = Policy(num_states, self.num_actions, self.action_high).double().to(device)
         self.policy_net_target.load_state_dict(self.policy_net.state_dict())
 
         self.value_net = Value(num_states, self.num_actions).double().to(device)
@@ -85,8 +88,8 @@ class DDPG:
         with torch.no_grad():
             action, log_prob = self.policy_net.get_action_log_prob(state)
         action = action.cpu().numpy()[0]
-        action = self.action_high * action + noise_scale * np.random.randn(self.num_actions)
-        action = np.clip(action, self.action_low, self.action_high)
+        action += noise_scale * np.random.randn(self.num_actions)
+        action = np.clip(action, -self.action_high, self.action_high)
         return action, log_prob
 
     def eval(self, i_iter):
@@ -106,7 +109,7 @@ class DDPG:
         print(f"Iter: {i_iter}, test Reward: {test_reward}")
         self.env.close()
 
-    def learn(self, writer, i_iter, memory):
+    def learn(self, writer, i_iter):
         """interact"""
         global_steps = (i_iter - 1) * self.step_per_iter
         log = dict()
@@ -134,7 +137,8 @@ class DDPG:
                 next_state = self.running_state(next_state)
                 mask = 0 if done else 1
                 # ('state', 'action', 'reward', 'next_state', 'mask', 'log_prob')
-                memory.push(state, action, reward, next_state, mask, None)
+                self.memory.push(state, action, reward, next_state, mask, None)
+
                 episode_reward += reward
 
                 global_steps += 1
@@ -142,7 +146,7 @@ class DDPG:
 
                 if global_steps >= self.min_update_step and global_steps % self.update_step == 0:
                     for _ in range(self.update_step):
-                        batch = memory.sample(self.batch_size)  # random sample batch
+                        batch = self.memory.sample(self.batch_size)  # random sample batch
                         self.update(batch)
 
                 if done or num_steps >= self.step_per_iter:
@@ -185,12 +189,11 @@ class DDPG:
         batch_next_state = DOUBLE(batch.next_state).to(device)
         batch_mask = DOUBLE(batch.mask).to(device)
 
-        batch_value = self.value_net(batch_state, batch_action)
 
         # update by DDPG
         ddpg_step(self.policy_net, self.policy_net_target, self.value_net, self.value_net_target, self.optimizer_p,
-                  self.optimizer_v, batch_state, batch_reward, batch_value, batch_next_state, batch_mask,
-                  self.gamma, 1e-3, self.polyak)
+                  self.optimizer_v, batch_state, batch_action, batch_reward, batch_next_state, batch_mask,
+                  self.gamma, self.polyak)
 
 
     def save(self, save_path):

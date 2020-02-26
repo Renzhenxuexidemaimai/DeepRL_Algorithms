@@ -6,7 +6,6 @@ import click
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-from Common.fixed_size_replay_memory import FixedMemory
 from PolicyGradient.DDPG.ddpg import DDPG
 
 
@@ -39,6 +38,7 @@ def main(env_id, render, num_process, lr_p, lr_v, gamma, polyak, explore_size, m
     ddpg = DDPG(env_id,
                  render=render,
                  num_process=num_process,
+                 memory_size=memory_size,
                  lr_p=lr_p,
                  lr_v=lr_v,
                  gamma=gamma,
@@ -51,9 +51,8 @@ def main(env_id, render, num_process, lr_p, lr_v, gamma, polyak, explore_size, m
                  action_noise=action_noise,
                  seed=seed)
 
-    memory = FixedMemory(size=memory_size)
     for i_iter in range(1, max_iter + 1):
-        ddpg.learn(writer, i_iter, memory)
+        ddpg.learn(writer, i_iter)
 
         # if i_iter % eval_iter == 0:
         #     trpo.eval(i_iter)
