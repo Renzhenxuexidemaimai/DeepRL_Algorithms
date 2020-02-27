@@ -13,9 +13,8 @@ def ddpg_step(policy_net, policy_net_target, value_net, value_net_target, optimi
     """update critic"""
 
     values = value_net(states, actions)
-    with torch.no_grad():
-        target_next_values = value_net_target(next_states, policy_net_target(next_states))
-        target_values = rewards + gamma * masks * target_next_values
+    target_next_values = value_net_target(next_states, policy_net_target(next_states))
+    target_values = rewards + gamma * masks * target_next_values.detach()
 
     value_loss = nn.MSELoss()(values, target_values)
 

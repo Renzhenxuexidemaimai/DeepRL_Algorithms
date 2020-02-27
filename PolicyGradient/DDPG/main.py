@@ -10,10 +10,10 @@ from PolicyGradient.DDPG.ddpg import DDPG
 
 
 @click.command()
-@click.option("--env_id", type=str, default="BipedalWalker-v3", help="Environment Id")
+@click.option("--env_id", type=str, default="HalfCheetah-v3", help="Environment Id")
 @click.option("--render", type=bool, default=False, help="Render environment or not")
 @click.option("--num_process", type=int, default=1, help="Number of process to run environment")
-@click.option("--lr_p", type=float, default=1e-3, help="Learning rate for Policy Net")
+@click.option("--lr_p", type=float, default=3e-4, help="Learning rate for Policy Net")
 @click.option("--lr_v", type=float, default=1e-3, help="Learning rate for Value Net")
 @click.option("--gamma", type=float, default=0.99, help="Discount factor")
 @click.option("--polyak", type=float, default=0.995, help="Interpolation factor in polyak averaging for target networks")

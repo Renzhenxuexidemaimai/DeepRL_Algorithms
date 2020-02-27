@@ -121,13 +121,13 @@ class DDPG:
 
         while num_steps < self.step_per_iter:
             state = self.env.reset()
+            state = self.running_state(state)
+
             episode_reward = 0
 
             for t in range(10000):
                 if self.render:
                     self.env.render()
-
-                state = self.running_state(state)
 
                 if global_steps < self.explore_size:
                     action = self.env.action_space.sample()
