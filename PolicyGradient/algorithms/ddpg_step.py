@@ -11,12 +11,11 @@ def ddpg_step(policy_net, policy_net_target, value_net, value_net_target, optimi
     masks = masks.unsqueeze(-1)
     rewards = rewards.unsqueeze(-1)
     """update critic"""
-
     values = value_net(states, actions)
+
     with torch.no_grad():
         target_next_values = value_net_target(next_states, policy_net_target(next_states))
         target_values = rewards + gamma * masks * target_next_values
-
     value_loss = nn.MSELoss()(values, target_values)
 
     optimizer_value.zero_grad()
@@ -32,19 +31,12 @@ def ddpg_step(policy_net, policy_net_target, value_net, value_net_target, optimi
 
 
     """soft update target nets"""
-    # policy_net_flat_params = get_flat_params(policy_net)
-    # policy_net_target_flat_params = get_flat_params(policy_net_target)
-    # set_flat_params(policy_net_target, polyak * policy_net_target_flat_params + (1 - polyak) * policy_net_flat_params)
-    #
-    # value_net_flat_params = get_flat_params(value_net)
-    # value_net_target_flat_params = get_flat_params(value_net_target)
-    # set_flat_params(value_net_target, polyak * value_net_target_flat_params + (1 - polyak) * value_net_flat_params)
+    policy_net_flat_params = get_flat_params(policy_net)
+    policy_net_target_flat_params = get_flat_params(policy_net_target)
+    set_flat_params(policy_net_target, polyak * policy_net_target_flat_params + (1 - polyak) * policy_net_flat_params)
 
-    for param, target_param in zip(value_net.parameters(), value_net_target.parameters()):
-        target_param.data.copy_((1 - polyak) * param.data + polyak * target_param.data)
-
-    for param, target_param in zip(policy_net.parameters(), policy_net_target.parameters()):
-        target_param.data.copy_((1 - polyak) * param.data + polyak * target_param.data)
-
+    value_net_flat_params = get_flat_params(value_net)
+    value_net_target_flat_params = get_flat_params(value_net_target)
+    set_flat_params(value_net_target, polyak * value_net_target_flat_params + (1 - polyak) * value_net_flat_params)
 
     return value_loss, policy_loss

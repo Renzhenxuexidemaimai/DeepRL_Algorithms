@@ -22,7 +22,7 @@ from PolicyGradient.DDPG.ddpg import DDPG
 @click.option("--step_per_iter", type=int, default=3000, help="Number of steps of interaction in each iteration")
 @click.option("--batch_size", type=int, default=100, help="Batch size")
 @click.option("--min_update_step", type=int, default=1000, help="Minimum interacts for updating")
-@click.option("--update_step", type=int, default=50, help="Intervals between updating policy and critic")
+@click.option("--update_step", type=int, default=50, help="Steps between updating policy and critic")
 @click.option("--max_iter", type=int, default=500, help="Maximum iterations to run")
 @click.option("--eval_iter", type=int, default=50, help="Iterations to evaluate the model")
 @click.option("--save_iter", type=int, default=50, help="Iterations to save the model")

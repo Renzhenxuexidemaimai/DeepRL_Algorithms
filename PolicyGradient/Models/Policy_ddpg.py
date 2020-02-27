@@ -18,7 +18,8 @@ class Policy(BasePolicy):
                                     activation(),
                                     nn.Linear(self.dim_hidden, self.dim_hidden),
                                     activation(),
-                                    nn.Linear(self.dim_hidden, self.dim_action)
+                                    nn.Linear(self.dim_hidden, self.dim_action),
+                                    nn.Tanh()
                                     )
         self.apply(init_weight)
 
