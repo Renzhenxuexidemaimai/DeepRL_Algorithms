@@ -24,8 +24,8 @@
     - [VPG (Vanilla Policy Gradient)][10]
     - [PPO (Proximal Policy Optimization)][11]
     - [TRPO (Trust Region Policy Optimization)][12]
-    - [DDPG][13]
-    - [TD3][14]
+    - [DDPG (Deep Deterministic Policy Gradient)][13]
+    - [TD3 (Twin Delayed DDPG)][14]
 
 ## 3.实验效果
 
