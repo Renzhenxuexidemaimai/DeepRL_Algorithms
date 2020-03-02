@@ -134,7 +134,7 @@ DDPG 在 `Mujoco` 环境上的表现:
 
 其算法流程如下:
 
-![td3_algorithm](images/td3-alg.png)
+![td3_algorithm](images/td3-alg.svg)
 
 #### 实践效果
 

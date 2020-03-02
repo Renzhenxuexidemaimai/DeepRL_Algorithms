@@ -16,7 +16,7 @@ DEFAULT_SIZE_GUIDANCE = {
     "scalars": 0,
 }
 
-sns.set(style="darkgrid", font_scale=1.2)
+sns.set(style="darkgrid", font_scale=1.2, rc={"lines.linewidth": 2})
 
 
 # plt.style.use('bmh')
