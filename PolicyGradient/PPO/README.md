@@ -1,5 +1,7 @@
 # PPO 算法
 
+算法的更新核心代码在 [ppo_step.py](../algorithms/ppo_step.py) 中。
+
 ## 1.训练
 
 训练PPO的主要代码在 [main.py](main.py), 使用 [click](https://click.palletsprojects.com/en/7.x/) 解析命令行参数, 因此也可以使用命令行配置参数。

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Created at 2020/1/2 下午10:30
+# Created at 2020/3/1
 import pickle
 import numpy as np
 import torch
@@ -9,14 +8,14 @@ import torch.optim as optim
 from Common.fixed_size_replay_memory import FixedMemory
 from PolicyGradient.Models.Policy_ddpg import Policy
 from PolicyGradient.Models.Value_ddpg import Value
-from PolicyGradient.algorithms.ddpg_step import ddpg_step
+from PolicyGradient.algorithms.td3_step import td3_step
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
 from Utils.torch_util import FLOAT, device, DOUBLE
 from Utils.zfilter import ZFilter
 
 
-class DDPG:
+class TD3:
     def __init__(self,
                  env_id,
                  render=False,
@@ -26,18 +25,24 @@ class DDPG:
                  lr_v=1e-3,
                  gamma=0.99,
                  polyak=0.995,
+                 action_noise=0.1,
+                 target_action_noise_std=0.2,
+                 target_action_noise_clip=0.5,
                  explore_size=10000,
                  step_per_iter=3000,
                  batch_size=100,
                  min_update_step=1000,
                  update_step=50,
-                 action_noise=0.1,
+                 policy_update_delay=2,
                  seed=1,
                  model_path=None
                  ):
         self.env_id = env_id
         self.gamma = gamma
         self.polyak = polyak
+        self.action_noise = action_noise
+        self.target_action_noise_std = target_action_noise_std
+        self.target_action_noise_clip = target_action_noise_clip
         self.memory = FixedMemory(memory_size)
         self.explore_size = explore_size
         self.step_per_iter = step_per_iter
@@ -48,7 +53,7 @@ class DDPG:
         self.batch_size = batch_size
         self.min_update_step = min_update_step
         self.update_step = update_step
-        self.action_noise = action_noise
+        self.policy_update_delay = policy_update_delay
         self.model_path = model_path
         self.seed = seed
 
@@ -57,7 +62,7 @@ class DDPG:
     def _init_model(self):
         """init model from parameters"""
         self.env, env_continuous, num_states, self.num_actions = get_env_info(self.env_id)
-        assert env_continuous, "DDPG is only applicable to continuous environment !!!!"
+        assert env_continuous, "TD3 is only applicable to continuous environment !!!!"
 
         self.action_low, self.action_high = self.env.action_space.low[0], self.env.action_space.high[0]
         # seeding
@@ -68,21 +73,25 @@ class DDPG:
         self.policy_net = Policy(num_states, self.num_actions, self.action_high).double().to(device)
         self.policy_net_target = Policy(num_states, self.num_actions, self.action_high).double().to(device)
 
-        self.value_net = Value(num_states, self.num_actions).double().to(device)
-        self.value_net_target = Value(num_states, self.num_actions).double().to(device)
+        self.value_net_1 = Value(num_states, self.num_actions).double().to(device)
+        self.value_net_target_1 = Value(num_states, self.num_actions).double().to(device)
+        self.value_net_2 = Value(num_states, self.num_actions).double().to(device)
+        self.value_net_target_2 = Value(num_states, self.num_actions).double().to(device)
 
         self.running_state = ZFilter((num_states,), clip=5)
 
         if self.model_path:
-            print("Loading Saved Model {}_ddpg.p".format(self.env_id))
-            self.policy_net, self.value_net, self.running_state = pickle.load(
-                open('{}/{}_ddpg.p'.format(self.model_path, self.env_id), "rb"))
+            print("Loading Saved Model {}_td3.p".format(self.env_id))
+            self.policy_net, self.value_net_1, self.value_net_2, self.running_state = pickle.load(
+                open('{}/{}_td3.p'.format(self.model_path, self.env_id), "rb"))
 
         self.policy_net_target.load_state_dict(self.policy_net.state_dict())
-        self.value_net_target.load_state_dict(self.value_net.state_dict())
+        self.value_net_target_1.load_state_dict(self.value_net_1.state_dict())
+        self.value_net_target_2.load_state_dict(self.value_net_2.state_dict())
 
         self.optimizer_p = optim.Adam(self.policy_net.parameters(), lr=self.lr_p)
-        self.optimizer_v = optim.Adam(self.value_net.parameters(), lr=self.lr_v)
+        self.optimizer_v_1 = optim.Adam(self.value_net_1.parameters(), lr=self.lr_v)
+        self.optimizer_v_2 = optim.Adam(self.value_net_2.parameters(), lr=self.lr_v)
 
     def choose_action(self, state, noise_scale):
         """select action"""
@@ -124,7 +133,7 @@ class DDPG:
 
         while num_steps < self.step_per_iter:
             state = self.env.reset()
-            state = self.running_state(state)
+            # state = self.running_state(state)
             episode_reward = 0
 
             for t in range(10000):
@@ -138,7 +147,7 @@ class DDPG:
                     action, _ = self.choose_action(state, self.action_noise)
 
                 next_state, reward, done, _ = self.env.step(action)
-                next_state = self.running_state(next_state)
+                # next_state = self.running_state(next_state)
                 mask = 0 if done else 1
                 # ('state', 'action', 'reward', 'next_state', 'mask', 'log_prob')
                 self.memory.push(state, action, reward, next_state, mask, None)
@@ -148,9 +157,9 @@ class DDPG:
                 num_steps += 1
 
                 if global_steps >= self.min_update_step and global_steps % self.update_step == 0:
-                    for _ in range(self.update_step):
+                    for k in range(self.update_step):
                         batch = self.memory.sample(self.batch_size)  # random sample batch
-                        self.update(batch)
+                        self.update(batch, k)
 
                 if done or num_steps >= self.step_per_iter:
                     break
@@ -176,7 +185,7 @@ class DDPG:
               f"average reward: {log['avg_reward']: .4f}")
 
         # record reward information
-        writer.add_scalars("ddpg",
+        writer.add_scalars("td3",
                            {"total reward": log['total_reward'],
                             "average reward": log['avg_reward'],
                             "min reward": log['min_episode_reward'],
@@ -184,7 +193,7 @@ class DDPG:
                             "num steps": log['num_steps']
                             }, i_iter)
 
-    def update(self, batch):
+    def update(self, batch, k_iter):
         """learn model"""
         batch_state = DOUBLE(batch.state).to(device)
         batch_action = DOUBLE(batch.action).to(device)
@@ -192,13 +201,15 @@ class DDPG:
         batch_next_state = DOUBLE(batch.next_state).to(device)
         batch_mask = DOUBLE(batch.mask).to(device)
 
-        # update by DDPG
-        ddpg_step(self.policy_net, self.policy_net_target, self.value_net, self.value_net_target, self.optimizer_p,
-                  self.optimizer_v, batch_state, batch_action, batch_reward, batch_next_state, batch_mask,
-                  self.gamma, self.polyak)
+        # update by TD3
+        td3_step(self.policy_net, self.policy_net_target, self.value_net_1, self.value_net_target_1, self.value_net_2,
+                 self.value_net_target_2, self.optimizer_p, self.optimizer_v_1, self.optimizer_v_2, batch_state,
+                 batch_action, batch_reward, batch_next_state, batch_mask, self.gamma, self.polyak,
+                 self.target_action_noise_std, self.target_action_noise_clip, self.action_high,
+                 k_iter % self.policy_update_delay == 0)
 
     def save(self, save_path):
         """save model"""
         check_path(save_path)
-        pickle.dump((self.policy_net, self.value_net, self.running_state),
-                    open('{}/{}_ddpg.p'.format(save_path, self.env_id), 'wb'))
+        pickle.dump((self.policy_net, self.value_net_1, self.value_net_2, self.running_state),
+                    open('{}/{}_td3.p'.format(save_path, self.env_id), 'wb'))

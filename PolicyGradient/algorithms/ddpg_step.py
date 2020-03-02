@@ -11,6 +11,7 @@ def ddpg_step(policy_net, policy_net_target, value_net, value_net_target, optimi
     masks = masks.unsqueeze(-1)
     rewards = rewards.unsqueeze(-1)
     """update critic"""
+
     values = value_net(states, actions)
 
     with torch.no_grad():
@@ -28,7 +29,6 @@ def ddpg_step(policy_net, policy_net_target, value_net, value_net_target, optimi
     optimizer_policy.zero_grad()
     policy_loss.backward()
     optimizer_policy.step()
-
 
     """soft update target nets"""
     policy_net_flat_params = get_flat_params(policy_net)

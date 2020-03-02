@@ -2,10 +2,6 @@
 # Created at 2020/2/9
 
 import click
-
-import torch
-from torch.utils.tensorboard import SummaryWriter
-
 from PolicyGradient.DDPG.ddpg import DDPG
 
 
@@ -24,18 +20,12 @@ from PolicyGradient.DDPG.ddpg import DDPG
 @click.option("--batch_size", type=int, default=100, help="Batch size")
 @click.option("--min_update_step", type=int, default=1000, help="Minimum interacts for updating")
 @click.option("--update_step", type=int, default=50, help="Steps between updating policy and critic")
-@click.option("--max_iter", type=int, default=500, help="Maximum iterations to run")
-@click.option("--eval_iter", type=int, default=50, help="Iterations to evaluate the model")
-@click.option("--save_iter", type=int, default=50, help="Iterations to save the model")
-@click.option("--action_noise", type=float, default=0.1, help="Std for noise of action")
+@click.option("--test_epochs", type=int, default=50, help="Trials to test model")
+@click.option("--action_noise", type=float, default=0.1, help="Noise for action")
 @click.option("--model_path", type=str, default="trained_models", help="Directory to store model")
-@click.option("--log_path", type=str, default="log/", help="Directory to save logs")
 @click.option("--seed", type=int, default=1, help="Seed for reproducing")
 def main(env_id, render, num_process, lr_p, lr_v, gamma, polyak, explore_size, memory_size, step_per_iter, batch_size,
-         min_update_step, update_step, max_iter, eval_iter, save_iter, action_noise, model_path, log_path, seed):
-    base_dir = log_path + env_id + "/DDPG_exp{}".format(seed)
-    writer = SummaryWriter(base_dir)
-
+         min_update_step, update_step, test_epochs, action_noise, model_path, seed):
     ddpg = DDPG(env_id,
                 render=render,
                 num_process=num_process,
@@ -50,18 +40,11 @@ def main(env_id, render, num_process, lr_p, lr_v, gamma, polyak, explore_size, m
                 min_update_step=min_update_step,
                 update_step=update_step,
                 action_noise=action_noise,
-                seed=seed)
+                seed=seed,
+                model_path=model_path)
 
-    for i_iter in range(1, max_iter + 1):
-        ddpg.learn(writer, i_iter)
-
-        # if i_iter % eval_iter == 0:
-        #     ddpg.eval(i_iter)
-        #
-        # if i_iter % save_iter == 0:
-        #     ddpg.save(model_path)
-
-        torch.cuda.empty_cache()
+    for i_iter in range(1, test_epochs + 1):
+        ddpg.eval(i_iter)
 
 
 if __name__ == '__main__':

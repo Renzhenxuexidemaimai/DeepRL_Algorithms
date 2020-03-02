@@ -101,8 +101,52 @@ TRPO 在 `Mujoco` 环境上的表现:
 
 这里的 TRPO 表现似乎优于 PPO :(，不过其实现和计算资源耗费相较更多，也不太适合使用 `mini batch`。
 
+### 5.[DDPG(Deep Deterministic Policy Gradient)][6]
+
+与以上算法优化的随机策略不同，这里我们优化的是一个确定性策略，它源于 David Silver提出的[Deterministic Policy Gradient Algorithms][7]。
+
+`Deterministic Policy` 的特点在于 $\pi (s_{t}) = a_{t}$ 是确定的，而 `random policy`下 $a_{t} \sim \pi (s_{t})$
+是一个概率分布。
+
+如果翻阅论文其实会发现，它和随机策略算法类似。
+
+其算法流程如下:
+
+![ddpg_algorithm](images/ddpg-alg.png)
+
+#### 实践效果
+
+DDPG 在 `Mujoco` 环境上的表现:
+
+待完善，还没跑完实验
+
+### 6.[TD3(Twin Delayed DDPG)][8]
+
+其名 `Twin Delayed Deep Deterministic Policy Gradient`，从名字可以看出来，该算法是对于 `DDPG` 的改进。
+其改进主要有三点:
+
+1. Clipped Double Q-learning -> 使用两个 Critic， 这与 `Double DQN` 非常类似；
+2. Delay policy updates -> 对 Policy 更新频率减慢；
+3. Target policy smoothing -> 给 Target policy 增加噪声。
+
+论文主要的思想是基于 DDPG 容易产生 `over-estimate` 现象展开，这里对我们设计 RL 算法提供了一些思考：
+它们是否还有缺点或者可以改进的地方？如何改进？
+
+其算法流程如下:
+
+![td3_algorithm](images/td3-alg.png)
+
+#### 实践效果
+
+TD3 在 `Mujoco` 环境上的表现:
+
+待完善，还没跑完实验
+
 [1]: https://arxiv.org/abs/1506.05254
 [2]: https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf
 [3]: https://spinningup.openai.com/en/latest/algorithms/vpg.html
 [4]: https://arxiv.org/abs/1707.06347
 [5]: https://arxiv.org/abs/1502.05477
+[6]: https://arxiv.org/abs/1509.02971
+[7]: http://proceedings.mlr.press/v32/silver14.pdf
+[8]: https://arxiv.org/abs/1802.09477
