@@ -14,12 +14,12 @@
 
 
 ## 2.算法列表
-1. [DQN系列(Naive DQN, Double DQN, Dueling DQN etc.)][1]
+1. [DQN系列][1]
     - [Naive DQN][2]
     - [Double DQN][3]
     - [Dueling DQN][4]
     
-2. [Policy Gradient系列(Reinforce, Vanilla PG, TRPO, PPO etc.)][8]
+2. [Policy Gradient系列][8]
     - [REINFORCE][9]
     - [VPG (Vanilla Policy Gradient)][10]
     - [PPO (Proximal Policy Optimization)][11]
