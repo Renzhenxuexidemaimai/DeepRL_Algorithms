@@ -16,7 +16,7 @@ relevant papers and implementing relevant algorithms as far as possible. The dee
 就去调用人家写的东西，实验效果不理想，而无从调试，也不知道问题出在哪里。这就是用别人的东西存在的问题，调用高质量的库能够节省时间也能保证质量，但前提是
 ————你了解细节，你已经具备基础。
 -->
-Implementing all of this algorithms from scratch really helps you with your `Parameter tuning`, the coding process allows you to **better understand** the *principles* of the algorithm.
+Implementing all of this algorithms from scratch really helps you with your *parameter tuning*, the coding process allows you to **better understand** the **principles** of the algorithm.
 
 ## 2.Lists of Algorithms
 
