@@ -4,13 +4,13 @@
 envs=(BipedalWalker-v3)
 seeds=10
 max_iter=1000
-alg=TRPO
+alg=TD3
 for (( j = 1; j <= seeds; ++j )); do
     for (( i = 0; i < ${#envs[@]}; ++i )); do
         echo ============================================
         echo starting Env: ${envs[$i]} ----- Exp_id $j
 
-        python -m PolicyGradient.${alg}.main --env_id ${envs[$i]} --max_iter ${max_iter} --model_path PolicyGradient/${alg}/trained_models --seed $j --num_process 4
+        python -m PolicyGradient.${alg}.main --env_id ${envs[$i]} --max_iter ${max_iter} --model_path PolicyGradient/${alg}/trained_models --seed $j
 
         echo finishing Env: ${envs[$i]} ----- Exp_id $j
         echo ============================================

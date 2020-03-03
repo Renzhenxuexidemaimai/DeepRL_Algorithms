@@ -14,6 +14,35 @@
 
 
 ## 2.算法列表
+
+| No. | Status | Algorithm | Paper |
+| --- | --- | --------- | ----- |
+| 1 | [√] | [Naive DQN][] | [Playing Atari with Deep Reinforcement Learning]() |
+| 2 | [√] | [Double DQN][] | []() |
+| 3 | [√] | [Dueling DQN][] | []() |
+| 4 | [√] | [REINFORCE][] | []() |
+| 5 | [√] | [VPG(Vanilla Policy Gradient)][] | []() |
+| 6 | [√] | [AC(Actor Critic)][] | []() |
+| 7 | [ ] | A3C | []() |
+| 8 | [ ] | A2C | []() |
+| 9 | [ ] | DPG | []() |
+| 10 | [√] | [DDPG][] | []() |
+| 11 | [ ] | D4PG | []() |
+| 12 | [ ] | MADDPG | []() |
+| 13 | [√] | [TRPO] | []() |
+| 14 | [√] | [PPO] | []() |
+| 15 | [ ] | ACER | []() |
+| 16 | [ ] | ACTKR | []() |
+| 17 | [ ] | SAC | []() |
+| 18 | [ ] | SAC with Automatically Adjusted Temperature |
+| 19 | [√] | [TD3(Twin Delayed DDPG)][] | []() |
+| 20 | [ ] | SVPG | []() |
+| 21 | [ ] | IMPALA | []() |
+
+  
+
+
+
 1. [DQN系列][1]
     - [Naive DQN][2]
     - [Double DQN][3]
