@@ -16,8 +16,7 @@ DEFAULT_SIZE_GUIDANCE = {
     "scalars": 0,
 }
 
-sns.set(style="darkgrid", font_scale=1.2, rc={"lines.linewidth": 2})
-
+sns.set(style="darkgrid", font_scale=1.2, rc={"lines.linewidth": 2}, palette=sns.color_palette("hls", 1))
 
 # plt.style.use('bmh')
 
@@ -163,5 +162,5 @@ def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='
 
 if __name__ == "__main__":
     # env_filter_func = lambda x: x.split(os.sep)[-1] == "BipedalWalker-v2"
-    # alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in ["VPG"]
+    alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in ["TRPO"]
     main(log_dir='../PolicyGradient/TD3/log/', env_filter_func=None, alg_filter_func=None)
