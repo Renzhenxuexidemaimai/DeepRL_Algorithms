@@ -17,31 +17,29 @@
 
 | No. | Status | Algorithm | Paper |
 | --- | --- | --------- | ----- |
-| 1 | [√] | [Naive DQN][] | [Playing Atari with Deep Reinforcement Learning]() |
-| 2 | [√] | [Double DQN][] | []() |
-| 3 | [√] | [Dueling DQN][] | []() |
-| 4 | [√] | [REINFORCE][] | []() |
-| 5 | [√] | [VPG(Vanilla Policy Gradient)][] | []() |
-| 6 | [√] | [AC(Actor Critic)][] | []() |
-| 7 | [ ] | A3C | []() |
-| 8 | [ ] | A2C | []() |
-| 9 | [ ] | DPG | []() |
-| 10 | [√] | [DDPG][] | []() |
-| 11 | [ ] | D4PG | []() |
-| 12 | [ ] | MADDPG | []() |
-| 13 | [√] | [TRPO] | []() |
-| 14 | [√] | [PPO] | []() |
-| 15 | [ ] | ACER | []() |
-| 16 | [ ] | ACTKR | []() |
-| 17 | [ ] | SAC | []() |
-| 18 | [ ] | SAC with Automatically Adjusted Temperature |
-| 19 | [√] | [TD3(Twin Delayed DDPG)][] | []() |
-| 20 | [ ] | SVPG | []() |
-| 21 | [ ] | IMPALA | []() |
+| 1 | <ul><li>- [x] </li></ul> | [Naive DQN][2] | [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/abs/1312.5602) |
+| 2 | <ul><li>- [x] </li></ul> | [Double DQN][3] | [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461) |
+| 3 | <ul><li>- [x] </li></ul> | [Dueling DQN][4] | [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581) |
+| 4 | <ul><li>- [x] </li></ul> | [REINFORCE][9] | [Policy Gradient Methods for Reinforcement Learning with Function Approximation](https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf) |
+| 5 | <ul><li>- [x] </li></ul> | [VPG(Vanilla Policy Gradient)][10] |  |
+| 6 | <ul><li>- [ ] </li></ul> | AC(Actor Critic) |  |
+| 7 | <ul><li>- [ ] </li></ul> | A3C |  |
+| 8 | <ul><li>- [ ] </li></ul> | A2C |  |
+| 9 | <ul><li>- [ ] </li></ul> | DPG | [Deterministic Policy Gradient Algorithms](http://proceedings.mlr.press/v32/silver14.pdf) |
+| 10 | <ul><li>- [x] </li></ul> | [DDPG][13] | [Continuous Control With Deep Reinforcement Learning](https://arxiv.org/abs/1509.02971) |
+| 11 | <ul><li>- [ ] </li></ul> | D4PG |  |
+| 12 | <ul><li>- [ ] </li></ul> | MADDPG |  |
+| 13 | <ul><li>- [x] </li></ul> | [TRPO][12] | [Trust Region Policy Optimization](https://arxiv.org/abs/1502.05477) |
+| 14 | <ul><li>- [x] </li></ul> | [PPO][11] | [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347) |
+| 15 | <ul><li>- [ ] </li></ul> | ACER |  |
+| 16 | <ul><li>- [ ] </li></ul> | ACTKR |  |
+| 17 | <ul><li>- [ ] </li></ul> | SAC |  |
+| 18 | <ul><li>- [ ] </li></ul> | SAC with Automatically Adjusted Temperature |
+| 19 | <ul><li>- [x] </li></ul> | [TD3(Twin Delayed DDPG)][14] | [Addressing Function Approximation Error in Actor-Critic Methods](https://arxiv.org/abs/1802.09477) |
+| 20 | <ul><li>- [ ] </li></ul> | SVPG |  |
+| 21 | <ul><li>- [ ] </li></ul> | IMPALA |  |
 
   
-
-
 
 1. [DQN系列][1]
     - [Naive DQN][2]
