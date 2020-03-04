@@ -38,12 +38,6 @@ Double DQN 的动作值估计形式如下(论文中说对偶形式等价即交�
 ## 实践效果
 在gym的经典游戏CartPole-v0中的表现：
 
-<p float="left">
-    <img src="images/DQN.png" width="280"/>
-    <img src="images/DDQN.png" width="280"/>
-    <img src="images/DuelingDQN.png" width="280"/>
-</p>
-
 
 [1]: https://arxiv.org/abs/1312.5602
 [2]: https://arxiv.org/abs/1509.06461
