@@ -29,10 +29,10 @@ def main(env_id, render, num_process, lr_p, lr_v, gamma, tau, epsilon, batch_siz
     if mini_batch:
         ppo = PPO_Minibatch(env_id, render, num_process, batch_size, lr_p, lr_v, gamma, tau, epsilon,
                             ppo_mini_batch_size,
-                            ppo_epochs, model_path, seed=seed)
+                            ppo_epochs, seed=seed, model_path=model_path)
     else:
         ppo = PPO(env_id, render, num_process, batch_size, lr_p, lr_v, gamma, tau, epsilon,
-                  ppo_epochs, model_path, seed=seed)
+                  ppo_epochs, seed=seed, model_path=model_path)
 
     for i_iter in range(1, test_epochs):
         ppo.eval(i_iter)

@@ -32,8 +32,9 @@ class PPO_Minibatch:
                  clip_epsilon=0.2,
                  ppo_mini_batch_size=64,
                  ppo_epochs=10,
-                 model_path=None,
-                 seed=1):
+                 seed=1,
+                 model_path=None
+                 ):
         self.env_id = env_id
         self.gamma = gamma
         self.tau = tau

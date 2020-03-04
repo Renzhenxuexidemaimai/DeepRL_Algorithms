@@ -6,44 +6,38 @@ import pickle
 import torch
 import torch.optim as optim
 
-from Common.GAE import estimate_advantages
 from Common.MemoryCollector import MemoryCollector
 from PolicyGradient.Models.Policy import Policy
 from PolicyGradient.Models.Policy_discontinuous import DiscretePolicy
-from PolicyGradient.Models.Value import Value
-from PolicyGradient.algorithms.trpo_step import trpo_step
+from PolicyGradient.algorithms.reinforce_step import reinforce_step
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
-from Utils.torch_util import FLOAT, device, DOUBLE
+from Utils.torch_util import DOUBLE, device
 from Utils.zfilter import ZFilter
 
 
-class TRPO:
+class REINFORCE:
     def __init__(self,
                  env_id,
                  render=False,
                  num_process=1,
                  min_batch_size=2048,
-                 lr_v=3e-4,
+                 lr_p=3e-4,
                  gamma=0.99,
-                 tau=0.95,
-                 max_kl=1e-2,
-                 damping=1e-2,
+                 reinforce_epochs=5,
                  seed=1,
                  model_path=None
                  ):
         self.env_id = env_id
-        self.gamma = gamma
-        self.tau = tau
-        self.max_kl = max_kl
-        self.damping = damping
         self.render = render
         self.num_process = num_process
-        self.lr_v = lr_v
         self.min_batch_size = min_batch_size
-
+        self.lr_p = lr_p
+        self.gamma = gamma
+        self.reinforce_epochs = reinforce_epochs
         self.model_path = model_path
         self.seed = seed
+
         self._init_model()
 
     def _init_model(self):
@@ -59,19 +53,18 @@ class TRPO:
         else:
             self.policy_net = DiscretePolicy(num_states, num_actions).double().to(device)
 
-        self.value_net = Value(num_states).double().to(device)
         self.running_state = ZFilter((num_states,), clip=5)
 
         if self.model_path:
-            print("Loading Saved Model {}_trpo.p".format(self.env_id))
-            self.policy_net, self.value_net, self.running_state = pickle.load(
-                open('{}/{}_trpo.p'.format(self.model_path, self.env_id), "rb"))
+            print("Loading Saved Model {}_reinforce.p".format(self.env_id))
+            self.policy_net, self.running_state = pickle.load(
+                open('{}/{}_reinforce.p'.format(self.model_path, self.env_id), "rb"))
 
         self.collector = MemoryCollector(self.env, self.policy_net, render=self.render,
                                          running_state=self.running_state,
                                          num_process=self.num_process)
 
-        self.optimizer_v = optim.Adam(self.value_net.parameters(), lr=self.lr_v)
+        self.optimizer_p = optim.Adam(self.policy_net.parameters(), lr=self.lr_p)
 
     def choose_action(self, state):
         """select action"""
@@ -81,7 +74,7 @@ class TRPO:
         return action, log_prob
 
     def eval(self, i_iter):
-        """evaluate model"""
+        """init model from parameters"""
         state = self.env.reset()
         test_reward = 0
         while True:
@@ -107,7 +100,7 @@ class TRPO:
               f"average reward: {log['avg_reward']: .4f}, sample time: {log['sample_time']: .4f}")
 
         # record reward information
-        writer.add_scalars("trpo",
+        writer.add_scalars("reinforce",
                            {"total reward": log['total_reward'],
                             "average reward": log['avg_reward'],
                             "min reward": log['min_episode_reward'],
@@ -121,20 +114,16 @@ class TRPO:
         batch_action = DOUBLE(batch.action).to(device)
         batch_reward = DOUBLE(batch.reward).to(device)
         batch_mask = DOUBLE(batch.mask).to(device)
-        batch_log_prob = DOUBLE(batch.log_prob).to(device)
 
-        with torch.no_grad():
-            batch_value = self.value_net(batch_state)
-
-        batch_advantage, batch_return = estimate_advantages(batch_reward, batch_mask, batch_value, self.gamma,
-                                                            self.tau)
-
-        # update by TRPO
-        trpo_step(self.policy_net, self.value_net, batch_state, batch_action,
-                  batch_return, batch_advantage, batch_log_prob, self.max_kl, self.damping, 1e-3, None)
+        p_loss = torch.empty(1)
+        for _ in range(self.reinforce_epochs):
+            p_loss = reinforce_step(self.policy_net, self.optimizer_p, batch_state, batch_action, batch_reward,
+                                    batch_mask,
+                                    self.gamma)
+        return p_loss
 
     def save(self, save_path):
         """save model"""
         check_path(save_path)
-        pickle.dump((self.policy_net, self.value_net, self.running_state),
-                    open('{}/{}_trpo.p'.format(save_path, self.env_id), 'wb'))
+        pickle.dump((self.policy_net, self.running_state),
+                    open('{}/{}_reinforce.p'.format(save_path, self.env_id), 'wb'))

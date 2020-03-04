@@ -26,27 +26,26 @@ The deep learning framework used here is : [Pytorch](https://pytorch.org/).
 
 | No. | Status | Algorithm | Paper |
 | --- | --- | --------- | ----- |
-| 1 | :white_check_mark: | [Naive DQN][2] | [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/abs/1312.5602) |
+| 1 | :white_check_mark: | [DQN][2] | [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/abs/1312.5602) |
 | 2 | :white_check_mark: | [Double DQN][3] | [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461) |
 | 3 | :white_check_mark: | [Dueling DQN][4] | [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581) |
 | 4 | :white_check_mark: | [REINFORCE][9] | [Policy Gradient Methods for Reinforcement Learning with Function Approximation](https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf) |
-| 5 | :white_check_mark: | [VPG(Vanilla Policy Gradient)][10] |  |
-| 6 | <ul><li>- [ ] </li></ul> | AC(Actor Critic) |  |
-| 7 | <ul><li>- [ ] </li></ul> | A3C |  |
-| 8 | <ul><li>- [ ] </li></ul> | A2C |  |
-| 9 | <ul><li>- [ ] </li></ul> | DPG | [Deterministic Policy Gradient Algorithms](http://proceedings.mlr.press/v32/silver14.pdf) |
-| 10 | :white_check_mark: | [DDPG][13] | [Continuous Control With Deep Reinforcement Learning](https://arxiv.org/abs/1509.02971) |
-| 11 | <ul><li>- [ ] </li></ul> | D4PG |  |
-| 12 | <ul><li>- [ ] </li></ul> | MADDPG |  |
-| 13 | :white_check_mark: | [TRPO][12] | [Trust Region Policy Optimization](https://arxiv.org/abs/1502.05477) |
-| 14 | :white_check_mark: | [PPO][11] | [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347) |
-| 15 | <ul><li>- [ ] </li></ul> | ACER |  |
-| 16 | <ul><li>- [ ] </li></ul> | ACTKR |  |
-| 17 | <ul><li>- [ ] </li></ul> | SAC |  |
-| 18 | <ul><li>- [ ] </li></ul> | SAC with Automatically Adjusted Temperature |
-| 19 | :white_check_mark: | [TD3(Twin Delayed DDPG)][14] | [Addressing Function Approximation Error in Actor-Critic Methods](https://arxiv.org/abs/1802.09477) |
-| 20 | <ul><li>- [ ] </li></ul> | SVPG |  |
-| 21 | <ul><li>- [ ] </li></ul> | IMPALA |  |
+| 5 | :white_check_mark: | [VPG(Vanilla Policy Gradient)][10] | [High Dimensional Continuous Control Using Generalized Advantage Estimation](https://arxiv.org/abs/1506.02438) |
+| 6 | <ul><li>- [ ] </li></ul> | A3C |  |
+| 7 | <ul><li>- [ ] </li></ul> | A2C |  |
+| 8 | <ul><li>- [ ] </li></ul> | DPG | [Deterministic Policy Gradient Algorithms](http://proceedings.mlr.press/v32/silver14.pdf) |
+| 9 | :white_check_mark: | [DDPG][13] | [Continuous Control With Deep Reinforcement Learning](https://arxiv.org/abs/1509.02971) |
+| 10 | <ul><li>- [ ] </li></ul> | D4PG |  |
+| 11 | <ul><li>- [ ] </li></ul> | MADDPG |  |
+| 12 | :white_check_mark: | [TRPO][12] | [Trust Region Policy Optimization](https://arxiv.org/abs/1502.05477) |
+| 13 | :white_check_mark: | [PPO][11] | [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347) |
+| 14 | <ul><li>- [ ] </li></ul> | ACER |  |
+| 15 | <ul><li>- [ ] </li></ul> | ACTKR |  |
+| 16 | <ul><li>- [ ] </li></ul> | SAC |  |
+| 17 | <ul><li>- [ ] </li></ul> | SAC with Automatically Adjusted Temperature |
+| 18 | :white_check_mark: | [TD3(Twin Delayed DDPG)][14] | [Addressing Function Approximation Error in Actor-Critic Methods](https://arxiv.org/abs/1802.09477) |
+| 19 | <ul><li>- [ ] </li></ul> | SVPG |  |
+| 20 | <ul><li>- [ ] </li></ul> | IMPALA |  |
 
   
 <!-- 
@@ -99,9 +98,9 @@ The deep learning framework used here is : [Pytorch](https://pytorch.org/).
 
 
 [1]: DQN
-[2]: DQN/NaiveDQN.py
-[3]: DQN/DoubleDQN.py
-[4]: DQN/DuelingDQN.py
+[2]: DQN/DQN
+[3]: DQN/DoubleDQN
+[4]: DQN/DuelingDQN
 [5]: DQN/images/DQN.png
 [6]: DQN/images/DDQN.png
 [7]: DQN/images/DuelingDQN.png

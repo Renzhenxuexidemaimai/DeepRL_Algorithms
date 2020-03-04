@@ -14,10 +14,11 @@ def get_env_space(env_id):
 
     return env, num_states, num_actions
 
-def get_env_info(env_id):
+
+def get_env_info(env_id, unwrap=False):
     env = gym.make(env_id)
-    # 解除环境限制
-    # env = env.unwrapped
+    if unwrap:  # 解除环境限制
+        env = env.unwrapped
     num_states = env.observation_space.shape[0]
     env_continuous = False
     if type(env.action_space) == Discrete:

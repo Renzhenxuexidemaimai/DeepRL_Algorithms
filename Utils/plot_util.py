@@ -15,8 +15,8 @@ plot the performance of algorithms from TensorBoard Log History
 DEFAULT_SIZE_GUIDANCE = {
     "scalars": 0,
 }
-
-sns.set(style="darkgrid", font_scale=1.2, rc={"lines.linewidth": 2}, palette=sns.color_palette("hls", 1))
+# palette=sns.color_palette("hls", 8)
+sns.set(style="darkgrid", font_scale=1.2, rc={"lines.linewidth": 1.5})
 
 # plt.style.use('bmh')
 
@@ -107,7 +107,7 @@ def plot_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, smooth=1, en
 
     num_envs = len(envs_logdirs)
     sub_plot_height = math.floor(math.sqrt(num_envs))
-    sub_plot_width = num_envs // sub_plot_height
+    sub_plot_width = math.ceil(num_envs / sub_plot_height)
 
     envs_fulldir = lambda env_dir, alg_dir: os.path.join(env_dir, alg_dir)
     for y_ax in y_axis:
@@ -161,6 +161,7 @@ def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='
 
 
 if __name__ == "__main__":
-    # env_filter_func = lambda x: x.split(os.sep)[-1] == "BipedalWalker-v2"
+    env_filter_func = lambda x: x.split(os.sep)[-1] in ["CartPole-v1", "MountainCar-v0"]
     alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in ["TRPO"]
-    main(log_dir='../PolicyGradient/TD3/log/', env_filter_func=None, alg_filter_func=None)
+    main(env_filter_func=env_filter_func, alg_filter_func=None)
+    sns.despine()

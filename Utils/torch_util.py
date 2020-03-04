@@ -9,6 +9,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 FLOAT = torch.FloatTensor
 DOUBLE = torch.DoubleTensor
+LONG = torch.LongTensor
 
 def to_device(*args):
     return [arg.to(device) for arg in args]

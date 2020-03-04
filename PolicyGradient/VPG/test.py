@@ -23,7 +23,7 @@ from PolicyGradient.VPG.vpg import VPG
 def main(env_id, render, num_process, lr_p, lr_v, gamma, tau, batch_size,
          vpg_epochs, model_path, seed, test_epochs):
     vpg = VPG(env_id, render, num_process, batch_size, lr_p, lr_v, gamma, tau,
-              vpg_epochs, model_path, seed=seed)
+              vpg_epochs, seed=seed, model_path=model_path)
 
     for i_iter in range(1, test_epochs):
         vpg.eval(i_iter)
