@@ -8,10 +8,10 @@ from Utils.torch_util import device, DOUBLE
 def reinforce_step(policy_net, optimizer_policy, states, actions, rewards, masks, gamma, eps=1e-6):
     """calculate cumulative reward"""
     cum_rewards = DOUBLE(rewards.size(0), 1).to(device)
-    r = 0
+    pre_value = 0
     for i in reversed(range(rewards.size(0))):
-        r += gamma * masks[i] * rewards[i, 0]
-        cum_rewards[i, 0] = r
+        pre_value = gamma * masks[i] * pre_value + rewards[i, 0]
+        cum_rewards[i, 0] = pre_value
 
     # normalize cumulative rewards
     cum_rewards = (cum_rewards - cum_rewards.mean()) / (cum_rewards.std() + eps)

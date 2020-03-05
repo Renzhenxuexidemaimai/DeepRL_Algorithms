@@ -106,13 +106,13 @@ def plot_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, smooth=1, en
     print("All envs are: ", list(map(os.path.abspath, envs_logdirs)))
 
     num_envs = len(envs_logdirs)
-    sub_plot_height = math.floor(math.sqrt(num_envs))
+    sub_plot_height = round(math.sqrt(num_envs))
     sub_plot_width = math.ceil(num_envs / sub_plot_height)
 
     envs_fulldir = lambda env_dir, alg_dir: os.path.join(env_dir, alg_dir)
     for y_ax in y_axis:
         k = 0
-        fig, axes = plt.subplots(sub_plot_height, sub_plot_width, figsize=(6 * sub_plot_width, 5 * sub_plot_height))
+        fig, axes = plt.subplots(sub_plot_height, sub_plot_width, figsize=(6 * sub_plot_width, 4 * sub_plot_height))
         for env_dir in envs_logdirs:
             if sub_plot_height == 1:
                 if sub_plot_width == 1:
@@ -161,7 +161,7 @@ def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='
 
 
 if __name__ == "__main__":
-    env_filter_func = lambda x: x.split(os.sep)[-1] in ["CartPole-v1", "MountainCar-v0"]
+    env_filter_func = lambda x: x.split(os.sep)[-1] in ["CartPole-v1", "MountainCar-v0", "Acrobot-v1", "LunarLander-v2"]
     alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in ["TRPO"]
     main(env_filter_func=env_filter_func, alg_filter_func=None)
     sns.despine()
