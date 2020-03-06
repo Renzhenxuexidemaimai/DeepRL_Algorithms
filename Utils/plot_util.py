@@ -15,8 +15,13 @@ plot the performance of algorithms from TensorBoard Log History
 DEFAULT_SIZE_GUIDANCE = {
     "scalars": 0,
 }
+
 # palette=sns.color_palette("hls", 8)
-sns.set(style="darkgrid", font_scale=1.2, rc={"lines.linewidth": 1.5})
+# themes = ['deep', 'muted', 'pastel', 'bright', 'dark', 'colorblind']
+flatui = ["#9b59b6", "#3498db", "#95a5a6", "#e74c3c", "#34495e", "#2ecc71"]
+
+sns.set(style="white", font_scale=1.2, rc={"lines.linewidth": 1.5}, palette=sns.color_palette(flatui))
+
 
 # plt.style.use('bmh')
 
@@ -56,6 +61,7 @@ def load_event_scalars(log_path):
     print(f"Processing logfile: {os.path.abspath(log_path)}")
     if feature.find("_") != -1:
         feature = feature.split("_")[-1]
+    df = None
     try:
         event_acc = EventAccumulator(log_path, DEFAULT_SIZE_GUIDANCE)
         event_acc.Reload()
@@ -86,6 +92,7 @@ def get_env_alg_log(log_path):
     df = pd.concat([load_event_scalars(feature) for feature in alg_features], axis=1)
     if "num steps" in df:
         df["num steps"] = df["num steps"].cumsum()
+    df = df[df["num steps"] <= 3500000]
     # else:
     #     df["num steps"] = (np.ones((1, df.shape[0])) * 3000).cumsum()
     df["algorithm"] = [alg] * df.shape[0]
@@ -161,7 +168,11 @@ def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='
 
 
 if __name__ == "__main__":
-    env_filter_func = lambda x: x.split(os.sep)[-1] in ["CartPole-v1", "MountainCar-v0", "Acrobot-v1", "LunarLander-v2"]
+    env_filter_func_dqn = lambda x: x.split(os.sep)[-1] in ["CartPole-v1", "MountainCar-v0", "Acrobot-v1",
+                                                            "LunarLander-v2"]
+    env_filter_func = lambda x: x.split(os.sep)[-1] in ["BipedalWalker-v3"]
+    env_filter_func_pg = lambda x: x.split(os.sep)[-1] in ["HalfCheetah-v3", "Hopper-v3", "Walker2d-v3", "Swimmer-v3",
+                                                           "Ant-v3", "BipedalWalker-v3"]
     alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in ["TRPO"]
-    main(env_filter_func=env_filter_func, alg_filter_func=None)
+    main(env_filter_func=env_filter_func_pg, alg_filter_func=None)
     sns.despine()

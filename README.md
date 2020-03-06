@@ -63,8 +63,6 @@ The deep learning framework used here is : [Pytorch](https://pytorch.org/).
     - [TD3 (Twin Delayed DDPG)][14]
 -->
 
-## 3.Experiments
-
 <!--
 ### 3.1 [Deep Q-Learning(DQN)][1]:
 
@@ -95,8 +93,42 @@ The deep learning framework used here is : [Pytorch](https://pytorch.org/).
     </p>
 -->
 
-- PGs on Mujoco
-![Bechmarks for mujoco](PolicyGradient/images/bench_pg.png)
+### 3.Environment
+
+- Python >=3.6  
+- Pytorch >= 1.3.1  
+- Seaborn >= 0.10.0  
+- Click >= 7.0  
+
+### 4.Run algorithm
+
+Each algorithm is implemented in a single package including:
+```
+main.py --The entry point for algorithm  
+[algorithm].py --The main body for algorithm  
+test.py --To load pretrained model and test performance of the algorithm
+[algorithm]_step.py --Algorithm update core step 
+````
+The default `main.py` is a an executable example, the parameters are parsed by [click](https://click.palletsprojects.com/en/7.x/).
+You can simply type `python main.py --help` in the algorithm package to view all parameters. 
+
+You can run algorithm from the  `main.py` or `bash scripts`. 
+
+The directory [Scripts](Scripts) gives some bash scripts, you can modify them at will.
+
+### 5.Visualization of performance
+
+[Utils/plot_util.py](Utils/plot_util.py) provide a simple plot tool based on `Seaborn` and `Matplotlib`.
+
+All the plots in this project are drawn by this plot util.
+
+#### 5.1 Benchmarks for DQNs
+
+To add.
+ 
+#### 5.2 Benchmarks for PolicyGradients
+
+![bench_pg](PolicyGradient/images/bench_pg.png)
 
 
 [1]: DQN
