@@ -110,16 +110,14 @@ test.py --To load pretrained model and test performance of the algorithm
 [algorithm]_step.py --Algorithm update core step 
 ````
 The default `main.py` is a an executable example, the parameters are parsed by [click](https://click.palletsprojects.com/en/7.x/).
-You can simply type `python main.py --help` in the algorithm package to view all parameters. 
 
 You can run algorithm from the  `main.py` or `bash scripts`. 
-
-The directory [Scripts](Scripts) gives some bash scripts, you can modify them at will.
+- You can simply type `python main.py --help` in the algorithm package to view all parameters. 
+- The directory [Scripts](Scripts) gives some bash scripts, you can modify them at will.
 
 ### 5.Visualization of performance
 
 [Utils/plot_util.py](Utils/plot_util.py) provide a simple plot tool based on `Seaborn` and `Matplotlib`.
-
 All the plots in this project are drawn by this plot util.
 
 #### 5.1 Benchmarks for DQNs
