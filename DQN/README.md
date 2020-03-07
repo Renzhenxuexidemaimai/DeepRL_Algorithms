@@ -36,8 +36,12 @@ Double DQN 的动作值估计形式如下(论文中说对偶形式等价即交�
 ![Dueling DQN algorithm](images/Dueling%20DQN%20optimization%20for%20identifiability.png)
 
 ## 实践效果
-在gym的经典游戏CartPole-v0中的表现：
 
+在gym的经典环境中的表现：
+
+![bench_dqn](images/bench_dqn.png)
+
+Double DQN的效果似乎不尽人意，可能实现存在bug。
 
 [1]: https://arxiv.org/abs/1312.5602
 [2]: https://arxiv.org/abs/1509.06461

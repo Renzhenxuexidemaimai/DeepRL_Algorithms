@@ -1,6 +1,5 @@
 # About Deep Reinforcement Learning
 
-<!-- 强化学习和深度学习的结合产生了一系列重要的算法，本项目将着重参考相关 paper 并尽可能实现相关算法，这里使用的深度学习框架是 [Pytorch](https://pytorch.org/)。 -->
 The combination of Reinforcement Learning and Deep Learning produces a series of important algorithms. This project will focus on referring to 
 relevant papers and implementing relevant algorithms as far as possible. 
 
@@ -8,16 +7,6 @@ The deep learning framework used here is : [Pytorch](https://pytorch.org/).
 
 
 ## 1.Why do this?
-
-<!--
-尽管在 `Github` 上可以看到需要基于该框架的实现。自己动手实现，包括调试以及跑实验……，这个完整的过程，会使得对于算法的理解，以及算法的细微末节处可能遇到的问题更清楚，
-从宏观上，你仍然可以参考其他人的实现，但永远不可以简单地 `copy & paste`，学习这个过程，别人永远无法替你完成。当然，你也会遇到一些问题，
-亲自解决这些问题使得你今后对于算法的调试有许多帮助。
-
-从头开始的另一个好处，就是你能把握整个知识脉络，由简单到复杂，性能对比，能够做到心中有数。我的实际使用中会涉及到调用相关的算法，但很难受的是，我一上手
-就去调用人家写的东西，实验效果不理想，而无从调试，也不知道问题出在哪里。这就是用别人的东西存在的问题，调用高质量的库能够节省时间也能保证质量，但前提是
-————你了解细节，你已经具备基础。
--->
 
 - Implementing all of this algorithms from scratch really helps you with your **parameter tuning**; 
 - The coding process allows you to **better understand** the **principles** of the algorithm.
@@ -93,20 +82,20 @@ The deep learning framework used here is : [Pytorch](https://pytorch.org/).
     </p>
 -->
 
-### 3.Environment
+### 3.Project Dependencies
 
 - Python >=3.6  
 - Pytorch >= 1.3.1  
 - Seaborn >= 0.10.0  
 - Click >= 7.0  
 
-### 4.Run algorithm
+### 4.Run
 
 Each algorithm is implemented in a single package including:
 ```
-main.py --The entry point for algorithm  
-[algorithm].py --The main body for algorithm  
-test.py --To load pretrained model and test performance of the algorithm
+main.py --A minimal executable example for algorithm  
+[algorithm].py --Main body for algorithm implementation  
+test.py --Loading pretrained model and test performance of the algorithm
 [algorithm]_step.py --Algorithm update core step 
 ````
 The default `main.py` is a an executable example, the parameters are parsed by [click](https://click.palletsprojects.com/en/7.x/).
@@ -122,7 +111,7 @@ All the plots in this project are drawn by this plot util.
 
 #### 5.1 Benchmarks for DQNs
 
-To add.
+![bench_dqn](DQN/images/bench_dqn.png)
  
 #### 5.2 Benchmarks for PolicyGradients
 

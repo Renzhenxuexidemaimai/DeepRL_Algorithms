@@ -173,6 +173,6 @@ if __name__ == "__main__":
     env_filter_func = lambda x: x.split(os.sep)[-1] in ["BipedalWalker-v3"]
     env_filter_func_pg = lambda x: x.split(os.sep)[-1] in ["HalfCheetah-v3", "Hopper-v3", "Walker2d-v3", "Swimmer-v3",
                                                            "Ant-v3", "BipedalWalker-v3"]
-    alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in ["TRPO"]
-    main(env_filter_func=env_filter_func_pg, alg_filter_func=None)
+    alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in []
+    main(env_filter_func=env_filter_func_dqn, alg_filter_func=None)
     sns.despine()
