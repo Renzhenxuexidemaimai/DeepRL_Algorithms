@@ -57,12 +57,13 @@ class DDPG:
     def _init_model(self):
         """init model from parameters"""
         self.env, env_continuous, num_states, self.num_actions = get_env_info(self.env_id)
+        assert env_continuous, "DDPG is only applicable to continuous environment !!!!"
+
         self.action_low, self.action_high = self.env.action_space.low[0], self.env.action_space.high[0]
         # seeding
         np.random.seed(self.seed)
         torch.manual_seed(self.seed)
         self.env.seed(self.seed)
-        assert env_continuous, "DDPG is only applicable to continuous environment !!!!"
 
         self.policy_net = Policy(num_states, self.num_actions, self.action_high).double().to(device)
         self.policy_net_target = Policy(num_states, self.num_actions, self.action_high).double().to(device)
@@ -102,7 +103,6 @@ class DDPG:
         while True:
             self.env.render()
             state = self.running_state(state)
-
             action, _ = self.choose_action(state, 0)
             state, reward, done, _ = self.env.step(action)
 
@@ -125,7 +125,6 @@ class DDPG:
         while num_steps < self.step_per_iter:
             state = self.env.reset()
             state = self.running_state(state)
-
             episode_reward = 0
 
             for t in range(10000):
@@ -133,9 +132,9 @@ class DDPG:
                 if self.render:
                     self.env.render()
 
-                if global_steps < self.explore_size: # explore
+                if global_steps < self.explore_size:  # explore
                     action = self.env.action_space.sample()
-                else: # action with noise
+                else:  # action with noise
                     action, _ = self.choose_action(state, self.action_noise)
 
                 next_state, reward, done, _ = self.env.step(action)

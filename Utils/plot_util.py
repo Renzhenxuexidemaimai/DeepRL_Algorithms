@@ -16,7 +16,11 @@ DEFAULT_SIZE_GUIDANCE = {
     "scalars": 0,
 }
 
-sns.set(style="darkgrid", font_scale=1.2)
+# palette=sns.color_palette("hls", 8)
+# themes = ['deep', 'muted', 'pastel', 'bright', 'dark', 'colorblind']
+flatui = ["#9b59b6", "#3498db", "#95a5a6", "#e74c3c", "#34495e", "#2ecc71"]
+
+sns.set(style="white", font_scale=1.2, rc={"lines.linewidth": 1.5}, palette=sns.color_palette(flatui))
 
 
 # plt.style.use('bmh')
@@ -42,8 +46,9 @@ def plot_data(data, x_axis='num steps', y_axis="average reward", hue="algorithm"
     sns.lineplot(data=data, x=x_axis, y=y_axis, hue=hue, ci='sd', ax=ax, **kwargs)
     # ax.legend(loc='best').set_draggable(True)
     """Spining up style"""
-    plt.legend(loc='upper center', ncol=6, handlelength=1, frameon=False,
-               mode="expand", borderaxespad=0.02, prop={'size': 13})
+
+    ax.legend(loc='upper center', ncol=6, handlelength=1, frameon=False,
+              mode="expand", borderaxespad=0.02, prop={'size': 13})
 
     xscale = np.max(np.asarray(data[x_axis])) > 5e3
     if xscale:
@@ -54,9 +59,10 @@ def plot_data(data, x_axis='num steps', y_axis="average reward", hue="algorithm"
 
 def load_event_scalars(log_path):
     feature = log_path.split(os.sep)[-1]
-    print(f"Processing logfile: {log_path}")
+    print(f"Processing logfile: {os.path.abspath(log_path)}")
     if feature.find("_") != -1:
         feature = feature.split("_")[-1]
+    df = None
     try:
         event_acc = EventAccumulator(log_path, DEFAULT_SIZE_GUIDANCE)
         event_acc.Reload()
@@ -68,7 +74,7 @@ def load_event_scalars(log_path):
             df = pd.DataFrame({feature: values}, index=step)
     # Dirty catch of DataLossError
     except:
-        print("Event file possibly corrupt: {}".format(log_path))
+        print("Event file possibly corrupt: {}".format(os.path.abspath(log_path)))
         traceback.print_exc()
     return df
 
@@ -87,6 +93,7 @@ def get_env_alg_log(log_path):
     df = pd.concat([load_event_scalars(feature) for feature in alg_features], axis=1)
     if "num steps" in df:
         df["num steps"] = df["num steps"].cumsum()
+    df = df[df["num steps"] <= 3500000]
     # else:
     #     df["num steps"] = (np.ones((1, df.shape[0])) * 3000).cumsum()
     df["algorithm"] = [alg] * df.shape[0]
@@ -104,18 +111,17 @@ def plot_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, smooth=1, en
         [fulldir(x) for x in os.listdir(basedir) if os.path.isdir(fulldir(x))])  # [../log/Ant-v3/, ../log/Hopper-v3/]
     if env_filter_func:
         envs_logdirs = sorted(filter(env_filter_func, envs_logdirs))
-    print("All envs are: ", envs_logdirs)
+    print("All envs are: ", list(map(os.path.abspath, envs_logdirs)))
 
     num_envs = len(envs_logdirs)
-    sub_plot_height = math.floor(math.sqrt(num_envs))
-    sub_plot_width = num_envs // sub_plot_height
+    sub_plot_height = round(math.sqrt(num_envs))
+    sub_plot_width = math.ceil(num_envs / sub_plot_height)
 
     envs_fulldir = lambda env_dir, alg_dir: os.path.join(env_dir, alg_dir)
     for y_ax in y_axis:
         k = 0
         fig, axes = plt.subplots(sub_plot_height, sub_plot_width, figsize=(6 * sub_plot_width, 4 * sub_plot_height))
         for env_dir in envs_logdirs:
-            print(sub_plot_width, sub_plot_height)
             if sub_plot_height == 1:
                 if sub_plot_width == 1:
                     ax = axes
@@ -129,7 +135,7 @@ def plot_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, smooth=1, en
                 filter(os.path.isdir, [envs_fulldir(env_dir, alg_dir) for alg_dir in os.listdir(env_dir)]))
             if alg_filter_func:
                 env_alg_dirs = sorted(filter(alg_filter_func, env_alg_dirs))
-            print(env_alg_dirs)
+            print(f"Env id: {env_id}, logs: {list(map(os.path.abspath, env_alg_dirs))}")
 
             env_log_df = [get_env_alg_log(env_alg_dir) for env_alg_dir in env_alg_dirs]
             make_plot(data=env_log_df, x_axis=x_axis, y_axis=y_ax, smooth=smooth, title=env_id, hue=hue, ax=ax)
@@ -149,7 +155,6 @@ def make_plot(data, x_axis=None, y_axis=None, title=None, hue=None, smooth=1, es
 # @click.option("--x_axis", type=str, default="num steps", help="X axis data")
 # @click.option("--y_axis", type=list, default=["average reward"], help="Y axis data(can be multiple)")
 # @click.option("--hue", type=str, default="algorithm", help="Hue for legend")
-# def main(log_dir, x_axis, y_axis, hue):
 def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='algorithm',
          env_filter_func=None, alg_filter_func=None):
     """
@@ -164,6 +169,11 @@ def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='
 
 
 if __name__ == "__main__":
-    env_filter_func = lambda x: x.split(os.sep)[-1] in ["HalfCheetah-v3"]
-    # alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in ["VPG"]
-    main(env_filter_func=None, alg_filter_func=None)
+    env_filter_func_dqn = lambda x: x.split(os.sep)[-1] in ["CartPole-v1", "MountainCar-v0", "Acrobot-v1",
+                                                            "LunarLander-v2"]
+    env_filter_func = lambda x: x.split(os.sep)[-1] in ["BipedalWalker-v3"]
+    env_filter_func_pg = lambda x: x.split(os.sep)[-1] in ["HalfCheetah-v3", "Hopper-v3", "Walker2d-v3", "Swimmer-v3",
+                                                           "Ant-v3", "BipedalWalker-v3"]
+    alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in []
+    main(env_filter_func=env_filter_func_dqn, alg_filter_func=None)
+    sns.despine()

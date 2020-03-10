@@ -8,7 +8,6 @@ import torch.optim as optim
 
 from Common.GAE import estimate_advantages
 from Common.MemoryCollector import MemoryCollector
-# from Common.RemoteMemoryCollector import MemoryCollector
 from PolicyGradient.Models.Policy import Policy
 from PolicyGradient.Models.Policy_discontinuous import DiscretePolicy
 from PolicyGradient.Models.Value import Value
@@ -30,8 +29,9 @@ class TRPO:
                  tau=0.95,
                  max_kl=1e-2,
                  damping=1e-2,
-                 model_path=None,
-                 seed=1):
+                 seed=1,
+                 model_path=None
+                 ):
         self.env_id = env_id
         self.gamma = gamma
         self.tau = tau

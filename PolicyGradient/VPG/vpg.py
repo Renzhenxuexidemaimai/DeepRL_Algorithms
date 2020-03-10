@@ -7,7 +7,6 @@ import torch
 import torch.optim as optim
 
 from Common.GAE import estimate_advantages
-from Common.MemoryCollectorV2 import MemoryCollectorV2
 from Common.MemoryCollector import MemoryCollector
 from PolicyGradient.Models.Policy import Policy
 from PolicyGradient.Models.Policy_discontinuous import DiscretePolicy
@@ -30,8 +29,9 @@ class VPG:
                  gamma=0.99,
                  tau=0.95,
                  vpg_epochs=10,
-                 model_path=None,
-                 seed=1):
+                 seed=1,
+                 model_path=None
+                 ):
         self.env_id = env_id
         self.gamma = gamma
         self.tau = tau
@@ -128,7 +128,7 @@ class VPG:
 
         batch_advantage, batch_return = estimate_advantages(batch_reward, batch_mask, batch_value, self.gamma,
                                                             self.tau)
-        v_loss, p_loss = vpg_step(self.policy_net, self.value_net, self.optimizer_p, self.optimizer_v, 10,
+        v_loss, p_loss = vpg_step(self.policy_net, self.value_net, self.optimizer_p, self.optimizer_v, self.vpg_epochs,
                                   batch_state,
                                   batch_action, batch_return, batch_advantage,
                                   1e-3)

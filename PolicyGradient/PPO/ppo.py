@@ -8,7 +8,6 @@ import torch.optim as optim
 
 from Common.GAE import estimate_advantages
 from Common.MemoryCollector import MemoryCollector
-from Common.MemoryCollectorV2 import MemoryCollectorV2
 from PolicyGradient.Models.Policy import Policy
 from PolicyGradient.Models.Policy_discontinuous import DiscretePolicy
 from PolicyGradient.Models.Value import Value
@@ -31,8 +30,9 @@ class PPO:
                  tau=0.95,
                  clip_epsilon=0.2,
                  ppo_epochs=10,
-                 model_path=None,
-                 seed=1):
+                 seed=1,
+                 model_path=None
+                 ):
         self.env_id = env_id
         self.gamma = gamma
         self.tau = tau
