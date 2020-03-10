@@ -13,16 +13,16 @@ from PolicyGradient.DDPG.ddpg import DDPG
 @click.option("--env_id", type=str, default="HalfCheetah-v3", help="Environment Id")
 @click.option("--render", type=bool, default=False, help="Render environment or not")
 @click.option("--num_process", type=int, default=1, help="Number of process to run environment")
-@click.option("--lr_p", type=float, default=3e-4, help="Learning rate for Policy Net")
+@click.option("--lr_p", type=float, default=1e-3, help="Learning rate for Policy Net")
 @click.option("--lr_v", type=float, default=1e-3, help="Learning rate for Value Net")
 @click.option("--gamma", type=float, default=0.99, help="Discount factor")
 @click.option("--polyak", type=float, default=0.995, help="Interpolation factor in polyak averaging for target networks")
 @click.option("--explore_size", type=int, default=10000, help="Explore steps before execute deterministic policy")
 @click.option("--memory_size", type=int, default=1000000, help="Size of replay memory")
-@click.option("--step_per_iter", type=int, default=3000, help="Number of steps of interaction in each iteration")
+@click.option("--step_per_iter", type=int, default=3500, help="Number of steps of interaction in each iteration")
 @click.option("--batch_size", type=int, default=100, help="Batch size")
 @click.option("--min_update_step", type=int, default=1000, help="Minimum interacts for updating")
-@click.option("--update_step", type=int, default=50, help="Intervals between updating policy and critic")
+@click.option("--update_step", type=int, default=50, help="Steps between updating policy and critic")
 @click.option("--max_iter", type=int, default=500, help="Maximum iterations to run")
 @click.option("--eval_iter", type=int, default=50, help="Iterations to evaluate the model")
 @click.option("--save_iter", type=int, default=50, help="Iterations to save the model")
@@ -55,10 +55,10 @@ def main(env_id, render, num_process, lr_p, lr_v, gamma, polyak, explore_size, m
         ddpg.learn(writer, i_iter)
 
         # if i_iter % eval_iter == 0:
-        #     trpo.eval(i_iter)
+        #     ddpg.eval(i_iter)
         #
         # if i_iter % save_iter == 0:
-        #     trpo.save(model_path)
+        #     ddpg.save(model_path)
 
         torch.cuda.empty_cache()
 

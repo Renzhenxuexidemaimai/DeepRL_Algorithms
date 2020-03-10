@@ -28,7 +28,7 @@ class DDPG:
                  polyak=0.995,
                  explore_size=10000,
                  step_per_iter=3000,
-                 batch_size=256,
+                 batch_size=100,
                  min_update_step=1000,
                  update_step=50,
                  action_noise=0.1,
@@ -59,18 +59,16 @@ class DDPG:
         self.env, env_continuous, num_states, self.num_actions = get_env_info(self.env_id)
         self.action_low, self.action_high = self.env.action_space.low[0], self.env.action_space.high[0]
         # seeding
+        np.random.seed(self.seed)
         torch.manual_seed(self.seed)
         self.env.seed(self.seed)
-
         assert env_continuous, "DDPG is only applicable to continuous environment !!!!"
 
         self.policy_net = Policy(num_states, self.num_actions, self.action_high).double().to(device)
         self.policy_net_target = Policy(num_states, self.num_actions, self.action_high).double().to(device)
-        self.policy_net_target.load_state_dict(self.policy_net.state_dict())
 
         self.value_net = Value(num_states, self.num_actions).double().to(device)
         self.value_net_target = Value(num_states, self.num_actions).double().to(device)
-        self.value_net_target.load_state_dict(self.value_net.state_dict())
 
         self.running_state = ZFilter((num_states,), clip=5)
 
@@ -78,6 +76,9 @@ class DDPG:
             print("Loading Saved Model {}_ddpg.p".format(self.env_id))
             self.policy_net, self.value_net, self.running_state = pickle.load(
                 open('{}/{}_ddpg.p'.format(self.model_path, self.env_id), "rb"))
+
+        self.policy_net_target.load_state_dict(self.policy_net.state_dict())
+        self.value_net_target.load_state_dict(self.value_net.state_dict())
 
         self.optimizer_p = optim.Adam(self.policy_net.parameters(), lr=self.lr_p)
         self.optimizer_v = optim.Adam(self.value_net.parameters(), lr=self.lr_v)
@@ -88,12 +89,14 @@ class DDPG:
         with torch.no_grad():
             action, log_prob = self.policy_net.get_action_log_prob(state)
         action = action.cpu().numpy()[0]
-        action += noise_scale * np.random.randn(self.num_actions)
+        # add noise
+        noise = noise_scale * np.random.randn(self.num_actions)
+        action += noise
         action = np.clip(action, -self.action_high, self.action_high)
         return action, log_prob
 
     def eval(self, i_iter):
-        """init model from parameters"""
+        """evaluate model"""
         state = self.env.reset()
         test_reward = 0
         while True:
@@ -126,13 +129,15 @@ class DDPG:
             episode_reward = 0
 
             for t in range(10000):
+
                 if self.render:
                     self.env.render()
 
-                if global_steps < self.explore_size:
+                if global_steps < self.explore_size: # explore
                     action = self.env.action_space.sample()
-                else:
+                else: # action with noise
                     action, _ = self.choose_action(state, self.action_noise)
+
                 next_state, reward, done, _ = self.env.step(action)
                 next_state = self.running_state(next_state)
                 mask = 0 if done else 1
@@ -140,7 +145,6 @@ class DDPG:
                 self.memory.push(state, action, reward, next_state, mask, None)
 
                 episode_reward += reward
-
                 global_steps += 1
                 num_steps += 1
 
@@ -151,6 +155,7 @@ class DDPG:
 
                 if done or num_steps >= self.step_per_iter:
                     break
+
                 state = next_state
 
             num_episodes += 1
@@ -180,7 +185,6 @@ class DDPG:
                             "num steps": log['num_steps']
                             }, i_iter)
 
-
     def update(self, batch):
         """learn model"""
         batch_state = DOUBLE(batch.state).to(device)
@@ -189,12 +193,10 @@ class DDPG:
         batch_next_state = DOUBLE(batch.next_state).to(device)
         batch_mask = DOUBLE(batch.mask).to(device)
 
-
         # update by DDPG
         ddpg_step(self.policy_net, self.policy_net_target, self.value_net, self.value_net_target, self.optimizer_p,
                   self.optimizer_v, batch_state, batch_action, batch_reward, batch_next_state, batch_mask,
                   self.gamma, self.polyak)
-
 
     def save(self, save_path):
         """save model"""

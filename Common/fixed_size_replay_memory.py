@@ -4,7 +4,7 @@ from Common.replay_memory import Memory, Transition
 
 class FixedMemory(Memory):
     def __init__(self, size=None):
-        super().__init__()
+        super(FixedMemory, self).__init__()
         self._cur_pos = 0
         self._size = size
 

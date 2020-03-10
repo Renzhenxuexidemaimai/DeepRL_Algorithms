@@ -40,10 +40,10 @@ def plot_data(data, x_axis='num steps', y_axis="average reward", hue="algorithm"
         data = pd.concat(data, ignore_index=True, sort=True)
 
     sns.lineplot(data=data, x=x_axis, y=y_axis, hue=hue, ci='sd', ax=ax, **kwargs)
-    ax.legend(loc='best').set_draggable(True)
+    # ax.legend(loc='best').set_draggable(True)
     """Spining up style"""
-    # plt.legend(loc='upper center', ncol=6, handlelength=1,
-    #            mode="expand", borderaxespad=0.02, prop={'size': 13})
+    plt.legend(loc='upper center', ncol=6, handlelength=1, frameon=False,
+               mode="expand", borderaxespad=0.02, prop={'size': 13})
 
     xscale = np.max(np.asarray(data[x_axis])) > 5e3
     if xscale:
@@ -115,8 +115,12 @@ def plot_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, smooth=1, en
         k = 0
         fig, axes = plt.subplots(sub_plot_height, sub_plot_width, figsize=(6 * sub_plot_width, 4 * sub_plot_height))
         for env_dir in envs_logdirs:
-            if sub_plot_width == 1 and sub_plot_height == 1:
-                ax = axes
+            print(sub_plot_width, sub_plot_height)
+            if sub_plot_height == 1:
+                if sub_plot_width == 1:
+                    ax = axes
+                else:
+                    ax = axes[k]
             else:
                 ax = axes[k // sub_plot_width][k % sub_plot_width]
 
@@ -160,6 +164,6 @@ def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='
 
 
 if __name__ == "__main__":
-    # env_filter_func = lambda x: x.split(os.sep)[-1] == "BipedalWalker-v2"
+    env_filter_func = lambda x: x.split(os.sep)[-1] in ["HalfCheetah-v3"]
     # alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in ["VPG"]
     main(env_filter_func=None, alg_filter_func=None)

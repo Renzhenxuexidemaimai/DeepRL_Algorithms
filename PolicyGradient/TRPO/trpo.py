@@ -81,7 +81,7 @@ class TRPO:
         return action, log_prob
 
     def eval(self, i_iter):
-        """init model from parameters"""
+        """evaluate model"""
         state = self.env.reset()
         test_reward = 0
         while True:
