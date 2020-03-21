@@ -10,7 +10,7 @@ import numpy as np
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 
 """
-plot the performance of algorithms from TensorBoard Log History
+plot the performance of core from TensorBoard Log History
 """
 DEFAULT_SIZE_GUIDANCE = {
     "scalars": 0,
@@ -166,7 +166,6 @@ def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='
                   env_filter_func=env_filter_func,
                   alg_filter_func=alg_filter_func)
 
-
 if __name__ == "__main__":
     env_filter_func_dqn = lambda x: x.split(os.sep)[-1] in ["CartPole-v1", "MountainCar-v0", "Acrobot-v1",
                                                             "LunarLander-v2"]
@@ -174,5 +173,5 @@ if __name__ == "__main__":
     env_filter_func_pg = lambda x: x.split(os.sep)[-1] in ["HalfCheetah-v3", "Hopper-v3", "Walker2d-v3", "Swimmer-v3",
                                                            "Ant-v3", "BipedalWalker-v3"]
     alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in []
-    main(env_filter_func=env_filter_func_dqn, alg_filter_func=None)
+    main(env_filter_func=env_filter_func, alg_filter_func=None)
     sns.despine()

@@ -7,7 +7,7 @@ import time
 import ray
 import torch
 
-from Utils.replay_memory import Memory
+from Common.replay_memory import Memory
 from Utils.torch_util import device, FLOAT, DOUBLE
 
 @ray.remote

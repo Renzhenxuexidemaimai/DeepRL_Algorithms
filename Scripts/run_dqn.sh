@@ -10,7 +10,7 @@ for (( k = 0; k < ${#algs[@]}; ++k )); do
             echo ============================================
             echo Algo: ${alg}, starting Env: ${envs[$i]} ----- Exp_id $j
 
-            python -m DQN.${alg}.main --env_id ${envs[$i]} --model_path DQN/${alg}/trained_models --seed $j
+            python -m Algorithms.pytorch.${alg}.main --env_id ${envs[$i]} --model_path Algorithms/pytorch/${alg}/trained_models --seed $j
 
             echo Algo: ${alg}, finishing Env: ${envs[$i]} ----- Exp_id $j
             echo ============================================
