@@ -2,7 +2,7 @@
 # Created at 2020/2/21
 import torch.nn as nn
 
-from PolicyGradient.Models.BasePolicy import BasePolicy
+from Algorithms.pytorch.Models.BasePolicy import BasePolicy
 
 
 def init_weight(m):

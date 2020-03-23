@@ -5,5 +5,10 @@
 import tensorflow as tf
 import numpy as np
 
-FLOAT = tf.float64
+TLONG = tf.int64
+TFLOAT = tf.float32
+TDOUBLE = tf.float64
+
+NLONG = np.int64
 NFLOAT = np.float64
+NDOUBLE = np.float64

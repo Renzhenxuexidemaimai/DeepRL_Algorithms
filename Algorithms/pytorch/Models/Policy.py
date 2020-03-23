@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from torch.distributions import Normal
 
-from PolicyGradient.Models.BasePolicy import BasePolicy
+from Algorithms.pytorch.Models.BasePolicy import BasePolicy
 
 
 def init_weight(m):

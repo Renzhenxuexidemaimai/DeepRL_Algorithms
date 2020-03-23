@@ -15,9 +15,9 @@ This repo aims to implement Deep Reinforcement Learning algorithms using [Pytorc
 
 | No. | Status | Algorithm | Paper |
 | --- | ------- | --------- | ----- |
-| 1 | :white_check_mark: | DQN [Pytorch](Algorithms/pytorch/DQN)/ [Tensorflow](Algorithms/tf2/DQN) | [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/abs/1312.5602) |
-| 2 | :white_check_mark: | Double DQN [Pytorch](Algorithms/pytorch/DoubleDQN) | [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461) |
-| 3 | :white_check_mark: | Dueling DQN [Pytorch](Algorithms/pytorch/DuelingDQN) | [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581) |
+| 1 | :white_check_mark: | DQN [Pytorch](Algorithms/pytorch/DQN) / [Tensorflow](Algorithms/tf2/DQN) | [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/abs/1312.5602) |
+| 2 | :white_check_mark: | Double DQN [Pytorch](Algorithms/pytorch/DoubleDQN) / [Tensorflow](Algorithms/tf2/DoubleDQN) | [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461) |
+| 3 | :white_check_mark: | Dueling DQN [Pytorch](Algorithms/pytorch/DuelingDQN) [Tensorflow](Algorithms/tf2/DuelingDQN)| [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581) |
 | 4 | :white_check_mark: | REINFORCE [Pytorch](Algorithms/pytorch/REINFORCE) | [Policy Gradient Methods for Reinforcement Learning with Function Approximation](https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf) |
 | 5 | :white_check_mark: | VPG(Vanilla Policy Gradient) [Pytorch](Algorithms/pytorch/VPG) | [High Dimensional Continuous Control Using Generalized Advantage Estimation](https://arxiv.org/abs/1506.02438) |
 | 6 | <ul><li>- [ ] </li></ul> | A3C |  |

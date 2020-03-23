@@ -154,7 +154,7 @@ def make_plot(data, x_axis=None, y_axis=None, title=None, hue=None, smooth=1, es
 # @click.option("--x_axis", type=str, default="num steps", help="X axis data")
 # @click.option("--y_axis", type=list, default=["average reward"], help="Y axis data(can be multiple)")
 # @click.option("--hue", type=str, default="algorithm", help="Hue for legend")
-def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='algorithm',
+def main(log_dir='../Algorithms/pytorch/log/', x_axis='num steps', y_axis=['average reward'], hue='algorithm',
          env_filter_func=None, alg_filter_func=None):
     """
     1.遍历所有环境, 对每个环境下所有算法的log信息进行绘图

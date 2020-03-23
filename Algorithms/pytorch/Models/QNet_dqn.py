@@ -2,7 +2,7 @@
 # Created at 2020/3/3
 import torch.nn as nn
 
-from DQN.Models.BaseQNet import BaseQNet
+from Algorithms.pytorch.Models.BaseQNet import BaseQNet
 
 
 def init_weight(m):

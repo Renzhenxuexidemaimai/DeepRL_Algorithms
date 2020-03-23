@@ -7,7 +7,7 @@ ALGORITHM=DQN
 ENVIRONMENT=MountainCar-v0
 
 TEMP=`getopt -o hv:e:s:a: --long help,version:,environment:,seed:,algorithm: \
-             -n 'javawrap' -- "$@"`
+             -n 'DeepRL_Algorithms Runner' -- "$@"`
 
 if [ $? != 0 ] ; then
     echo "Terminating ..." >& 2 ;

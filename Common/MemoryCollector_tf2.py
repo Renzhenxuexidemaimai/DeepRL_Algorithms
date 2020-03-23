@@ -8,6 +8,7 @@ import time
 import tensorflow as tf
 import numpy as np
 from Common.replay_memory import Memory
+from Utils.tf2_util import NDOUBLE
 
 
 def collect_samples(pid, queue, env, policy, render, running_state, min_batch_size):
@@ -30,7 +31,7 @@ def collect_samples(pid, queue, env, policy, render, running_state, min_batch_si
         for t in range(10000):
             if render:
                 env.render()
-            state_tensor = np.expand_dims(np.array(state, dtype=np.float64), 0)
+            state_tensor = np.expand_dims(NDOUBLE(state), 0)
             action, log_prob = policy.get_action_log_prob(state_tensor)
             action = action.numpy()[0]
             log_prob = log_prob.numpy()[0] if log_prob else None
