@@ -2,10 +2,12 @@
 # Created at 2020/1/20
 import torch.nn as nn
 
+
 def init_weight(m):
     if isinstance(m, nn.Linear):
         nn.init.xavier_normal_(m.weight)
         nn.init.constant_(m.bias, 0.0)
+
 
 class Value(nn.Module):
     def __init__(self, dim_state, dim_hidden=128, activation=nn.LeakyReLU):

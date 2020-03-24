@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # Created at 2020/2/9
+import unittest
+
 import torch
 from torch.distributions import Normal, kl_divergence
-import unittest
 
 
 class Test_KL(unittest.TestCase):

@@ -2,17 +2,18 @@
 # -*- coding: utf-8 -*-
 # Created at 2020/1/2 下午10:30
 import pickle
+
 import numpy as np
 import torch
 import torch.optim as optim
 
 from Algorithms.pytorch.DDPG.ddpg_step import ddpg_step
-from Common.fixed_size_replay_memory import FixedMemory
 from Algorithms.pytorch.Models.Policy_ddpg import Policy
 from Algorithms.pytorch.Models.Value_ddpg import Value
+from Common.fixed_size_replay_memory import FixedMemory
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
-from Utils.torch_util import FLOAT, device, DOUBLE
+from Utils.torch_util import device, DOUBLE
 from Utils.zfilter import ZFilter
 
 

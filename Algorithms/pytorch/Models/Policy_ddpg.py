@@ -10,6 +10,7 @@ def init_weight(m):
         nn.init.xavier_normal_(m.weight)
         nn.init.constant_(m.bias, 0.0)
 
+
 class Policy(BasePolicy):
     def __init__(self, dim_state, dim_action, max_action=None, dim_hidden=128, activation=nn.LeakyReLU):
         super(Policy, self).__init__(dim_state, dim_action, dim_hidden)

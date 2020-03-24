@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 # Created at 2020/3/1
 import pickle
+
 import numpy as np
 import torch
 import torch.optim as optim
 
-from Common.fixed_size_replay_memory import FixedMemory
 from Algorithms.pytorch.Models.Policy_ddpg import Policy
 from Algorithms.pytorch.Models.Value_ddpg import Value
 from Algorithms.pytorch.TD3.td3_step import td3_step
+from Common.fixed_size_replay_memory import FixedMemory
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
-from Utils.torch_util import FLOAT, device, DOUBLE
+from Utils.torch_util import device, DOUBLE
 from Utils.zfilter import ZFilter
 
 

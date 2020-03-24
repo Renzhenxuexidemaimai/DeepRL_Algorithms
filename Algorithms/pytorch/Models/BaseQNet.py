@@ -11,7 +11,7 @@ class BaseQNet(nn.Module):
         self.dim_hidden = dim_hidden
         self.dim_action = dim_action
 
-    def forward(self, states):
+    def forward(self, *args, **kwargs):
         raise NotImplementedError()
 
     def get_action(self, states):

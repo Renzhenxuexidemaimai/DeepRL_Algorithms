@@ -8,7 +8,7 @@ from Algorithms.pytorch.REINFORCE.reinforce import REINFORCE
 
 
 @click.command()
-@click.option("--env_id", type=str, default="BipedalWalker-v2", help="Environment Id")
+@click.option("--env_id", type=str, default="BipedalWalker-v3", help="Environment Id")
 @click.option("--render", type=bool, default=False, help="Render environment or not")
 @click.option("--num_process", type=int, default=4, help="Number of process to run environment")
 @click.option("--lr_p", type=float, default=3e-4, help="Learning rate for Policy Net")
@@ -27,7 +27,7 @@ def main(env_id, render, num_process, lr_p, gamma, batch_size,
     writer = SummaryWriter(base_dir)
 
     reinforce = REINFORCE(env_id, render, num_process, batch_size, lr_p, gamma,
-              reinforce_epochs, seed=seed)
+                          reinforce_epochs, seed=seed)
 
     for i_iter in range(1, max_iter + 1):
         reinforce.learn(writer, i_iter)

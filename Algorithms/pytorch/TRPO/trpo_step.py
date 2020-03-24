@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # Created at 2020/1/22
-import torch
-import torch.nn as nn
-import torch.autograd as autograd
-from Utils.torch_util import device, set_flat_params, get_flat_grad_params, get_flat_params, FLOAT, DOUBLE
-
 import scipy.optimize as opt
+import torch
+import torch.autograd as autograd
+import torch.nn as nn
+
+from Utils.torch_util import device, set_flat_params, get_flat_grad_params, get_flat_params, DOUBLE
 
 
 def trpo_step(policy_net, value_net, states, actions,
@@ -171,14 +171,15 @@ def update_policy(policy_net: nn.Module, states, actions, old_log_probs, advanta
     step_dir = conjugate_gradient(Hvp, loss_grad)  # approximation solution of H^(-1)g
     shs = Hvp(step_dir).t() @ step_dir  # g.T H^(-1) g; another implementation: Hvp(step_dir) @ step_dir
     lm = torch.sqrt(2 * max_kl / shs)
-    step = lm * step_dir # update direction for policy nets
+    step = lm * step_dir  # update direction for policy nets
     expected_improve = loss_grad.t() @ step
 
     """
     line search for step size 
     """
     current_flat_parameters = get_flat_params(policy_net)  # theta
-    success, new_flat_parameters = line_search(policy_net, get_loss, current_flat_parameters, step, expected_improve, 10)
+    success, new_flat_parameters = line_search(policy_net, get_loss, current_flat_parameters, step, expected_improve,
+                                               10)
     set_flat_params(policy_net, new_flat_parameters)
     # success indicating whether TRPO works as expected
     return success

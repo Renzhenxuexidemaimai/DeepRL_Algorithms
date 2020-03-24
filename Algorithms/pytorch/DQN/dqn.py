@@ -7,8 +7,8 @@ import torch
 import torch.optim as optim
 
 from Algorithms.pytorch.DQN.dqn_step import dqn_step
-from Common.fixed_size_replay_memory import FixedMemory
 from Algorithms.pytorch.Models.QNet_dqn import QNet_dqn
+from Common.fixed_size_replay_memory import FixedMemory
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
 from Utils.torch_util import device, DOUBLE, LONG

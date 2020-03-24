@@ -65,13 +65,13 @@ class DQN:
         self.value_net = QNet_dqn(num_states, self.num_actions)
         self.value_net_target = QNet_dqn(num_states, self.num_actions)
 
-        # self.running_state = ZFilter((num_states,), clip=5)
+        self.running_state = ZFilter((num_states,), clip=5)
 
         # load model if necessary
         if self.model_path:
             print("Loading Saved Model {}_dqn_tf2".format(self.env_id))
-            # self.running_state = pickle.load(
-            #     open('{}/{}_dqn_tf2.p'.format(self.model_path, self.env_id), "rb"))
+            self.running_state = pickle.load(
+                open('{}/{}_dqn_tf2.p'.format(self.model_path, self.env_id), "rb"))
             self.value_net.load_weights('{}/{}_dqn_tf2'.format(self.model_path, self.env_id))
 
         self.optimizer = optim.Adam(lr=self.lr_q)
@@ -91,7 +91,7 @@ class DQN:
         test_reward = 0
         while True:
             self.env.render()
-            # state = self.running_state(state)
+            state = self.running_state(state)
             action = self.choose_action(state)
             state, reward, done, _ = self.env.step(action)
 
@@ -113,7 +113,7 @@ class DQN:
 
         while num_steps < self.step_per_iter:
             state = self.env.reset()
-            # state = self.running_state(state)
+            state = self.running_state(state)
             episode_reward = 0
 
             for t in range(10000):
@@ -126,7 +126,7 @@ class DQN:
                     action = self.choose_action(state)
 
                 next_state, reward, done, _ = self.env.step(action)
-                # next_state = self.running_state(next_state)
+                next_state = self.running_state(next_state)
                 mask = 0 if done else 1
                 # ('state', 'action', 'reward', 'next_state', 'mask', 'log_prob')
                 self.memory.push(state, action, reward, next_state, mask, None)
@@ -186,6 +186,6 @@ class DQN:
     def save(self, save_path):
         """save model"""
         check_path(save_path)
-        # pickle.dump(self.running_state,
-        #             open('{}/{}_dqn_tf2.p'.format(save_path, self.env_id), 'wb'))
+        pickle.dump(self.running_state,
+                    open('{}/{}_dqn_tf2.p'.format(save_path, self.env_id), 'wb'))
         self.value_net.save_weights('{}/{}_dqn_tf2'.format(save_path, self.env_id))

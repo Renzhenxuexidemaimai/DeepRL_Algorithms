@@ -22,7 +22,7 @@ class QNet_dqn(BaseQNet):
                                     nn.Linear(self.dim_hidden, self.dim_action))
         self.apply(init_weight)
 
-    def forward(self, states):
+    def forward(self, states, **kwargs):
         q_values = self.qvalue(states)
         return q_values
 
@@ -37,6 +37,6 @@ class QNet_dqn(BaseQNet):
         :param states:
         :return: max_action (tensor)
         """
-        q_values = self.forward(states)
+        q_values = self.forward(states, )
         max_action = q_values.max(dim=1)[1]  # action index with largest q values
         return max_action

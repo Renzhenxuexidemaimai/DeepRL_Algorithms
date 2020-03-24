@@ -28,7 +28,7 @@ class QNet_duelingdqn(BaseQNet):
                                    nn.Linear(self.dim_hidden, 1))
         self.apply(init_weight)
 
-    def forward(self, states):
+    def forward(self, states, **kwargs):
         advantage = self.advantage(states)
         value = self.value(states)
 

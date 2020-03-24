@@ -7,8 +7,8 @@ import torch
 import torch.optim as optim
 
 from Algorithms.pytorch.DuelingDQN.duelingdqn_step import duelingdqn_step
-from Common.fixed_size_replay_memory import FixedMemory
 from Algorithms.pytorch.Models.QNet_duelingdqn import QNet_duelingdqn
+from Common.fixed_size_replay_memory import FixedMemory
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
 from Utils.torch_util import device, DOUBLE, LONG
@@ -182,7 +182,7 @@ class DuelingDQN:
         batch_mask = DOUBLE(batch.mask).to(device)
 
         duelingdqn_step(self.value_net, self.optimizer, self.value_net_target, batch_state, batch_action,
-                 batch_reward, batch_next_state, batch_mask, self.gamma)
+                        batch_reward, batch_next_state, batch_mask, self.gamma)
 
     def save(self, save_path):
         """save model"""

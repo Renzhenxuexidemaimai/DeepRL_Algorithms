@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # Created at 2020/3/1
 import click
-
 import torch
 from torch.utils.tensorboard import SummaryWriter
 

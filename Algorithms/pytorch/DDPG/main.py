@@ -2,7 +2,6 @@
 # Created at 2020/2/9
 
 import click
-
 import torch
 from torch.utils.tensorboard import SummaryWriter
 

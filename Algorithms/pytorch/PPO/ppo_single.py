@@ -7,12 +7,12 @@ import torch
 import torch.nn as nn
 import torch.optim as opt
 from gym.spaces import Discrete
-from torch.distributions import MultivariateNormal, Categorical, Normal
+from torch.distributions import Categorical, Normal
 from torch.utils.tensorboard import SummaryWriter
 
 from Algorithms.pytorch.PPO.ppo_step import ppo_step
-from Common.MemoryCollector import MemoryCollector
 from Common.GAE import estimate_advantages
+from Common.MemoryCollector import MemoryCollector
 from Utils.torch_util import DOUBLE, device
 from Utils.zfilter import ZFilter
 
@@ -271,9 +271,9 @@ def train(memory):
                 batch_states[mini_batch_idx], batch_actions[mini_batch_idx], batch_log_probs[mini_batch_idx], \
                 batch_returns[mini_batch_idx], batch_advantages[mini_batch_idx]
 
-            ppo_step(actor, critic, opt_p, opt_v, 1, mini_batch_states, mini_batch_actions, mini_batch_returns, mini_batch_advantages,
-                          mini_batch_log_probs, epsilon, 1e-3)
-
+            ppo_step(actor, critic, opt_p, opt_v, 1, mini_batch_states, mini_batch_actions, mini_batch_returns,
+                     mini_batch_advantages,
+                     mini_batch_log_probs, epsilon, 1e-3)
 
 
 def main():

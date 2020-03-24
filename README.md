@@ -18,8 +18,8 @@ This repo aims to implement Deep Reinforcement Learning algorithms using [Pytorc
 | 1 | :white_check_mark: | DQN [Pytorch](Algorithms/pytorch/DQN) / [Tensorflow](Algorithms/tf2/DQN) | [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/abs/1312.5602) |
 | 2 | :white_check_mark: | Double DQN [Pytorch](Algorithms/pytorch/DoubleDQN) / [Tensorflow](Algorithms/tf2/DoubleDQN) | [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461) |
 | 3 | :white_check_mark: | Dueling DQN [Pytorch](Algorithms/pytorch/DuelingDQN) / [Tensorflow](Algorithms/tf2/DuelingDQN)| [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581) |
-| 4 | :white_check_mark: | REINFORCE [Pytorch](Algorithms/pytorch/REINFORCE) | [Policy Gradient Methods for Reinforcement Learning with Function Approximation](https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf) |
-| 5 | :white_check_mark: | VPG(Vanilla Policy Gradient) [Pytorch](Algorithms/pytorch/VPG) | [High Dimensional Continuous Control Using Generalized Advantage Estimation](https://arxiv.org/abs/1506.02438) |
+| 4 | :white_check_mark: | REINFORCE [Pytorch](Algorithms/pytorch/REINFORCE) [Tensorflow](Algorithms/tf2/REINFORCE) | [Policy Gradient Methods for Reinforcement Learning with Function Approximation](https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf) |
+| 5 | :white_check_mark: | VPG(Vanilla Policy Gradient) [Pytorch](Algorithms/pytorch/VPG) / [Tensorflow](Algorithms/tf2/VPG)| [High Dimensional Continuous Control Using Generalized Advantage Estimation](https://arxiv.org/abs/1506.02438) |
 | 6 | <ul><li>- [ ] </li></ul> | A3C |  |
 | 7 | <ul><li>- [ ] </li></ul> | A2C |  |
 | 8 | <ul><li>- [ ] </li></ul> | DPG | [Deterministic Policy Gradient Algorithms](http://proceedings.mlr.press/v32/silver14.pdf) |
@@ -27,7 +27,7 @@ This repo aims to implement Deep Reinforcement Learning algorithms using [Pytorc
 | 10 | <ul><li>- [ ] </li></ul> | D4PG |  |
 | 11 | <ul><li>- [ ] </li></ul> | MADDPG |  |
 | 12 | :white_check_mark: | TRPO [Pytorch](Algorithms/pytorch/TRPO) | [Trust Region Policy Optimization](https://arxiv.org/abs/1502.05477) |
-| 13 | :white_check_mark: | PPO [Pytorch](Algorithms/pytorch/PPO) | [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347) |
+| 13 | :white_check_mark: | PPO [Pytorch](Algorithms/pytorch/PPO) / [Tensorflow](Algorithms/tf2/PPO) | [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347) |
 | 14 | <ul><li>- [ ] </li></ul> | ACER |  |
 | 15 | <ul><li>- [ ] </li></ul> | ACTKR |  |
 | 16 | <ul><li>- [ ] </li></ul> | SAC |  |
@@ -66,7 +66,14 @@ All the plots in this project are drawn by this plot util.
 
 #### 5.1 Benchmarks for DQNs
 
+##### **Pytorch Versions**
+
 ![bench_dqn](Algorithms/images/bench_dqn.png)
+
+##### **Tensorflow Versions**
+
+![bench_dqn_tf](Algorithms/images/bench_dqn_tf2.png)
+
  
 #### 5.2 Benchmarks for PolicyGradients
 

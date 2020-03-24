@@ -17,14 +17,15 @@ class QNet_duelingdqn(BaseQNet):
             layers.Dense(self.dim_action, activation=None)
         ])
 
+        self.advantage.build(input_shape=(None, self.dim_state))
+
         self.value = tf.keras.models.Sequential([
             layers.Dense(self.dim_hidden, activation=activation, bias_initializer=tf.zeros_initializer),
             layers.Dense(self.dim_hidden, activation=activation, bias_initializer=tf.zeros_initializer),
             layers.Dense(1, activation=None)
         ])
 
-        self.advantage.build(input_shape=(None, dim_state))
-        self.value.build(input_shape=(None, dim_state))
+        self.value.build(input_shape=(None, self.dim_state))
 
     def call(self, states, **kwargs):
         advantage = self.advantage(states)
@@ -34,6 +35,6 @@ class QNet_duelingdqn(BaseQNet):
         return q_values
 
     def get_action(self, states):
-        q_values = self.call(states)
+        q_values = self.predict_on_batch(states)
         max_action = tf.argmax(q_values, axis=-1)  # action index with largest q values
         return max_action

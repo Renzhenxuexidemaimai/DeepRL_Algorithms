@@ -5,14 +5,12 @@ import math
 import multiprocessing
 import time
 
-import tensorflow as tf
 import numpy as np
 from Common.replay_memory import Memory
 from Utils.tf2_util import NDOUBLE
 
 
 def collect_samples(pid, queue, env, policy, render, running_state, min_batch_size):
-    tf.random.normal(pid)
     log = dict()
     memory = Memory()
     num_steps = 0

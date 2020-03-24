@@ -20,7 +20,7 @@ class DoubleDQN:
                  env_id,
                  render=False,
                  num_process=1,
-                 memory_size=1000000,
+                 memory_size=100000,
                  explore_size=10000,
                  step_per_iter=3000,
                  lr_q=1e-3,
@@ -66,13 +66,13 @@ class DoubleDQN:
         # initialize networks
         self.value_net = QNet_dqn(num_states, self.num_actions)
         self.value_net_target = QNet_dqn(num_states, self.num_actions)
-        # self.running_state = ZFilter((num_states,), clip=5)
+        self.running_state = ZFilter((num_states,), clip=5)
 
         # load model if necessary
         if self.model_path:
             print("Loading Saved Model {}_double_dqn_tf2.p".format(self.env_id))
-            # self.running_state = pickle.load(
-            #     open('{}/{}_double_dqn_tf2.p'.format(self.model_path, self.env_id), "rb"))
+            self.running_state = pickle.load(
+                open('{}/{}_double_dqn_tf2.p'.format(self.model_path, self.env_id), "rb"))
             self.value_net.load_weights("{}/{}_double_dqn_tf2".format(self.model_path, self.env_id))
 
         self.value_net_target.set_weights(self.value_net.get_weights())
@@ -94,7 +94,7 @@ class DoubleDQN:
         test_reward = 0
         while True:
             self.env.render()
-            # state = self.running_state(state)
+            state = self.running_state(state)
             action = self.choose_action(state)
             state, reward, done, _ = self.env.step(action)
 
@@ -116,7 +116,7 @@ class DoubleDQN:
 
         while num_steps < self.step_per_iter:
             state = self.env.reset()
-            # state = self.running_state(state)
+            state = self.running_state(state)
             episode_reward = 0
 
             for t in range(10000):
@@ -129,7 +129,7 @@ class DoubleDQN:
                     action = self.choose_action(state)
 
                 next_state, reward, done, _ = self.env.step(action)
-                # next_state = self.running_state(next_state)
+                next_state = self.running_state(next_state)
                 mask = 0 if done else 1
                 # ('state', 'action', 'reward', 'next_state', 'mask', 'log_prob')
                 self.memory.push(state, action, reward, next_state, mask, None)
@@ -188,6 +188,6 @@ class DoubleDQN:
     def save(self, save_path):
         """save model"""
         check_path(save_path)
-        # pickle.dump((self.running_state),
-        #             open('{}/{}_double_dqn.p'.format(save_path, self.env_id), 'wb'))
+        pickle.dump((self.running_state),
+                    open('{}/{}_double_dqn.p'.format(save_path, self.env_id), 'wb'))
         self.value_net.save_weights('{}/{}_double_dqn_tf2'.format(save_path, self.env_id))

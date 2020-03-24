@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created at 2020/1/3 下午6:48
-import tensorflow as tf
+import numpy as np
+from Utils.tf2_util import NDOUBLE
+
 
 def estimate_advantages(rewards, masks, values, gamma, tau):
-    deltas = tf.zeros_like(rewards)
-    advantages = tf.zeros_like(rewards)
+    deltas = np.zeros_like(rewards, dtype=NDOUBLE)
+    advantages = np.zeros_like(rewards, dtype=NDOUBLE)
 
     prev_value = 0
     prev_advantage = 0
@@ -13,8 +15,8 @@ def estimate_advantages(rewards, masks, values, gamma, tau):
         deltas[i] = rewards[i] + gamma * prev_value * masks[i] - values[i]
         advantages[i] = deltas[i] + gamma * tau * prev_advantage * masks[i]
 
-        prev_value = values[i, 0]
-        prev_advantage = advantages[i, 0]
+        prev_value = values[i]
+        prev_advantage = advantages[i]
 
     returns = values + advantages
     advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-10)

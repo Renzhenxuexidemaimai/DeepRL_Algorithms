@@ -13,6 +13,7 @@ class QNet_dqn(BaseQNet):
             layers.Dense(dim_hidden, activation=activation, bias_initializer=tf.zeros_initializer),
             layers.Dense(dim_action, activation=None)
         ])
+
         self.model.build(input_shape=(None, dim_state))
 
     def call(self, states, **kwargs):
@@ -20,16 +21,6 @@ class QNet_dqn(BaseQNet):
         return q_values
 
     def get_action(self, states):
-        q_values = self.call(states)
+        q_values = self.predict_on_batch(states)
         action = tf.argmax(q_values, axis=-1)
         return action
-
-if __name__ == '__main__':
-    dim_states = 10
-    dim_actions = 5
-    model = QNet_dqn(dim_states, dim_actions)
-
-    x = tf.random.normal((10, 10))
-    actions = model(x)
-
-    print(actions)

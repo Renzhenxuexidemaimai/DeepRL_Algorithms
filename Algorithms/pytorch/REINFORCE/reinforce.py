@@ -6,10 +6,10 @@ import pickle
 import torch
 import torch.optim as optim
 
-from Common.MemoryCollector import MemoryCollector
 from Algorithms.pytorch.Models.Policy import Policy
 from Algorithms.pytorch.Models.Policy_discontinuous import DiscretePolicy
 from Algorithms.pytorch.REINFORCE.reinforce_step import reinforce_step
+from Common.MemoryCollector import MemoryCollector
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
 from Utils.torch_util import DOUBLE, device

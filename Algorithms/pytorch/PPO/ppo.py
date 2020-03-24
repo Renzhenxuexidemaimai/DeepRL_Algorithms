@@ -6,12 +6,12 @@ import pickle
 import torch
 import torch.optim as optim
 
-from Common.GAE import estimate_advantages
-from Common.MemoryCollector import MemoryCollector
 from Algorithms.pytorch.Models.Policy import Policy
 from Algorithms.pytorch.Models.Policy_discontinuous import DiscretePolicy
 from Algorithms.pytorch.Models.Value import Value
 from Algorithms.pytorch.PPO.ppo_step import ppo_step
+from Common.GAE import estimate_advantages
+from Common.MemoryCollector import MemoryCollector
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
 from Utils.torch_util import DOUBLE, device
