@@ -30,7 +30,7 @@ This repo aims to implement Deep Reinforcement Learning algorithms using [Pytorc
 | 13 | :white_check_mark: | PPO [Pytorch](Algorithms/pytorch/PPO) / [Tensorflow](Algorithms/tf2/PPO) | [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347) |
 | 14 | <ul><li>- [ ] </li></ul> | ACER |  |
 | 15 | <ul><li>- [ ] </li></ul> | ACTKR |  |
-| 16 | <ul><li>- [ ] </li></ul> | SAC |  |
+| 16 | <ul><li>- [ ] </li></ul> | SAC [Pytorch](Algorithms/pytorch/SAC) | [Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor](https://arxiv.org/pdf/1801.01290.pdf) |
 | 17 | <ul><li>- [ ] </li></ul> | SAC with Automatically Adjusted Temperature |
 | 18 | :white_check_mark: | TD3(Twin Delayed DDPG) [Pytorch](Algorithms/pytorch/TD3) | [Addressing Function Approximation Error in Actor-Critic Methods](https://arxiv.org/abs/1802.09477) |
 | 19 | <ul><li>- [ ] </li></ul> | SVPG |  |

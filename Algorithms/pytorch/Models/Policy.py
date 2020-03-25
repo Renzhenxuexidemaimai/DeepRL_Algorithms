@@ -4,7 +4,8 @@
 import torch
 import torch.nn as nn
 from torch.distributions import Normal
-
+import torch.nn.functional as F
+import numpy as np
 from Algorithms.pytorch.Models.BasePolicy import BasePolicy
 
 
@@ -16,9 +17,9 @@ def init_weight(m):
 
 class Policy(BasePolicy):
 
-    def __init__(self, dim_state, dim_action, dim_hidden=128, activation=nn.LeakyReLU, log_std=0):
+    def __init__(self, dim_state, dim_action, max_action=None, dim_hidden=128, activation=nn.LeakyReLU, log_std=0):
         super(Policy, self).__init__(dim_state, dim_action, dim_hidden)
-
+        self.max_action = max_action
         self.policy = nn.Sequential(
             nn.Linear(self.dim_state, self.dim_hidden),
             activation(),
@@ -27,7 +28,7 @@ class Policy(BasePolicy):
             nn.Linear(self.dim_hidden, self.dim_action)
         )
 
-        self.log_std = nn.Parameter(torch.ones(1, self.dim_action) * log_std)
+        self.log_std = nn.Parameter(torch.ones(1, self.dim_action) * log_std, requires_grad=True)
 
         self.apply(init_weight)
 
@@ -48,6 +49,13 @@ class Policy(BasePolicy):
         action = dist.sample()
         log_prob = dist.log_prob(action)
         return action, log_prob
+
+    def rsample(self, states):
+        dist = self.forward(states)
+        z = dist.rsample()
+        log_prob = dist.log_prob(z).sum(axis=-1) - (2*(np.log(2) - z - F.softplus(-2*z))).sum(axis=1)
+        action = torch.tanh(z)
+        return action * self.max_action, log_prob
 
     def get_entropy(self, states):
         dist = self.forward(states)

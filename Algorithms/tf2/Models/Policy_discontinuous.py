@@ -22,24 +22,28 @@ class DiscretePolicy(BasePolicy):
 
         self.policy.build(input_shape=(None, self.dim_state))
 
-    def call(self, states, **kwargs):
+
+    def _get_dist(self, states):
         action_probs = self.policy(states)
         dist = Categorical(probs=action_probs)
         return dist
 
-    def get_log_prob(self, state, action):
-        dist = self.call(state)
-        log_prob = dist.log_prob(action)
-        return log_prob
-
-    def get_action_log_prob(self, states):
-        dist = self.call(states)
+    def call(self, states, **kwargs):
+        dist = self._get_dist(states)
         action = dist.sample()
         log_prob = dist.log_prob(action)
         return action, log_prob
 
+    def get_log_prob(self, states, actions):
+        dist = self._get_dist(states)
+        log_prob = dist.log_prob(actions)
+        return log_prob
+
+    def get_action_log_prob(self, states):
+        return self.call(states)
+
     def get_entropy(self, states):
-        dist = self.call(states)
+        dist = self._get_dist(states)
         return dist.entropy()
 
     def get_kl(self, x):

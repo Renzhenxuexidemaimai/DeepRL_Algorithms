@@ -1,15 +1,15 @@
 #!/usr/bin/env python
-# Created at 2020/3/1
+# Created at 2020/3/25
 import pickle
 
 import numpy as np
 import torch
 import torch.optim as optim
 
-from Algorithms.pytorch.Models.Policy_ddpg import Policy
+from Algorithms.pytorch.Models.Policy import Policy
 from Algorithms.pytorch.Models.QValue import QValue
-from Algorithms.pytorch.Models.Value_ddpg import Value
-from Algorithms.pytorch.TD3.td3_step import td3_step
+from Algorithms.pytorch.Models.Value import Value
+from Algorithms.pytorch.SAC.sac_step import sac_step
 from Common.fixed_size_replay_memory import FixedMemory
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
@@ -29,8 +29,6 @@ class SAC:
                  gamma=0.99,
                  polyak=0.995,
                  action_noise=0.1,
-                 target_action_noise_std=0.2,
-                 target_action_noise_clip=0.5,
                  explore_size=10000,
                  step_per_iter=3000,
                  batch_size=100,
@@ -44,8 +42,6 @@ class SAC:
         self.gamma = gamma
         self.polyak = polyak
         self.action_noise = action_noise
-        self.target_action_noise_std = target_action_noise_std
-        self.target_action_noise_clip = target_action_noise_clip
         self.memory = FixedMemory(memory_size)
         self.explore_size = explore_size
         self.step_per_iter = step_per_iter
@@ -66,7 +62,7 @@ class SAC:
     def _init_model(self):
         """init model from parameters"""
         self.env, env_continuous, num_states, self.num_actions = get_env_info(self.env_id)
-        assert env_continuous, "TD3 is only applicable to continuous environment !!!!"
+        assert env_continuous, "SAC is only applicable to continuous environment !!!!"
 
         self.action_low, self.action_high = self.env.action_space.low[0], self.env.action_space.high[0]
         # seeding
@@ -74,10 +70,10 @@ class SAC:
         torch.manual_seed(self.seed)
         self.env.seed(self.seed)
 
-        self.policy_net = Policy(num_states, self.num_actions, self.action_high).double().to(device)
+        self.policy_net = Policy(num_states, self.num_actions, max_action=self.action_high).double().to(device)
 
-        self.value_net = Value(num_states, self.num_actions).double().to(device)
-        self.value_net_target = Value(num_states, self.num_actions).double().to(device)
+        self.value_net = Value(num_states).double().to(device)
+        self.value_net_target = Value(num_states).double().to(device)
 
         self.q_net_1 = QValue(num_states, self.num_actions).double().to(device)
         self.q_net_2 = QValue(num_states, self.num_actions).double().to(device)
@@ -96,17 +92,13 @@ class SAC:
         self.optimizer_q_1 = optim.Adam(self.q_net_1.parameters(), lr=self.lr_q)
         self.optimizer_q_2 = optim.Adam(self.q_net_2.parameters(), lr=self.lr_q)
 
-    def choose_action(self, state, noise_scale):
+    def choose_action(self, state):
         """select action"""
         state = DOUBLE(state).unsqueeze(0).to(device)
         with torch.no_grad():
-            action, log_prob = self.policy_net.get_action_log_prob(state)
+            action, _ = self.policy_net.rsample(state)
         action = action.cpu().numpy()[0]
-        # add noise
-        noise = noise_scale * np.random.randn(self.num_actions)
-        action += noise
-        action = np.clip(action, -self.action_high, self.action_high)
-        return action, log_prob
+        return action, None
 
     def eval(self, i_iter):
         """evaluate model"""
@@ -114,8 +106,8 @@ class SAC:
         test_reward = 0
         while True:
             self.env.render()
-            state = self.running_state(state)
-            action, _ = self.choose_action(state, 0)
+            # state = self.running_state(state)
+            action, _ = self.choose_action(state)
             state, reward, done, _ = self.env.step(action)
 
             test_reward += reward
@@ -126,7 +118,7 @@ class SAC:
 
     def learn(self, writer, i_iter):
         """interact"""
-        global_steps = (i_iter - 1) * self.step_per_iter
+        global_steps = (i_iter - 1) * self.step_per_iter + 1
         log = dict()
         num_steps = 0
         num_episodes = 0
@@ -146,8 +138,8 @@ class SAC:
 
                 if global_steps < self.explore_size:  # explore
                     action = self.env.action_space.sample()
-                else:  # action with noise
-                    action, _ = self.choose_action(state, self.action_noise)
+                else:  # action
+                    action, _ = self.choose_action(state)
 
                 next_state, reward, done, _ = self.env.step(action)
                 # next_state = self.running_state(next_state)
@@ -188,7 +180,7 @@ class SAC:
               f"average reward: {log['avg_reward']: .4f}")
 
         # record reward information
-        writer.add_scalars("td3",
+        writer.add_scalars("sac",
                            {"total reward": log['total_reward'],
                             "average reward": log['avg_reward'],
                             "min reward": log['min_episode_reward'],
@@ -203,12 +195,10 @@ class SAC:
         batch_reward = DOUBLE(batch.reward).to(device)
         batch_next_state = DOUBLE(batch.next_state).to(device)
         batch_mask = DOUBLE(batch.mask).to(device)
-
         # update by SAC
-        td3_step(self.policy_net, self.value_net, self.q_net_1, self.q_net_2,
+        sac_step(self.policy_net, self.value_net, self.value_net_target, self.q_net_1, self.q_net_2,
                  self.optimizer_p, self.optimizer_v, self.optimizer_q_1, self.optimizer_q_2, batch_state,
                  batch_action, batch_reward, batch_next_state, batch_mask, self.gamma, self.polyak,
-                 self.target_action_noise_std, self.target_action_noise_clip, self.action_high,
                  k_iter % self.policy_update_delay == 0)
 
     def save(self, save_path):

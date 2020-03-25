@@ -112,7 +112,7 @@ class TD3:
         test_reward = 0
         while True:
             self.env.render()
-            state = self.running_state(state)
+            # state = self.running_state(state)
             action, _ = self.choose_action(state, 0)
             state, reward, done, _ = self.env.step(action)
 

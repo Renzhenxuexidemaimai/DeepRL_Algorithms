@@ -21,7 +21,7 @@ def reinforce_step(policy_net, optimizer_policy, states, actions, rewards, masks
 
     with tf.GradientTape() as tape:
         log_probs = policy_net.get_log_prob(states, actions)
-        policy_loss = - tf.reduce_mean(log_probs * cum_rewards, axis=-1)
+        policy_loss = tf.reduce_mean(-log_probs * cum_rewards, axis=-1)
     grads = tape.gradient(policy_loss, policy_net.trainable_variables)
     optimizer_policy.apply_gradients(grads_and_vars=zip(grads, policy_net.trainable_variables))
 

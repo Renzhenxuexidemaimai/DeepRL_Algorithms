@@ -33,7 +33,7 @@ Options:
 | mini_batch |      算法版本         |
 |------------|----------------------|
 |    True    |  [mini-batch 版本][1]      |
-|    False   |  [target policy 版本][2]   |
+|    False   |  [no mini-batch版本][2]   |
 
 
 ## 2.测试

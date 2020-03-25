@@ -6,52 +6,54 @@ import tensorflow as tf
 import tensorflow.keras.layers as layers
 
 from Algorithms.tf2.Models.BasePolicy import BasePolicy
-from Utils.tf2_util import NDOUBLE, TDOUBLE
+from Utils.tf2_util import NDOUBLE, DiagonalGaussian
 
 
 class Policy(BasePolicy):
 
     def __init__(self, dim_state, dim_action, dim_hidden=128, activation=tf.nn.leaky_relu, log_std=0):
         super(Policy, self).__init__(dim_state, dim_action, dim_hidden)
+        self.dist = DiagonalGaussian(dim=dim_action)
 
         self.policy = tf.keras.models.Sequential([
             layers.Dense(self.dim_hidden, activation=activation),
             layers.Dense(self.dim_hidden, activation=activation),
             layers.Dense(self.dim_action)
-        ], name="Policy")
-
-        self.log_std = tf.Variable(name="action_log_std",
-                                   initial_value=np.ones((dim_action,), dtype=NDOUBLE) * log_std,
-                                   trainable=True)
+        ])
         self.policy.build(input_shape=(None, self.dim_state))
 
-    def call(self, states, **kwargs):
+        self.log_std = tf.Variable(name="action_log_std",
+                                   initial_value=np.ones((dim_action, ), dtype=NDOUBLE) * log_std,
+                                   trainable=True)
+
+    def _get_dist(self, states):
         mean = self.policy(states)
-        return mean, self.log_std
+        log_std = tf.tile(
+            input=tf.expand_dims(self.log_std, axis=0),
+            multiples=[mean.shape[0], 1])
+        return {"mean": mean, "log_std": log_std}
+
+    def call(self, states, **kwargs):
+        param = self._get_dist(states)
+        action = self.dist.sample(param)
+        log_prob = self.dist.log_likelihood(action, param)
+        return action, log_prob
 
     def get_log_prob(self, states, actions):
-        mean, log_std = self.call(states)
-        log_prob = self.gaussian_prob(actions, mean, log_std)
+        param = self._get_dist(states)
+        log_prob = self.dist.log_likelihood(actions, param)
         return log_prob
 
     def get_action_log_prob(self, states):
-        mean, log_std = self.call(states)
-        std = tf.exp(self.log_std)  # Take exp. of Std deviation
-        action = mean + tf.random.normal(tf.shape(mean), dtype=TDOUBLE) * std  # Sample action from Gaussian Dist
-        log_prob = self.gaussian_prob(mean, action, self.log_std)  # Calculate logp at timestep t for actions
-        return action, log_prob
+        return self.call(states)
 
-    def get_entropy(self, _):
-        entropy = tf.reduce_sum(self.log_std.read_value() + 0.5 * np.log(2.0 * np.pi * np.e), axis=-1)
-        return entropy
+    def get_entropy(self, states):
+        param = self._get_dist(states)
+        return self.dist.entropy(param)
 
-    def get_kl(self, x):
+    def get_kl(self, states):
         pass
 
-    def gaussian_prob(self, x, mean, log_std):
-        pre_sum = -0.5 * (((x - mean) / (tf.exp(log_std) + 1e-8)) ** 2 + 2 * log_std + np.log(2 * np.pi))
-        return tf.reduce_sum(pre_sum, axis=-1)
-#
 # if __name__ == '__main__':
 #     tf.keras.backend.set_floatx('float64')
 #     x = tf.random.uniform((3, 4))

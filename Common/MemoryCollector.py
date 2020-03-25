@@ -112,7 +112,6 @@ class MemoryCollector:
 
         worker_logs = [None] * len(workers)
         worker_memories = [None] * len(workers)
-
         for _ in workers:
             pid, worker_memory, worker_log = queue.get()
             worker_memories[pid - 1] = worker_memory

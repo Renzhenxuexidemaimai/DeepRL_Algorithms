@@ -57,11 +57,9 @@ class PPO:
         self.env.seed(self.seed)
 
         if env_continuous:
-            self.policy_net = Policy(num_states, num_actions).double().to(device)  # current policy
-            self.policy_net_old = Policy(num_states, num_actions).double().to(device)  # old policy
+            self.policy_net = Policy(num_states, num_actions).double().to(device)
         else:
             self.policy_net = DiscretePolicy(num_states, num_actions).double().to(device)
-            self.policy_net_old = DiscretePolicy(num_states, num_actions).double().to(device)
 
         self.value_net = Value(num_states).double().to(device)
         self.running_state = ZFilter((num_states,), clip=5)
@@ -71,8 +69,7 @@ class PPO:
             self.policy_net, self.value_net, self.running_state = pickle.load(
                 open('{}/{}_ppo.p'.format(self.model_path, self.env_id), "rb"))
 
-        self.policy_net_old.load_state_dict(self.policy_net.state_dict())
-        self.collector = MemoryCollector(self.env, self.policy_net_old, render=self.render,
+        self.collector = MemoryCollector(self.env, self.policy_net, render=self.render,
                                          running_state=self.running_state,
                                          num_process=self.num_process)
 
@@ -137,11 +134,10 @@ class PPO:
         v_loss, p_loss = torch.empty(1), torch.empty(1)
         for _ in range(self.ppo_epochs):
             v_loss, p_loss = ppo_step(self.policy_net, self.value_net, self.optimizer_p, self.optimizer_v, 1,
-                                      batch_state,
-                                      batch_action, batch_return, batch_advantage, batch_log_prob, self.clip_epsilon,
+                                      batch_state, batch_action, batch_return, batch_advantage, batch_log_prob,
+                                      self.clip_epsilon,
                                       1e-3)
 
-        self.policy_net_old.load_state_dict(self.policy_net.state_dict())
         return v_loss, p_loss
 
     def save(self, save_path):
