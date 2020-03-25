@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created at 2020/1/2 下午10:30
+import math
 import pickle
 
 import torch
@@ -30,6 +31,7 @@ class PPO:
                  tau=0.95,
                  clip_epsilon=0.2,
                  ppo_epochs=10,
+                 ppo_mini_batch_size=64,
                  seed=1,
                  model_path=None
                  ):
@@ -37,6 +39,7 @@ class PPO:
         self.gamma = gamma
         self.tau = tau
         self.ppo_epochs = ppo_epochs
+        self.ppo_mini_batch_size = ppo_mini_batch_size
         self.clip_epsilon = clip_epsilon
         self.render = render
         self.num_process = num_process
@@ -132,11 +135,33 @@ class PPO:
         batch_advantage, batch_return = estimate_advantages(batch_reward, batch_mask, batch_value, self.gamma,
                                                             self.tau)
         v_loss, p_loss = torch.empty(1), torch.empty(1)
+
         for _ in range(self.ppo_epochs):
-            v_loss, p_loss = ppo_step(self.policy_net, self.value_net, self.optimizer_p, self.optimizer_v, 1,
-                                      batch_state, batch_action, batch_return, batch_advantage, batch_log_prob,
-                                      self.clip_epsilon,
-                                      1e-3)
+            if self.ppo_mini_batch_size:
+                batch_size = batch_state.shape[0]
+                mini_batch_num = int(math.ceil(batch_size / self.ppo_mini_batch_size))
+
+                # update with mini-batch
+                for _ in range(self.ppo_epochs):
+                    index = torch.randperm(batch_size)
+
+                    for i in range(mini_batch_num):
+                        ind = index[
+                            slice(i * self.ppo_mini_batch_size, min(batch_size, (i + 1) * self.ppo_mini_batch_size))]
+                        state, action, returns, advantages, old_log_pis = batch_state[ind], batch_action[ind], \
+                                                                          batch_return[
+                                                                              ind], batch_advantage[ind], batch_log_prob[
+                                                                              ind]
+
+                        v_loss, p_loss = ppo_step(self.policy_net, self.value_net, self.optimizer_p, self.optimizer_v, 1,
+                                                  state,
+                                                  action, returns, advantages, old_log_pis, self.clip_epsilon,
+                                                  1e-3)
+            else:
+                v_loss, p_loss = ppo_step(self.policy_net, self.value_net, self.optimizer_p, self.optimizer_v, 1,
+                                          batch_state, batch_action, batch_return, batch_advantage, batch_log_prob,
+                                          self.clip_epsilon,
+                                          1e-3)
 
         return v_loss, p_loss
 
