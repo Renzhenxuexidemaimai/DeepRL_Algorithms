@@ -77,5 +77,7 @@ All the plots in this project are drawn by this plot util.
  
 #### 5.2 Benchmarks for PolicyGradients
 
+##### **Pytorch Versions**
+
 ![bench_pg](Algorithms/images/bench_pg.png)
 
