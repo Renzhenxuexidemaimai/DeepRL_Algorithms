@@ -57,7 +57,10 @@ done
 echo ============================================
 echo Starting ${ALGORITHM}/${VERSION} on environment: ${ENVIRONMENT} with seed: ${SEED}
 
-python -m Algorithms.${VERSION}.${ALGORITHM}.main --env_id ${ENVIRONMENT} --model_path Algorithms/${VERSION}/${ALGORITHM}/trained_models --seed ${SEED}
+python -m Algorithms.${VERSION}.${ALGORITHM}.main --env_id ${ENVIRONMENT} \
+                                                  --model_path Algorithms/${VERSION}/${ALGORITHM}/trained_models \
+                                                  --seed ${SEED}  \
+                                                  --log_path Algorithm/${VERSION}/log/
 
 echo Finishing ${ALGORITHM}/${VERSION} on environment: ${ENVIRONMENT} with seed: ${SEED}
 echo ============================================

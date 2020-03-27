@@ -7,8 +7,6 @@ import click
 import tensorflow as tf
 
 from Algorithms.tf2.PPO.ppo import PPO
-from Algorithms.tf2.PPO.ppo_mini_batch import PPO_Minibatch
-
 
 @click.command()
 @click.option("--env_id", type=str, default="BipedalWalker-v3", help="Environment Id")
@@ -19,9 +17,9 @@ from Algorithms.tf2.PPO.ppo_mini_batch import PPO_Minibatch
 @click.option("--gamma", type=float, default=0.99, help="Discount factor")
 @click.option("--tau", type=float, default=0.95, help="GAE factor")
 @click.option("--epsilon", type=float, default=0.2, help="Clip rate for PPO")
-@click.option("--batch_size", type=int, default=3000, help="Batch size")
-@click.option("--mini_batch", type=bool, default=False, help="Update by mini-batch strategy")
-@click.option("--ppo_mini_batch_size", type=int, default=64, help="PPO mini-batch size")
+@click.option("--batch_size", type=int, default=4000, help="Batch size")
+@click.option("--ppo_mini_batch_size", type=int, default=0,
+              help="PPO mini-batch size (default 0 -> don't use mini-batch update)")
 @click.option("--ppo_epochs", type=int, default=10, help="PPO step")
 @click.option("--max_iter", type=int, default=1000, help="Maximum iterations to run")
 @click.option("--eval_iter", type=int, default=50, help="Iterations to evaluate the model")
@@ -29,17 +27,23 @@ from Algorithms.tf2.PPO.ppo_mini_batch import PPO_Minibatch
 @click.option("--model_path", type=str, default="trained_models", help="Directory to store model")
 @click.option("--log_path", type=str, default="../log/", help="Directory to save logs")
 @click.option("--seed", type=int, default=1, help="Seed for reproducing")
-def main(env_id, render, num_process, lr_p, lr_v, gamma, tau, epsilon, batch_size, mini_batch,
+def main(env_id, render, num_process, lr_p, lr_v, gamma, tau, epsilon, batch_size,
          ppo_mini_batch_size, ppo_epochs, max_iter, eval_iter, save_iter, model_path, log_path, seed):
     base_dir = log_path + env_id + "/PPO_exp{}".format(seed)
     writer = tf.summary.create_file_writer(base_dir)
-    if mini_batch:
-        ppo = PPO_Minibatch(env_id, render, num_process, batch_size, lr_p, lr_v, gamma, tau, epsilon,
-                            ppo_mini_batch_size,
-                            ppo_epochs, seed=seed)
-    else:
-        ppo = PPO(env_id, render, num_process, batch_size, lr_p, lr_v, gamma, tau, epsilon,
-                  ppo_epochs, seed=seed)
+
+    ppo = PPO(env_id=env_id,
+              render=render,
+              num_process=num_process,
+              min_batch_size=batch_size,
+              lr_p=lr_p,
+              lr_v=lr_v,
+              gamma=gamma,
+              tau=tau,
+              clip_epsilon=epsilon,
+              ppo_epochs=ppo_epochs,
+              ppo_mini_batch_size=ppo_mini_batch_size,
+              seed=seed)
 
     for i_iter in range(1, max_iter + 1):
         ppo.learn(writer, i_iter)

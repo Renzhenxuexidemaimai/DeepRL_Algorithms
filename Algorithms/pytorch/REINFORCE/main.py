@@ -13,13 +13,13 @@ from Algorithms.pytorch.REINFORCE.reinforce import REINFORCE
 @click.option("--num_process", type=int, default=4, help="Number of process to run environment")
 @click.option("--lr_p", type=float, default=3e-4, help="Learning rate for Policy Net")
 @click.option("--gamma", type=float, default=0.99, help="Discount factor")
-@click.option("--batch_size", type=int, default=3000, help="Batch size")
+@click.option("--batch_size", type=int, default=4000, help="Batch size")
 @click.option("--reinforce_epochs", type=int, default=5, help="Reinforce step")
 @click.option("--max_iter", type=int, default=1000, help="Maximum iterations to run")
 @click.option("--eval_iter", type=int, default=50, help="Iterations to evaluate the model")
 @click.option("--save_iter", type=int, default=50, help="Iterations to save the model")
 @click.option("--model_path", type=str, default="trained_models", help="Directory to store model")
-@click.option("--log_path", type=str, default="log/", help="Directory to save logs")
+@click.option("--log_path", type=str, default="../log/", help="Directory to save logs")
 @click.option("--seed", type=int, default=1, help="Seed for reproducing")
 def main(env_id, render, num_process, lr_p, gamma, batch_size,
          reinforce_epochs, max_iter, eval_iter, save_iter, model_path, log_path, seed):

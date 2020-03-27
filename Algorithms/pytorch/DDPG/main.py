@@ -19,8 +19,8 @@ from Algorithms.pytorch.DDPG.ddpg import DDPG
               help="Interpolation factor in polyak averaging for target networks")
 @click.option("--explore_size", type=int, default=10000, help="Explore steps before execute deterministic policy")
 @click.option("--memory_size", type=int, default=1000000, help="Size of replay memory")
-@click.option("--step_per_iter", type=int, default=3500, help="Number of steps of interaction in each iteration")
-@click.option("--batch_size", type=int, default=100, help="Batch size")
+@click.option("--step_per_iter", type=int, default=4000, help="Number of steps of interaction in each iteration")
+@click.option("--batch_size", type=int, default=256, help="Batch size")
 @click.option("--min_update_step", type=int, default=1000, help="Minimum interacts for updating")
 @click.option("--update_step", type=int, default=50, help="Steps between updating policy and critic")
 @click.option("--max_iter", type=int, default=500, help="Maximum iterations to run")
@@ -28,7 +28,7 @@ from Algorithms.pytorch.DDPG.ddpg import DDPG
 @click.option("--save_iter", type=int, default=50, help="Iterations to save the model")
 @click.option("--action_noise", type=float, default=0.1, help="Std for noise of action")
 @click.option("--model_path", type=str, default="trained_models", help="Directory to store model")
-@click.option("--log_path", type=str, default="log/", help="Directory to save logs")
+@click.option("--log_path", type=str, default="../log/", help="Directory to save logs")
 @click.option("--seed", type=int, default=1, help="Seed for reproducing")
 def main(env_id, render, num_process, lr_p, lr_v, gamma, polyak, explore_size, memory_size, step_per_iter, batch_size,
          min_update_step, update_step, max_iter, eval_iter, save_iter, action_noise, model_path, log_path, seed):

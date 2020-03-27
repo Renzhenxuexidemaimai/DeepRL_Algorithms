@@ -17,9 +17,12 @@ def init_weight(m):
 
 class Policy(BasePolicy):
 
-    def __init__(self, dim_state, dim_action, max_action=None, dim_hidden=128, activation=nn.LeakyReLU, log_std=0):
+    def __init__(self, dim_state, dim_action, max_action=None, dim_hidden=128, activation=nn.LeakyReLU,
+                 log_std=0, log_std_min=-20, log_std_max=2):
         super(Policy, self).__init__(dim_state, dim_action, dim_hidden)
         self.max_action = max_action
+        self.log_std_min = log_std_min
+        self.log_std_max = log_std_max
         self.policy = nn.Sequential(
             nn.Linear(self.dim_state, self.dim_hidden),
             activation(),
@@ -35,6 +38,7 @@ class Policy(BasePolicy):
     def forward(self, x):
         mean = self.policy(x)
         log_std = self.log_std.expand_as(mean)
+        log_std = torch.clamp(log_std, self.log_std_min, self.log_std_max)
         std = torch.exp(log_std)
         dist = Normal(mean, std)  # 收敛更快
         return dist
@@ -50,12 +54,14 @@ class Policy(BasePolicy):
         log_prob = dist.log_prob(action)
         return action, log_prob
 
-    def rsample(self, states):
+    def rsample(self, states, eps=1e-6):
         dist = self.forward(states)
-        z = dist.rsample()
-        log_prob = dist.log_prob(z).sum(axis=-1) - (2*(np.log(2) - z - F.softplus(-2*z))).sum(axis=1)
-        action = torch.tanh(z)
-        return action * self.max_action, log_prob
+        u = dist.rsample()
+        log_prob = dist.log_prob(u)
+        action = torch.tanh(u)
+        log_prob -= torch.log(1. - action.pow(2) + eps)
+        # log_prob = dist.log_prob(u).sum(axis=-1) - (2*(np.log(2) - u - F.softplus(-2*u))).sum(axis=-1)
+        return action * self.max_action, log_prob.sum(dim=-1, keepdim=True)
 
     def get_entropy(self, states):
         dist = self.forward(states)

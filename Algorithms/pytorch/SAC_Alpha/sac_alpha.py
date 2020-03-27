@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Created at 2020/3/25
+# Created at 2020/3/27
 import pickle
 
 import numpy as np
@@ -8,8 +8,7 @@ import torch.optim as optim
 
 from Algorithms.pytorch.Models.Policy import Policy
 from Algorithms.pytorch.Models.QValue import QValue
-from Algorithms.pytorch.Models.Value import Value
-from Algorithms.pytorch.SAC.sac_step import sac_step
+from Algorithms.pytorch.SAC_Alpha.sac_alpha_step import sac_alpha_step
 from Common.fixed_size_replay_memory import FixedMemory
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
@@ -17,14 +16,14 @@ from Utils.torch_util import device, DOUBLE
 from Utils.zfilter import ZFilter
 
 
-class SAC:
+class SAC_Alpha:
     def __init__(self,
                  env_id,
                  render=False,
                  num_process=1,
                  memory_size=1000000,
                  lr_p=1e-3,
-                 lr_v=1e-3,
+                 lr_a=3e-4,
                  lr_q=1e-3,
                  gamma=0.99,
                  polyak=0.995,
@@ -46,7 +45,7 @@ class SAC:
         self.render = render
         self.num_process = num_process
         self.lr_p = lr_p
-        self.lr_v = lr_v
+        self.lr_a = lr_a
         self.lr_q = lr_q
         self.batch_size = batch_size
         self.min_update_step = min_update_step
@@ -63,6 +62,7 @@ class SAC:
         assert env_continuous, "SAC is only applicable to continuous environment !!!!"
 
         self.action_low, self.action_high = self.env.action_space.low[0], self.env.action_space.high[0]
+        self.target_entropy = - np.prod(self.env.action_space.shape)
         # seeding
         np.random.seed(self.seed)
         torch.manual_seed(self.seed)
@@ -70,23 +70,26 @@ class SAC:
 
         self.policy_net = Policy(num_states, self.num_actions, max_action=self.action_high).double().to(device)
 
-        self.value_net = Value(num_states).double().to(device)
-        self.value_net_target = Value(num_states).double().to(device)
-
         self.q_net_1 = QValue(num_states, self.num_actions).double().to(device)
+        self.q_net_target_1 = QValue(num_states, self.num_actions).double().to(device)
         self.q_net_2 = QValue(num_states, self.num_actions).double().to(device)
+        self.q_net_target_2 = QValue(num_states, self.num_actions).double().to(device)
+
+        # self.alpha init
+        self.alpha = torch.exp(torch.zeros((), device=device).double()).requires_grad_()
 
         self.running_state = ZFilter((num_states,), clip=5)
 
         if self.model_path:
-            print("Loading Saved Model {}_sac.p".format(self.env_id))
-            self.policy_net, self.value_net, self.q_net_1, self.q_net_2, self.running_state \
-                = pickle.load(open('{}/{}_sac.p'.format(self.model_path, self.env_id), "rb"))
+            print("Loading Saved Model {}_sac_alpha.p".format(self.env_id))
+            self.policy_net, self.q_net_1, self.q_net_2, self.running_state \
+                = pickle.load(open('{}/{}_sac_alpha.p'.format(self.model_path, self.env_id), "rb"))
 
-        self.value_net_target.load_state_dict(self.value_net.state_dict())
+        self.q_net_target_1.load_state_dict(self.q_net_1.state_dict())
+        self.q_net_target_2.load_state_dict(self.q_net_2.state_dict())
 
         self.optimizer_p = optim.Adam(self.policy_net.parameters(), lr=self.lr_p)
-        self.optimizer_v = optim.Adam(self.value_net.parameters(), lr=self.lr_v)
+        self.optimizer_a = optim.Adam([self.alpha], lr=self.lr_a)
         self.optimizer_q_1 = optim.Adam(self.q_net_1.parameters(), lr=self.lr_q)
         self.optimizer_q_2 = optim.Adam(self.q_net_2.parameters(), lr=self.lr_q)
 
@@ -194,15 +197,15 @@ class SAC:
         batch_next_state = DOUBLE(batch.next_state).to(device)
         batch_mask = DOUBLE(batch.mask).to(device)
 
-        # update by SAC
-        sac_step(self.policy_net, self.value_net, self.value_net_target, self.q_net_1, self.q_net_2,
-                 self.optimizer_p, self.optimizer_v, self.optimizer_q_1, self.optimizer_q_2, batch_state,
-                 batch_action, batch_reward, batch_next_state, batch_mask, self.gamma, self.polyak,
-                 k_iter % self.target_update_delay == 0)
+        # update by SAC Alpha
+        sac_alpha_step(self.policy_net, self.q_net_1, self.q_net_2, self.alpha, self.q_net_target_1, self.q_net_target_2,
+                 self.optimizer_p, self.optimizer_q_1, self.optimizer_q_2, self.optimizer_a, batch_state,
+                 batch_action, batch_reward, batch_next_state, batch_mask, self.gamma, self.polyak, self.target_entropy,
+                       k_iter % self.target_update_delay == 0)
 
     def save(self, save_path):
         """save model"""
         check_path(save_path)
 
-        pickle.dump((self.policy_net, self.value_net, self.q_net_1, self.q_net_2, self.running_state),
-                    open('{}/{}_sac.p'.format(save_path, self.env_id), 'wb'))
+        pickle.dump((self.policy_net, self.q_net_1, self.q_net_2, self.running_state),
+                    open('{}/{}_sac_alpha.p'.format(save_path, self.env_id), 'wb'))

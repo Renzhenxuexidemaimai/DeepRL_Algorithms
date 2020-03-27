@@ -31,6 +31,7 @@ class PPO:
                  tau=0.95,
                  clip_epsilon=0.2,
                  ppo_epochs=10,
+                 ppo_mini_batch_size=64,
                  seed=1,
                  model_path=None
                  ):
@@ -38,6 +39,7 @@ class PPO:
         self.gamma = gamma
         self.tau = tau
         self.ppo_epochs = ppo_epochs
+        self.ppo_mini_batch_size = ppo_mini_batch_size
         self.clip_epsilon = clip_epsilon
         self.render = render
         self.num_process = num_process
@@ -61,11 +63,9 @@ class PPO:
         self.env.seed(self.seed)
 
         if env_continuous:
-            self.policy_net = Policy(num_states, num_actions)  # current policy
-            self.policy_net_old = Policy(num_states, num_actions)  # old policy
+            self.policy_net = Policy(num_states, num_actions)
         else:
             self.policy_net = DiscretePolicy(num_states, num_actions)
-            self.policy_net_old = DiscretePolicy(num_states, num_actions)
 
         self.value_net = Value(num_states)
         self.running_state = ZFilter((num_states,), clip=5)
@@ -77,8 +77,7 @@ class PPO:
             self.policy_net.load_weights("{}/{}_ppo_tf2_p".format(self.model_path, self.env_id))
             self.value_net.load_weights("{}/{}_ppo_tf2_v".format(self.model_path, self.env_id))
 
-        self.policy_net_old.set_weights(self.policy_net.get_weights())
-        self.collector = MemoryCollector(self.env, self.policy_net_old, render=self.render,
+        self.collector = MemoryCollector(self.env, self.policy_net, render=self.render,
                                          running_state=self.running_state,
                                          num_process=self.num_process)
 
@@ -142,7 +141,6 @@ class PPO:
                                       batch_state, batch_action, batch_return, batch_advantage, batch_log_prob,
                                       self.clip_epsilon)
 
-        self.policy_net_old.set_weights(self.policy_net.get_weights())
         return v_loss, p_loss
 
     def save(self, save_path):

@@ -17,12 +17,12 @@ from Algorithms.pytorch.TRPO.trpo import TRPO
 @click.option("--tau", type=float, default=0.95, help="GAE factor")
 @click.option("--max_kl", type=float, default=1e-2, help="kl constraint for TRPO")
 @click.option("--damping", type=float, default=1e-2, help="damping for TRPO")
-@click.option("--batch_size", type=int, default=3000, help="Batch size")
-@click.option("--max_iter", type=int, default=500, help="Maximum iterations to run")
+@click.option("--batch_size", type=int, default=4000, help="Batch size")
+@click.option("--max_iter", type=int, default=1000, help="Maximum iterations to run")
 @click.option("--eval_iter", type=int, default=50, help="Iterations to evaluate the model")
 @click.option("--save_iter", type=int, default=50, help="Iterations to save the model")
 @click.option("--model_path", type=str, default="trained_models", help="Directory to store model")
-@click.option("--log_path", type=str, default="log/", help="Directory to save logs")
+@click.option("--log_path", type=str, default="../log/", help="Directory to save logs")
 @click.option("--seed", type=int, default=1, help="Seed for reproducing")
 def main(env_id, render, num_process, lr_v, gamma, tau, max_kl, damping, batch_size, max_iter, eval_iter,
          save_iter, log_path, model_path, seed):

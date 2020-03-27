@@ -170,7 +170,7 @@ def make_plot(data, x_axis=None, y_axis=None, title=None, hue=None, smooth=1, es
 # @click.option("--x_axis", type=str, default="num steps", help="X axis data")
 # @click.option("--y_axis", type=list, default=["average reward"], help="Y axis data(can be multiple)")
 # @click.option("--hue", type=str, default="algorithm", help="Hue for legend")
-def main(log_dir='../Algorithms/tf2/log/', x_axis='num steps', y_axis=['average reward'], hue='algorithm',
+def main(log_dir='../Algorithms/pytorch/log/', x_axis='num steps', y_axis=['average reward'], hue='algorithm',
          env_filter_func=None, alg_filter_func=None):
     """
     1.遍历所有环境, 对每个环境下所有算法的log信息进行绘图
@@ -189,5 +189,5 @@ if __name__ == "__main__":
     env_filter_func_pg = lambda x: x.split(os.sep)[-1] in ["HalfCheetah-v3", "Hopper-v3", "Walker2d-v3", "Swimmer-v3",
                                                            "Ant-v3", "BipedalWalker-v3"]
     alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in []
-    main(env_filter_func=env_filter_func, alg_filter_func=None)
+    main(env_filter_func=env_filter_func_dqn, alg_filter_func=None)
     sns.despine()
