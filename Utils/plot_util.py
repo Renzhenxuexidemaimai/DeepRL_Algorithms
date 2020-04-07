@@ -20,7 +20,7 @@ DEFAULT_SIZE_GUIDANCE = {
 # themes = ['deep', 'muted', 'pastel', 'bright', 'dark', 'colorblind']
 flatui = ["#9b59b6", "#3498db", "#95a5a6", "#e74c3c", "#34495e", "#2ecc71"]
 
-sns.set(style="white", font_scale=1.2, rc={"lines.linewidth": 1.5}, palette=sns.color_palette(flatui))
+sns.set(style="white", font_scale=1.0, rc={"lines.linewidth": 1.5}, palette=sns.color_palette(flatui))
 
 
 # plt.style.use('bmh')
@@ -48,7 +48,7 @@ def plot_data(data, x_axis='num steps', y_axis="average reward", hue="algorithm"
     """Spining up style"""
 
     ax.legend(loc='upper center', ncol=6, handlelength=1, frameon=False,
-              mode="expand", borderaxespad=0.02, prop={'size': 13})
+              mode="expand", borderaxespad=0.02, prop={'size': 10})
 
     xscale = np.max(np.asarray(data[x_axis])) > 5e3
     if xscale:
@@ -91,11 +91,11 @@ def get_env_alg_log(log_path):
     env_alg_fulldir = lambda x: os.path.join(log_path, x)
     alg_features = [env_alg_fulldir(fea) for fea in os.listdir(log_path) if os.path.isdir(env_alg_fulldir(fea))]
     df = pd.concat([load_event_scalars(feature) for feature in alg_features], axis=1)
-    if "num steps" in df:
-        df["num steps"] = df["num steps"].cumsum()
-    df = df[df["num steps"] <= 3500000]
+    #if "num steps" in df:
+        #df["num steps"] = df["num steps"].cumsum()
     # else:
-    #     df["num steps"] = (np.ones((1, df.shape[0])) * 3000).cumsum()
+    df["num steps"] = (np.ones((1, df.shape[0])) * 3750).cumsum()
+    df = df[df["num steps"] <= 3750000]
     df["algorithm"] = [alg] * df.shape[0]
     return df
 
@@ -120,7 +120,7 @@ def plot_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, smooth=1, en
     envs_fulldir = lambda env_dir, alg_dir: os.path.join(env_dir, alg_dir)
     for y_ax in y_axis:
         k = 0
-        fig, axes = plt.subplots(sub_plot_height, sub_plot_width, figsize=(6 * sub_plot_width, 4 * sub_plot_height))
+        fig, axes = plt.subplots(sub_plot_height, sub_plot_width, figsize=(8 * sub_plot_width, 6 * sub_plot_height))
         for env_dir in envs_logdirs:
             if sub_plot_height == 1:
                 if sub_plot_width == 1:
@@ -145,7 +145,8 @@ def plot_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, smooth=1, en
 
 def make_plot(data, x_axis=None, y_axis=None, title=None, hue=None, smooth=1, estimator='mean', ax=None):
     estimator = getattr(np, estimator)
-    plot_data(data, x_axis=x_axis, y_axis=y_axis, hue=hue, smooth=smooth, ax=ax, estimator=estimator)
+    if len(data) > 0:
+        plot_data(data, x_axis=x_axis, y_axis=y_axis, hue=hue, smooth=smooth, ax=ax, estimator=estimator)
     if title:
         ax.set_title(title)
 
@@ -175,5 +176,5 @@ if __name__ == "__main__":
     env_filter_func_pg = lambda x: x.split(os.sep)[-1] in ["HalfCheetah-v3", "Hopper-v3", "Walker2d-v3", "Swimmer-v3",
                                                            "Ant-v3", "BipedalWalker-v3"]
     alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in []
-    main(env_filter_func=env_filter_func_dqn, alg_filter_func=None)
+    main(env_filter_func=env_filter_func_pg, alg_filter_func=None)
     sns.despine()
