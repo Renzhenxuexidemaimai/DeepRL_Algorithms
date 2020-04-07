@@ -56,7 +56,7 @@ def main(env_id, render, num_process, lr_p, lr_v, lr_q, gamma, polyak,explore_si
         sac.learn(writer, i_iter)
 
         if i_iter % eval_iter == 0:
-            sac.eval(i_iter)
+            sac.eval(i_iter, render=render)
 
         if i_iter % save_iter == 0:
             sac.save(model_path)

@@ -68,7 +68,7 @@ class SAC_Alpha:
         torch.manual_seed(self.seed)
         self.env.seed(self.seed)
 
-        self.policy_net = Policy(num_states, self.num_actions, max_action=self.action_high).double().to(device)
+        self.policy_net = Policy(num_states, self.num_actions, max_action=self.action_high, use_sac=True).double().to(device)
 
         self.q_net_1 = QValue(num_states, self.num_actions).double().to(device)
         self.q_net_target_1 = QValue(num_states, self.num_actions).double().to(device)
@@ -76,7 +76,7 @@ class SAC_Alpha:
         self.q_net_target_2 = QValue(num_states, self.num_actions).double().to(device)
 
         # self.alpha init
-        self.alpha = torch.exp(torch.zeros((), device=device).double()).requires_grad_()
+        self.alpha = torch.exp(torch.zeros(1, device=device).double()).requires_grad_()
 
         self.running_state = ZFilter((num_states,), clip=5)
 
@@ -101,12 +101,13 @@ class SAC_Alpha:
         action = action.cpu().numpy()[0]
         return action, None
 
-    def eval(self, i_iter):
+    def eval(self, i_iter, render=False):
         """evaluate model"""
         state = self.env.reset()
         test_reward = 0
         while True:
-            self.env.render()
+            if render:
+                self.env.render()
             state = self.running_state(state)
             action, _ = self.choose_action(state)
             state, reward, done, _ = self.env.step(action)
@@ -181,7 +182,7 @@ class SAC_Alpha:
               f"average reward: {log['avg_reward']: .4f}")
 
         # record reward information
-        writer.add_scalars("sac",
+        writer.add_scalars("sac_alpha",
                            {"total reward": log['total_reward'],
                             "average reward": log['avg_reward'],
                             "min reward": log['min_episode_reward'],

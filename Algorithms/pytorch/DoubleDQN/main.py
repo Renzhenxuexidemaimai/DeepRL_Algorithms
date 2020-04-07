@@ -52,7 +52,7 @@ def main(env_id, render, num_process, lr, gamma, polyak, epsilon, explore_size, 
         ddqn.learn(writer, i_iter)
 
         if i_iter % eval_iter == 0:
-            ddqn.eval(i_iter)
+            ddqn.eval(i_iter, render=render)
 
         if i_iter % save_iter == 0:
             ddqn.save(model_path)

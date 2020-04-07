@@ -35,7 +35,7 @@ def collect_samples(pid, queue, env, policy, render, running_state, min_batch_si
             with torch.no_grad():
                 action, log_prob = policy.get_action_log_prob(state_tensor)
             action = action.cpu().numpy()[0]
-            log_prob = log_prob.cpu().numpy()[0] if log_prob else None
+            log_prob = log_prob.cpu().numpy()[0]
             next_state, reward, done, _ = env.step(action)
             episode_reward += reward
 

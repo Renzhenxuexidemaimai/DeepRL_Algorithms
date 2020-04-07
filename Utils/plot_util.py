@@ -20,9 +20,9 @@ DEFAULT_SIZE_GUIDANCE = {
 
 # palette=sns.color_palette("hls", 8)
 # themes = ['deep', 'muted', 'pastel', 'bright', 'dark', 'colorblind']
-flatui = ["#9b59b6", "#3498db", "#95a5a6", "#e74c3c", "#34495e", "#2ecc71"]
-
-sns.set(style="white", font_scale=1.2, rc={"lines.linewidth": 1.5}, palette=sns.color_palette(flatui))
+flatui = ["#9b59b6", "#3498db", "#95a5a6", "#e74c3c", "#34495e", "#2ecc71", "#e67e22", "#f1c40f"]
+material = ["#E91E63", "#FFC107", "#9C27B0", "#3F51B5", "#2196F3", "#009688", "#795548", "#607D8B"]
+sns.set(style="white", font_scale=1.0, rc={"lines.linewidth": 1.2}, palette=sns.color_palette(flatui))
 
 
 # plt.style.use('bmh')
@@ -48,8 +48,8 @@ def plot_data(data, x_axis='num steps', y_axis="average reward", hue="algorithm"
     sns.lineplot(data=data, x=x_axis, y=y_axis, hue=hue, ci='sd', ax=ax, **kwargs)
     # ax.legend(loc='best').set_draggable(True)
     """Spining up style"""
-    ax.legend(loc='upper center', ncol=6, handlelength=1, frameon=False,
-              mode="expand", borderaxespad=0.02, prop={'size': 13})
+    ax.legend(loc='upper center', ncol=8, handlelength=1, frameon=False,
+              mode="expand", borderaxespad=0.02, prop={'size': 10})
 
     xscale = np.max(np.asarray(data[x_axis])) > 5e3
     if xscale:
@@ -185,9 +185,9 @@ def main(log_dir='../Algorithms/pytorch/log/', x_axis='num steps', y_axis=['aver
 if __name__ == "__main__":
     env_filter_func_dqn = lambda x: x.split(os.sep)[-1] in ["CartPole-v1", "MountainCar-v0", "Acrobot-v1",
                                                             "LunarLander-v2"]
-    env_filter_func = lambda x: x.split(os.sep)[-1] in ["MountainCar-v0"]
+    env_filter_func = lambda x: x.split(os.sep)[-1] in ["BipedalWalker-v3"]
     env_filter_func_pg = lambda x: x.split(os.sep)[-1] in ["HalfCheetah-v3", "Hopper-v3", "Walker2d-v3", "Swimmer-v3",
                                                            "Ant-v3", "BipedalWalker-v3"]
     alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in []
-    main(env_filter_func=env_filter_func_dqn, alg_filter_func=None)
+    main(env_filter_func=env_filter_func, alg_filter_func=None)
     sns.despine()

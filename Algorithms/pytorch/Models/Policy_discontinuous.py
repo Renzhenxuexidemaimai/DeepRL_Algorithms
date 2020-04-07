@@ -47,7 +47,7 @@ class DiscretePolicy(BasePolicy):
 
     def get_entropy(self, states):
         dist = self.forward(states)
-        return dist.entropy()
+        return dist.entropy().mean()
 
     def get_kl(self, x):
         action_probs = self.policy(x)

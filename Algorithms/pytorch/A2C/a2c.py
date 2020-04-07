@@ -1,47 +1,47 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Created at 2020/1/2 下午10:30
+# Created at 2020/3/31
 import pickle
 
 import torch
 import torch.optim as optim
 
+from Algorithms.pytorch.A2C.a2c_step import a2c_step
+from Algorithms.pytorch.Models.Actor_Critic import Actor_Critic
 from Algorithms.pytorch.Models.Policy import Policy
 from Algorithms.pytorch.Models.Policy_discontinuous import DiscretePolicy
 from Algorithms.pytorch.Models.Value import Value
-from Algorithms.pytorch.TRPO.trpo_step import trpo_step
 from Common.GAE import estimate_advantages
 from Common.MemoryCollector import MemoryCollector
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
-from Utils.torch_util import device, DOUBLE
+from Utils.torch_util import DOUBLE, device
 from Utils.zfilter import ZFilter
 
 
-class TRPO:
+class A2C():
     def __init__(self,
                  env_id,
                  render=False,
-                 num_process=1,
+                 num_process=4,
                  min_batch_size=2048,
-                 lr_v=3e-4,
+                 lr_ac=3e-4,
+                 value_net_coeff=0.5,
+                 entropy_coeff=1e-2,
                  gamma=0.99,
                  tau=0.95,
-                 max_kl=1e-2,
-                 damping=1e-2,
                  seed=1,
                  model_path=None
                  ):
+
         self.env_id = env_id
         self.gamma = gamma
         self.tau = tau
-        self.max_kl = max_kl
-        self.damping = damping
         self.render = render
         self.num_process = num_process
-        self.lr_v = lr_v
+        self.lr_ac = lr_ac
+        self.value_net_coeff = value_net_coeff
+        self.entropy_coeff = entropy_coeff
         self.min_batch_size = min_batch_size
-
         self.model_path = model_path
         self.seed = seed
         self._init_model()
@@ -55,33 +55,36 @@ class TRPO:
         self.env.seed(self.seed)
 
         if env_continuous:
-            self.policy_net = Policy(num_states, num_actions).double().to(device)  # current policy
+            self.policy_net = Policy(num_states, num_actions).double().to(device)
         else:
             self.policy_net = DiscretePolicy(num_states, num_actions).double().to(device)
 
         self.value_net = Value(num_states).double().to(device)
+
+        self.ac_net = Actor_Critic(self.policy_net, self.value_net).double().to(device)
+
         self.running_state = ZFilter((num_states,), clip=5)
 
         if self.model_path:
-            print("Loading Saved Model {}_trpo.p".format(self.env_id))
-            self.policy_net, self.value_net, self.running_state = pickle.load(
-                open('{}/{}_trpo.p'.format(self.model_path, self.env_id), "rb"))
+            print("Loading Saved Model {}_a2c.p".format(self.env_id))
+            self.ac_net, self.running_state = pickle.load(
+                open('{}/{}_a2c.p'.format(self.model_path, self.env_id), "rb"))
 
-        self.collector = MemoryCollector(self.env, self.policy_net, render=self.render,
+        self.collector = MemoryCollector(self.env, self.ac_net, render=self.render,
                                          running_state=self.running_state,
                                          num_process=self.num_process)
 
-        self.optimizer_v = optim.Adam(self.value_net.parameters(), lr=self.lr_v)
+        self.optimizer_ac = optim.Adam(self.ac_net.parameters(), lr=self.lr_ac)
 
     def choose_action(self, state):
         """select action"""
         state = DOUBLE(state).unsqueeze(0).to(device)
         with torch.no_grad():
-            action, log_prob = self.policy_net.get_action_log_prob(state)
+            action, log_prob = self.ac_net.get_action_log_prob(state)
         return action, log_prob
 
     def eval(self, i_iter, render=False):
-        """evaluate model"""
+        """init model from parameters"""
         state = self.env.reset()
         test_reward = 0
         while True:
@@ -108,7 +111,7 @@ class TRPO:
               f"average reward: {log['avg_reward']: .4f}, sample time: {log['sample_time']: .4f}")
 
         # record reward information
-        writer.add_scalars("trpo",
+        writer.add_scalars("a2c",
                            {"total reward": log['total_reward'],
                             "average reward": log['avg_reward'],
                             "min reward": log['min_episode_reward'],
@@ -122,20 +125,20 @@ class TRPO:
         batch_action = DOUBLE(batch.action).to(device)
         batch_reward = DOUBLE(batch.reward).to(device)
         batch_mask = DOUBLE(batch.mask).to(device)
-        batch_log_prob = DOUBLE(batch.log_prob).to(device)
 
         with torch.no_grad():
-            batch_value = self.value_net(batch_state)
+            batch_value = self.ac_net.get_value(batch_state)
 
         batch_advantage, batch_return = estimate_advantages(batch_reward, batch_mask, batch_value, self.gamma,
                                                             self.tau)
 
-        # update by TRPO
-        trpo_step(self.policy_net, self.value_net, batch_state, batch_action,
-                  batch_return, batch_advantage, batch_log_prob, self.max_kl, self.damping, 1e-3, None)
+        ac_loss = a2c_step(self.ac_net, self.optimizer_ac, batch_state, batch_action, batch_return,
+                           batch_advantage, self.value_net_coeff, self.entropy_coeff)
+
+        return ac_loss
 
     def save(self, save_path):
         """save model"""
         check_path(save_path)
-        pickle.dump((self.policy_net, self.value_net, self.running_state),
-                    open('{}/{}_trpo.p'.format(save_path, self.env_id), 'wb'))
+        pickle.dump((self.ac_net, self.running_state),
+                    open('{}/{}_a2c.p'.format(save_path, self.env_id), 'wb'))

@@ -81,12 +81,13 @@ class VPG:
             action, log_prob = self.policy_net.get_action_log_prob(state)
         return action, log_prob
 
-    def eval(self, i_iter):
+    def eval(self, i_iter, render=False):
         """init model from parameters"""
         state = self.env.reset()
         test_reward = 0
         while True:
-            self.env.render()
+            if render:
+                self.env.render()
             state = self.running_state(state)
 
             action, _ = self.choose_action(state)

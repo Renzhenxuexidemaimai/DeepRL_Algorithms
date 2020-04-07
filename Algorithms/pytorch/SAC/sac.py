@@ -68,7 +68,7 @@ class SAC:
         torch.manual_seed(self.seed)
         self.env.seed(self.seed)
 
-        self.policy_net = Policy(num_states, self.num_actions, max_action=self.action_high).double().to(device)
+        self.policy_net = Policy(num_states, self.num_actions, max_action=self.action_high, use_sac=True).double().to(device)
 
         self.value_net = Value(num_states).double().to(device)
         self.value_net_target = Value(num_states).double().to(device)
@@ -98,12 +98,13 @@ class SAC:
         action = action.cpu().numpy()[0]
         return action, None
 
-    def eval(self, i_iter):
+    def eval(self, i_iter, render=False):
         """evaluate model"""
         state = self.env.reset()
         test_reward = 0
         while True:
-            self.env.render()
+            if render:
+                self.env.render()
             state = self.running_state(state)
             action, _ = self.choose_action(state)
             state, reward, done, _ = self.env.step(action)

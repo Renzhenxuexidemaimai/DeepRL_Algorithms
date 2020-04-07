@@ -21,7 +21,7 @@ This repo aims to implement Deep Reinforcement Learning algorithms using [Pytorc
 | 4 | :white_check_mark: | REINFORCE [Pytorch](Algorithms/pytorch/REINFORCE) / [Tensorflow](Algorithms/tf2/REINFORCE) | [Policy Gradient Methods for Reinforcement Learning with Function Approximation](https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf) |
 | 5 | :white_check_mark: | VPG(Vanilla Policy Gradient) [Pytorch](Algorithms/pytorch/VPG) / [Tensorflow](Algorithms/tf2/VPG)| [High Dimensional Continuous Control Using Generalized Advantage Estimation](https://arxiv.org/abs/1506.02438) |
 | 6 | <ul><li>- [ ] </li></ul> | A3C |  |
-| 7 | <ul><li>- [ ] </li></ul> | A2C |  |
+| 7 | :white_check_mark: | A2C [Pytorch](Algorithms/pytorch/A2C) | [Asynchronous Methods for Deep Reinforcement Learning](https://arxiv.org/abs/1602.01783) Synchronous version of A3C |
 | 8 | <ul><li>- [ ] </li></ul> | DPG | [Deterministic Policy Gradient Algorithms](http://proceedings.mlr.press/v32/silver14.pdf) |
 | 9 | :white_check_mark: | DDPG [Pytorch](Algorithms/pytorch/DDPG) | [Continuous Control With Deep Reinforcement Learning](https://arxiv.org/abs/1509.02971) |
 | 10 | <ul><li>- [ ] </li></ul> | D4PG |  |

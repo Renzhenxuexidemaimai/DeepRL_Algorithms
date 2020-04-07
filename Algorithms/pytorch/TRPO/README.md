@@ -19,8 +19,8 @@
 
 ## 2.核心实现
 
-TRPO更新的核心代码在 [algorithms/trpo_step.py](trpo_step.py) 文件中，带上一堆注释竟然快到200行了 : (，
-如果能够实现TRPO算法，那么实现其他算法也就不在话下，毕竟这是（数学+代码）的双重考验。
+TRPO更新的核心代码在 [trpo_step.py](trpo_step.py) 文件中，带上一堆注释竟然快到200行了 : (，
+如果能够实现 TRPO 算法，那么实现其他算法也就不在话下，毕竟这是（数学+代码）的双重考验。
 
 即便你能做完第一步的数学推导，你仍然需要一些*数值优化*的基础，在具体的实现中仍然需要使用[Conjugate Gradient][1]
 进行梯度方向求解 + [Line Search][2]进行步长搜索 ，其次需要使用`Vector-Product`对`Conjugate Gradient`进行

@@ -32,7 +32,7 @@ def main(env_id, render, num_process, lr_p, gamma, batch_size,
         reinforce.learn(writer, i_iter)
 
         if i_iter % eval_iter == 0:
-            reinforce.eval(i_iter)
+            reinforce.eval(i_iter, render=render)
 
         if i_iter % save_iter == 0:
             reinforce.save(model_path)

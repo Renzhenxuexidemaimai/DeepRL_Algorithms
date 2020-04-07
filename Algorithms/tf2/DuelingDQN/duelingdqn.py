@@ -86,12 +86,13 @@ class DuelingDQN:
             action = np.random.randint(0, self.num_actions)
         return action
 
-    def eval(self, i_iter):
+    def eval(self, i_iter, render=False):
         """evaluate model"""
         state = self.env.reset()
         test_reward = 0
         while True:
-            self.env.render()
+            if render:
+                self.env.render()
             state = self.running_state(state)
             action = self.choose_action(state)
             state, reward, done, _ = self.env.step(action)

@@ -34,11 +34,11 @@ def main(env_id, render, num_process, lr_v, gamma, tau, max_kl, damping, batch_s
     for i_iter in range(1, max_iter + 1):
         trpo.learn(writer, i_iter)
 
-        # if i_iter % eval_iter == 0:
-        #     trpo.eval(i_iter)
-        #
-        # if i_iter % save_iter == 0:
-        #     trpo.save(model_path)
+        if i_iter % eval_iter == 0:
+            trpo.eval(i_iter, render=render)
+
+        if i_iter % save_iter == 0:
+            trpo.save(model_path)
 
         torch.cuda.empty_cache()
 

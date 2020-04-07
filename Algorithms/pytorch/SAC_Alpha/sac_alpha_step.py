@@ -43,11 +43,11 @@ def sac_alpha_step(policy_net, q_net_1, q_net_2, alpha, q_net_target_1, q_net_ta
 
     policy_loss = (alpha * log_probs - min_q).mean()
     optimizer_policy.zero_grad()
-    policy_loss.backward(retain_graph=True)
+    policy_loss.backward()
     optimizer_policy.step()
 
     """update alpha"""
-    alpha_loss = - alpha * (log_probs + target_entropy).mean()
+    alpha_loss = - alpha * (log_probs.detach() + target_entropy).mean()
     optimizer_a.zero_grad()
     alpha_loss.backward()
     optimizer_a.step()

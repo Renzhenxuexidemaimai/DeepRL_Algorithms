@@ -49,7 +49,7 @@ def main(env_id, render, num_process, lr, gamma, epsilon, explore_size, memory_s
         dqn.learn(writer, i_iter)
 
         if i_iter % eval_iter == 0:
-            dqn.eval(i_iter)
+            dqn.eval(i_iter, render=render)
 
         if i_iter % save_iter == 0:
             dqn.save(model_path)

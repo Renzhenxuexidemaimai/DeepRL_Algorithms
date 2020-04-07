@@ -49,7 +49,7 @@ def main(env_id, render, num_process, lr_p, lr_v, gamma, tau, epsilon, batch_siz
         ppo.learn(writer, i_iter)
 
         if i_iter % eval_iter == 0:
-            ppo.eval(i_iter)
+            ppo.eval(i_iter, render=render)
 
         if i_iter % save_iter == 0:
             ppo.save(model_path)

@@ -4,8 +4,7 @@
 import torch
 import torch.nn as nn
 from torch.distributions import Normal
-import torch.nn.functional as F
-import numpy as np
+
 from Algorithms.pytorch.Models.BasePolicy import BasePolicy
 
 
@@ -18,27 +17,35 @@ def init_weight(m):
 class Policy(BasePolicy):
 
     def __init__(self, dim_state, dim_action, max_action=None, dim_hidden=128, activation=nn.LeakyReLU,
-                 log_std=0, log_std_min=-20, log_std_max=2):
+                 log_std_min=-20, log_std_max=2, log_std=0, use_sac=False):
         super(Policy, self).__init__(dim_state, dim_action, dim_hidden)
         self.max_action = max_action
         self.log_std_min = log_std_min
         self.log_std_max = log_std_max
-        self.policy = nn.Sequential(
+        self.use_sac = use_sac
+        self.common = nn.Sequential(
             nn.Linear(self.dim_state, self.dim_hidden),
             activation(),
             nn.Linear(self.dim_hidden, self.dim_hidden),
-            activation(),
-            nn.Linear(self.dim_hidden, self.dim_action)
+            activation()
         )
+        self.policy = nn.Linear(self.dim_hidden, self.dim_action)
 
-        self.log_std = nn.Parameter(torch.ones(1, self.dim_action) * log_std, requires_grad=True)
+        if self.use_sac:
+            self.log_std = nn.Linear(self.dim_hidden, self.dim_action)
+        else:
+            self.log_std = nn.Parameter(torch.ones(1, self.dim_action) * log_std, requires_grad=True)
 
         self.apply(init_weight)
 
     def forward(self, x):
+        x = self.common(x)
         mean = self.policy(x)
-        log_std = self.log_std.expand_as(mean)
-        log_std = torch.clamp(log_std, self.log_std_min, self.log_std_max)
+        if self.use_sac:
+            log_std = self.log_std(x)
+            log_std = torch.clamp(log_std, self.log_std_min, self.log_std_max)
+        else:
+            log_std = self.log_std.expand_as(mean)
         std = torch.exp(log_std)
         dist = Normal(mean, std)  # 收敛更快
         return dist
@@ -65,9 +72,10 @@ class Policy(BasePolicy):
 
     def get_entropy(self, states):
         dist = self.forward(states)
-        return dist.entropy()
+        return dist.entropy().mean()
 
     def get_kl(self, x):
+        assert self.use_sac == False, "Expect non SAC algorithm !!!"
         mean = self.policy(x)
         mean_old = mean.detach()
         log_std = self.log_std.expand_as(mean)

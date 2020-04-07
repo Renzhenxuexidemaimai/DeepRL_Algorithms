@@ -88,7 +88,7 @@ class DoubleDQN:
             action = np.random.randint(0, self.num_actions)
         return action
 
-    def eval(self, i_iter):
+    def eval(self, i_iter, render=False):
         """evaluate model"""
         state = self.env.reset()
         test_reward = 0

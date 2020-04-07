@@ -97,13 +97,14 @@ class DDPG:
         action = np.clip(action, -self.action_high, self.action_high)
         return action, log_prob
 
-    def eval(self, i_iter):
+    def eval(self, i_iter, render=False):
         """evaluate model"""
         state = self.env.reset()
         test_reward = 0
         while True:
-            self.env.render()
-            # state = self.running_state(state)
+            if render:
+                self.env.render()
+            state = self.running_state(state)
             action, _ = self.choose_action(state, 0)
             state, reward, done, _ = self.env.step(action)
 

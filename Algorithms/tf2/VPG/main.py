@@ -34,7 +34,7 @@ def main(env_id, render, num_process, lr_p, lr_v, gamma, tau, batch_size,
         vpg.learn(writer, i_iter)
 
         if i_iter % eval_iter == 0:
-            vpg.eval(i_iter)
+            vpg.eval(i_iter, render=render)
 
         if i_iter % save_iter == 0:
             vpg.save(model_path)
