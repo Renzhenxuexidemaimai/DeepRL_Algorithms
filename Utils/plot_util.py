@@ -49,7 +49,7 @@ def plot_data(data, x_axis='num steps', y_axis="average reward", hue="algorithm"
     # ax.legend(loc='best').set_draggable(True)
     """Spining up style"""
     ax.legend(loc='upper center', ncol=8, handlelength=1, frameon=False,
-              mode="expand", borderaxespad=0.02, prop={'size': 10})
+              mode="expand", borderaxespad=0.02, prop={'size': 8})
 
     xscale = np.max(np.asarray(data[x_axis])) > 5e3
     if xscale:
