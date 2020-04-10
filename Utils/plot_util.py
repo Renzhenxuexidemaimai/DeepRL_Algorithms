@@ -107,8 +107,8 @@ def get_env_alg_log(log_path):
     else:
         df = load_event_scalars(log_path)
     if "num steps" in df:
-        df["num steps"] = df["num steps"].cumsum()
-    else:
+    #     df["num steps"] = df["num steps"].cumsum()
+    # else:
         df["num steps"] = (np.ones((1, df.shape[0])) * 4000).cumsum()
         df = df[df["num steps"] <= 3500000]
     df["algorithm"] = [alg] * df.shape[0]
@@ -189,5 +189,5 @@ if __name__ == "__main__":
     env_filter_func_pg = lambda x: x.split(os.sep)[-1] in ["HalfCheetah-v3", "Hopper-v3", "Walker2d-v3", "Swimmer-v3",
                                                            "Ant-v3", "BipedalWalker-v3"]
     alg_filter_func = lambda x: x.split(os.sep)[-1].rsplit("_")[0] in []
-    main(env_filter_func=env_filter_func, alg_filter_func=None)
+    main(env_filter_func=env_filter_func_pg, alg_filter_func=None)
     sns.despine()
