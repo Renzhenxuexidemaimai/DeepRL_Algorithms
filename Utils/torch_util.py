@@ -11,6 +11,7 @@ FLOAT = torch.FloatTensor
 DOUBLE = torch.DoubleTensor
 LONG = torch.LongTensor
 
+
 def to_device(*args):
     return [arg.to(device) for arg in args]
 
@@ -48,3 +49,18 @@ def set_flat_params(model, flat_params):
         param.data.copy_(
             flat_params[prev_ind:prev_ind + flat_size].view(param.size()))
         prev_ind += flat_size
+
+
+def resolve_activate_function(name):
+    if name.lower() == "relu":
+        return nn.ReLU
+    if name.lower() == "sigmoid":
+        return nn.Sigmoid
+    if name.lower() == "leakyrelu":
+        return nn.LeakyReLU
+    if name.lower() == "prelu":
+        return nn.PReLU
+    if name.lower() == "softmax":
+        return nn.Softmax
+    if name.lower() == "tanh":
+        return nn.Tanh

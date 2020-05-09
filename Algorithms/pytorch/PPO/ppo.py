@@ -87,7 +87,6 @@ class PPO:
         return action, log_prob
 
     def eval(self, i_iter, render=False):
-        """init model from parameters"""
         state = self.env.reset()
         test_reward = 0
         while True:
@@ -151,10 +150,12 @@ class PPO:
                             slice(i * self.ppo_mini_batch_size, min(batch_size, (i + 1) * self.ppo_mini_batch_size))]
                         state, action, returns, advantages, old_log_pis = batch_state[ind], batch_action[ind], \
                                                                           batch_return[
-                                                                              ind], batch_advantage[ind], batch_log_prob[
+                                                                              ind], batch_advantage[ind], \
+                                                                          batch_log_prob[
                                                                               ind]
 
-                        v_loss, p_loss = ppo_step(self.policy_net, self.value_net, self.optimizer_p, self.optimizer_v, 1,
+                        v_loss, p_loss = ppo_step(self.policy_net, self.value_net, self.optimizer_p, self.optimizer_v,
+                                                  1,
                                                   state,
                                                   action, returns, advantages, old_log_pis, self.clip_epsilon,
                                                   1e-3)

@@ -1,0 +1,45 @@
+general:
+  seed: 2020
+  expert_batch_size: 2000
+  expert_data_path: ../data/train_data_sas.csv
+  training_epochs: 100000
+  num_states: 155
+  num_actions: 6
+
+gae:
+  gamma: 0.995
+  tau: 0.96
+
+ppo:
+  clip_ratio: 0.1
+  ppo_optim_epochs: 1
+  ppo_mini_batch_size: 200
+  sample_batch_size: 2000
+
+
+policy:
+  dim_state: 155
+  dim_action: 6
+  dim_hidden: 256
+  activation: LeakyReLU
+  dim_disc_action: 0
+  action_log_std: 0.0
+  disc_action_sections: !!python/tuple [0]
+  use_multivariate_distribution: False
+
+
+value:
+  dim_state: 155
+  dim_hidden: 256
+  activation: LeakyReLU
+  optim_value_iter: 1
+  learning_rate: !!float 3e-4
+  l2_reg: !!float 1e-3
+
+
+discriminator:
+  dim_state: 155
+  dim_action: 6
+  dim_hidden: 256
+  activation: LeakyReLU
+  learning_rate: !!float 4e-4
