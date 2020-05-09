@@ -68,7 +68,8 @@ class SAC_Alpha:
         torch.manual_seed(self.seed)
         self.env.seed(self.seed)
 
-        self.policy_net = Policy(num_states, self.num_actions, max_action=self.action_high, use_sac=True).double().to(device)
+        self.policy_net = Policy(num_states, self.num_actions, max_action=self.action_high, use_sac=True).double().to(
+            device)
 
         self.q_net_1 = QValue(num_states, self.num_actions).double().to(device)
         self.q_net_target_1 = QValue(num_states, self.num_actions).double().to(device)
@@ -199,9 +200,11 @@ class SAC_Alpha:
         batch_mask = DOUBLE(batch.mask).to(device)
 
         # update by SAC Alpha
-        sac_alpha_step(self.policy_net, self.q_net_1, self.q_net_2, self.alpha, self.q_net_target_1, self.q_net_target_2,
-                 self.optimizer_p, self.optimizer_q_1, self.optimizer_q_2, self.optimizer_a, batch_state,
-                 batch_action, batch_reward, batch_next_state, batch_mask, self.gamma, self.polyak, self.target_entropy,
+        sac_alpha_step(self.policy_net, self.q_net_1, self.q_net_2, self.alpha, self.q_net_target_1,
+                       self.q_net_target_2,
+                       self.optimizer_p, self.optimizer_q_1, self.optimizer_q_2, self.optimizer_a, batch_state,
+                       batch_action, batch_reward, batch_next_state, batch_mask, self.gamma, self.polyak,
+                       self.target_entropy,
                        k_iter % self.target_update_delay == 0)
 
     def save(self, save_path):
