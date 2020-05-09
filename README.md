@@ -15,27 +15,27 @@ This repo aims to implement Deep Reinforcement Learning algorithms using [Pytorc
 
 1. Value based
 
-(1) DQN [Pytorch](Algorithms/pytorch/DQN) / [Tensorflow](Algorithms/tf2/DQN), Paper:  [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/abs/1312.5602)  
-(2) Double DQN [Pytorch](Algorithms/pytorch/DoubleDQN) / [Tensorflow](Algorithms/tf2/DoubleDQN),  Paper: [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461)  
-(3) Dueling DQN [Pytorch](Algorithms/pytorch/DuelingDQN) / [Tensorflow](Algorithms/tf2/DuelingDQN), Paper: [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581)   
+    (1) DQN [Pytorch](Algorithms/pytorch/DQN) / [Tensorflow](Algorithms/tf2/DQN), Paper:  [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/abs/1312.5602)  
+    (2) Double DQN [Pytorch](Algorithms/pytorch/DoubleDQN) / [Tensorflow](Algorithms/tf2/DoubleDQN),  Paper: [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461)  
+    (3) Dueling DQN [Pytorch](Algorithms/pytorch/DuelingDQN) / [Tensorflow](Algorithms/tf2/DuelingDQN), Paper: [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581)   
 
 
 2. Policy based
 
-(1) REINFORCE [Pytorch](Algorithms/pytorch/REINFORCE) / [Tensorflow](Algorithms/tf2/REINFORCE), Paper: [Policy Gradient Methods for Reinforcement Learning with Function Approximation](https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf)  
-(2) VPG(Vanilla Policy Gradient) [Pytorch](Algorithms/pytorch/VPG) / [Tensorflow](Algorithms/tf2/VPG), Paper: [High Dimensional Continuous Control Using Generalized Advantage Estimation](https://arxiv.org/abs/1506.02438)  
-(3) A2C [Pytorch](Algorithms/pytorch/A2C), Paper: [Asynchronous Methods for Deep Reinforcement Learning](https://arxiv.org/abs/1602.01783) Synchronous version of A3C  
-(4) DDPG [Pytorch](Algorithms/pytorch/DDPG), Paper: [Continuous Control With Deep Reinforcement Learning](https://arxiv.org/abs/1509.02971)  
-(5) TRPO [Pytorch](Algorithms/pytorch/TRPO), Paper: [Trust Region Policy Optimization](https://arxiv.org/abs/1502.05477)  
-(6) PPO [Pytorch](Algorithms/pytorch/PPO) / [Tensorflow](Algorithms/tf2/PPO), Paper: [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347)  
-(7) SAC [Pytorch](Algorithms/pytorch/SAC), Paper: [Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor](https://arxiv.org/pdf/1801.01290.pdf)  
-(8) SAC with Automatically Adjusted Temperature [Pytorch](Algorithms/pytorch/SAC_Alpha), Paper: [Soft Actor-Critic Algorithms and Applications](https://arxiv.org/pdf/1812.05905.pdf)  
-(9) TD3(Twin Delayed DDPG) [Pytorch](Algorithms/pytorch/TD3), Paper: [Addressing Function Approximation Error in Actor-Critic Methods](https://arxiv.org/abs/1802.09477)  
-
+    (1) REINFORCE [Pytorch](Algorithms/pytorch/REINFORCE) / [Tensorflow](Algorithms/tf2/REINFORCE), Paper: [Policy Gradient Methods for Reinforcement Learning with Function Approximation](https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf)  
+    (2) VPG(Vanilla Policy Gradient) [Pytorch](Algorithms/pytorch/VPG) / [Tensorflow](Algorithms/tf2/VPG), Paper: [High Dimensional Continuous Control Using Generalized Advantage Estimation](https://arxiv.org/abs/1506.02438)  
+    (3) A2C [Pytorch](Algorithms/pytorch/A2C), Paper: [Asynchronous Methods for Deep Reinforcement Learning](https://arxiv.org/abs/1602.01783) Synchronous version of A3C  
+    (4) DDPG [Pytorch](Algorithms/pytorch/DDPG), Paper: [Continuous Control With Deep Reinforcement Learning](https://arxiv.org/abs/1509.02971)  
+    (5) TRPO [Pytorch](Algorithms/pytorch/TRPO), Paper: [Trust Region Policy Optimization](https://arxiv.org/abs/1502.05477)  
+    (6) PPO [Pytorch](Algorithms/pytorch/PPO) / [Tensorflow](Algorithms/tf2/PPO), Paper: [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347)  
+    (7) SAC [Pytorch](Algorithms/pytorch/SAC), Paper: [Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor](https://arxiv.org/pdf/1801.01290.pdf)  
+    (8) SAC with Automatically Adjusted Temperature [Pytorch](Algorithms/pytorch/SAC_Alpha), Paper: [Soft Actor-Critic Algorithms and Applications](https://arxiv.org/pdf/1812.05905.pdf)  
+    (9) TD3(Twin Delayed DDPG) [Pytorch](Algorithms/pytorch/TD3), Paper: [Addressing Function Approximation Error in Actor-Critic Methods](https://arxiv.org/abs/1802.09477)  
+    
 
 3. Imitation Learning
 
-(1) GAIL [Pytorch](Algorithms/pytorch/GAIL), Paper: [Generative Adversarial Imitation Learning](https://arxiv.org/pdf/1606.03476.pdf)     
+    (1) GAIL [Pytorch](Algorithms/pytorch/GAIL), Paper: [Generative Adversarial Imitation Learning](https://arxiv.org/pdf/1606.03476.pdf)     
 
 
 ### 3.Project Dependencies
