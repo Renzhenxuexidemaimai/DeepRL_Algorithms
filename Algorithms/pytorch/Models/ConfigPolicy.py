@@ -57,7 +57,7 @@ class Policy(BasePolicy):
 
     def forward(self, x):
         x = self.common(x)  # [batch_size, dim_disc_action + dim_cont_action]
-        cont_mean = self.cont_action_mean(self.activation(x))
+        cont_mean = self.cont_action_mean(self.activation()(x))
         cont_log_std = self.cont_action_log_std.expand_as(cont_mean)
         cont_std = torch.exp(cont_log_std)
 

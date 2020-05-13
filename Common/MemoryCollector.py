@@ -8,7 +8,7 @@ import time
 import torch
 
 from Common.replay_memory import Memory
-from Utils.torch_util import device, DOUBLE, FLOAT
+from Utils.torch_util import device, FLOAT
 
 
 def collect_samples(pid, queue, env, policy, render, running_state, custom_reward, min_batch_size):
@@ -94,6 +94,7 @@ class MemoryCollector:
         self.num_process = num_process
 
     def collect_samples(self, min_batch_size):
+        self.policy.eval()
         self.policy.to(torch.device('cpu'))
         t_start = time.time()
         process_batch_size = int(math.floor(min_batch_size / self.num_process))
@@ -110,7 +111,7 @@ class MemoryCollector:
             worker.start()
 
         memory, log = collect_samples(0, None, self.env, self.policy,
-                                      self.render, self.running_state, process_batch_size)
+                                      self.render, self.running_state, self.custom_reward, process_batch_size)
 
         worker_logs = [None] * len(workers)
         worker_memories = [None] * len(workers)

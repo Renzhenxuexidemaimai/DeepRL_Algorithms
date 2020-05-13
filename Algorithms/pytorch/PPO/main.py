@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created at 2020/1/3 下午4:40
+import pickle
 
 import click
 import torch
@@ -22,12 +23,12 @@ from Algorithms.pytorch.PPO.ppo import PPO
 @click.option("--ppo_mini_batch_size", type=int, default=0,
               help="PPO mini-batch size (default 0 -> don't use mini-batch update)")
 @click.option("--ppo_epochs", type=int, default=10, help="PPO step")
-@click.option("--max_iter", type=int, default=1000, help="Maximum iterations to run")
+@click.option("--max_iter", type=int, default=500, help="Maximum iterations to run")
 @click.option("--eval_iter", type=int, default=50, help="Iterations to evaluate the model")
 @click.option("--save_iter", type=int, default=50, help="Iterations to save the model")
 @click.option("--model_path", type=str, default="trained_models", help="Directory to store model")
 @click.option("--log_path", type=str, default="../log/", help="Directory to save logs")
-@click.option("--seed", type=int, default=1, help="Seed for reproducing")
+@click.option("--seed", type=int, default=11, help="Seed for reproducing")
 def main(env_id, render, num_process, lr_p, lr_v, gamma, tau, epsilon, batch_size,
          ppo_mini_batch_size, ppo_epochs, max_iter, eval_iter, save_iter, model_path, log_path, seed):
     base_dir = log_path + env_id + "/PPO_exp{}".format(seed)
@@ -54,6 +55,9 @@ def main(env_id, render, num_process, lr_p, lr_v, gamma, tau, epsilon, batch_siz
 
         if i_iter % save_iter == 0:
             ppo.save(model_path)
+
+            pickle.dump(ppo,
+                        open('{}/{}_ppo.p'.format(model_path, env_id), 'wb'))
 
         torch.cuda.empty_cache()
 

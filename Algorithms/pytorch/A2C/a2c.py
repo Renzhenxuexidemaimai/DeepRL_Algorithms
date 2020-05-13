@@ -14,7 +14,7 @@ from Common.GAE import estimate_advantages
 from Common.MemoryCollector import MemoryCollector
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
-from Utils.torch_util import DOUBLE, device
+from Utils.torch_util import FLOAT, device
 from Utils.zfilter import ZFilter
 
 
@@ -55,13 +55,13 @@ class A2C():
         self.env.seed(self.seed)
 
         if env_continuous:
-            self.policy_net = Policy(num_states, num_actions).double().to(device)
+            self.policy_net = Policy(num_states, num_actions).to(device)
         else:
-            self.policy_net = DiscretePolicy(num_states, num_actions).double().to(device)
+            self.policy_net = DiscretePolicy(num_states, num_actions).to(device)
 
-        self.value_net = Value(num_states).double().to(device)
+        self.value_net = Value(num_states).to(device)
 
-        self.ac_net = Actor_Critic(self.policy_net, self.value_net).double().to(device)
+        self.ac_net = Actor_Critic(self.policy_net, self.value_net).to(device)
 
         self.running_state = ZFilter((num_states,), clip=5)
 
@@ -78,7 +78,7 @@ class A2C():
 
     def choose_action(self, state):
         """select action"""
-        state = DOUBLE(state).unsqueeze(0).to(device)
+        state = FLOAT(state).unsqueeze(0).to(device)
         with torch.no_grad():
             action, log_prob = self.ac_net.get_action_log_prob(state)
         return action, log_prob
@@ -121,10 +121,10 @@ class A2C():
 
         batch = memory.sample()  # sample all items in memory
 
-        batch_state = DOUBLE(batch.state).to(device)
-        batch_action = DOUBLE(batch.action).to(device)
-        batch_reward = DOUBLE(batch.reward).to(device)
-        batch_mask = DOUBLE(batch.mask).to(device)
+        batch_state = FLOAT(batch.state).to(device)
+        batch_action = FLOAT(batch.action).to(device)
+        batch_reward = FLOAT(batch.reward).to(device)
+        batch_mask = FLOAT(batch.mask).to(device)
 
         with torch.no_grad():
             batch_value = self.ac_net.get_value(batch_state)

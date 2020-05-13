@@ -12,7 +12,7 @@ from Algorithms.pytorch.SAC_Alpha.sac_alpha_step import sac_alpha_step
 from Common.fixed_size_replay_memory import FixedMemory
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
-from Utils.torch_util import device, DOUBLE
+from Utils.torch_util import device, FLOAT
 from Utils.zfilter import ZFilter
 
 
@@ -68,16 +68,16 @@ class SAC_Alpha:
         torch.manual_seed(self.seed)
         self.env.seed(self.seed)
 
-        self.policy_net = Policy(num_states, self.num_actions, max_action=self.action_high, use_sac=True).double().to(
+        self.policy_net = Policy(num_states, self.num_actions, max_action=self.action_high, use_sac=True).to(
             device)
 
-        self.q_net_1 = QValue(num_states, self.num_actions).double().to(device)
-        self.q_net_target_1 = QValue(num_states, self.num_actions).double().to(device)
-        self.q_net_2 = QValue(num_states, self.num_actions).double().to(device)
-        self.q_net_target_2 = QValue(num_states, self.num_actions).double().to(device)
+        self.q_net_1 = QValue(num_states, self.num_actions).to(device)
+        self.q_net_target_1 = QValue(num_states, self.num_actions).to(device)
+        self.q_net_2 = QValue(num_states, self.num_actions).to(device)
+        self.q_net_target_2 = QValue(num_states, self.num_actions).to(device)
 
         # self.alpha init
-        self.alpha = torch.exp(torch.zeros(1, device=device).double()).requires_grad_()
+        self.alpha = torch.exp(torch.zeros(1, device=device)).requires_grad_()
 
         self.running_state = ZFilter((num_states,), clip=5)
 
@@ -96,7 +96,7 @@ class SAC_Alpha:
 
     def choose_action(self, state):
         """select action"""
-        state = DOUBLE(state).unsqueeze(0).to(device)
+        state = FLOAT(state).unsqueeze(0).to(device)
         with torch.no_grad():
             action, _ = self.policy_net.rsample(state)
         action = action.cpu().numpy()[0]
@@ -193,11 +193,11 @@ class SAC_Alpha:
 
     def update(self, batch, k_iter):
         """learn model"""
-        batch_state = DOUBLE(batch.state).to(device)
-        batch_action = DOUBLE(batch.action).to(device)
-        batch_reward = DOUBLE(batch.reward).to(device)
-        batch_next_state = DOUBLE(batch.next_state).to(device)
-        batch_mask = DOUBLE(batch.mask).to(device)
+        batch_state = FLOAT(batch.state).to(device)
+        batch_action = FLOAT(batch.action).to(device)
+        batch_reward = FLOAT(batch.reward).to(device)
+        batch_next_state = FLOAT(batch.next_state).to(device)
+        batch_mask = FLOAT(batch.mask).to(device)
 
         # update by SAC Alpha
         sac_alpha_step(self.policy_net, self.q_net_1, self.q_net_2, self.alpha, self.q_net_target_1,

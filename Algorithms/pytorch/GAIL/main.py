@@ -4,41 +4,50 @@ import time
 
 import click
 import yaml
+from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 from Algorithms.pytorch.GAIL.gail import GAIL
 
 
 @click.command()
-@click.option("--eval_model_epoch", type=int, default=1000, help="Intervals for evaluating model")
-@click.option("--save_model_epoch", type=int, default=1000, help="Intervals for saving model")
-@click.option("--save_model_path", type=str, default="../model_pkl", help="Path for saving trained model")
+@click.option("--env_id", type=str, default="BipedalWalker-v3", help="Environment Id")
+@click.option("--config_path", type=str, default="./config/config_bipedalwalker-v3.yml",
+              help="Model configuration file")
+@click.option("--render", type=bool, default=False, help="Render environment or not")
+@click.option("--num_process", type=int, default=1, help="Number of process to run environment")
+@click.option("--eval_model_epoch", type=int, default=50, help="Intervals for evaluating model")
+@click.option("--save_model_epoch", type=int, default=50, help="Intervals for saving model")
+@click.option("--save_model_path", type=str, default="trained_models", help="Path for saving trained model")
 @click.option("--load_model", type=bool, default=False, help="Indicator for whether load trained model")
-@click.option("--load_model_path", type=str, default="../model_pkl/MAGAIL_Train_2020-05-08_16:31:56",
+@click.option("--load_model_path", type=str, default="trained_models",
               help="Path for loading trained model")
-def main(eval_model_epoch, save_model_epoch, save_model_path, load_model,
-         load_model_path):
-    config_path = "../config/config.yml"
-
-    exp_name = f"MAGAIL_Train_{time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime())}"
+@click.option("--log_path", type=str, default="./log/", help="Directory to save logs")
+def main(env_id, config_path, render, num_process, eval_model_epoch, save_model_epoch, save_model_path, load_model,
+         load_model_path, log_path):
+    base_dir = f"{log_path}/GAIL_{env_id}_{time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime())}"
+    writer = SummaryWriter(base_dir)
 
     config = config_loader(path=config_path)  # load model configuration
     training_epochs = config["general"]["training_epochs"]
 
-    mail = GAIL(config=config, log_dir="../log", exp_name=exp_name)
+    gail = GAIL(env_id=env_id,
+                config=config,
+                render=render,
+                num_process=num_process)
 
     if load_model:
-        print(f"Loading Pre-trained MAGAIL model from {load_model_path}!!!")
-        mail.load_model(load_model_path)
+        print(f"Loading Pre-trained GAIL model from {load_model_path}!!!")
+        gail.load_model(load_model_path)
 
     for epoch in tqdm(range(1, training_epochs + 1)):
-        mail.train(epoch)
+        gail.learn(writer, epoch)
 
         if epoch % eval_model_epoch == 0:
-            mail.eval(epoch)
+            gail.eval(epoch)
 
         if epoch % save_model_epoch == 0:
-            mail.save_model(save_model_path)
+            gail.save_model(save_model_path)
 
 
 def config_loader(path=None):

@@ -20,7 +20,7 @@ class Discriminator(nn.Module):
         self.dim_hidden = dim_hidden
 
         self.model = nn.Sequential(
-            nn.Linear(self.dim_state, self.dim_hidden),
+            nn.Linear(self.dim_state + self.dim_action, self.dim_hidden),
             activation(),
             nn.Linear(self.dim_hidden, self.dim_hidden),
             activation(),
