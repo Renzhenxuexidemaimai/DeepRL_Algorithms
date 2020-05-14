@@ -5,12 +5,12 @@ import multiprocessing
 import click
 import yaml
 
-COMMON_TEMPLATE = "conda activate rl && "
+COMMON_TEMPLATE = "rl && "
 GAIL_TEMPLATE = "python -m Algorithms.{0}.{1}.main --env_id {2} --save_model_path {3} " \
                 "--num_process {4}  --render {5} --config_path {6} --expert_data_path {7}"
 
 PPO_TEMPLATE = "python -m Algorithms.{0}.{1}.main --env_id {2} --max_iter 500 --model_path {3} --num_process {4}" \
-               "--render {5}"
+               "--render {5} --seed 2020"
 
 
 @click.command()
@@ -29,11 +29,11 @@ def generate(version, algo, envs):
     }
 
     panes_list = []
+    tensor_board_command = f"tensorboard --logdir=./{version}/log"  # run tensorboard for visualization
     for env in envs_list:
         print(f"Generate config for env : {env}")
 
         run_command = None
-        tensor_board_command = f"tensorboard --logdir=./{version}/log"  # run tensorboard for visualization
         if algo == "GAIL":
             run_command = COMMON_TEMPLATE + GAIL_TEMPLATE.format(version,
                                                algo,
@@ -54,7 +54,8 @@ def generate(version, algo, envs):
                                               False)
 
         panes_list.append(run_command)
-        panes_list.append(COMMON_TEMPLATE + tensor_board_command)
+
+    panes_list.append(COMMON_TEMPLATE + tensor_board_command)
 
     config_dict["windows"].append({
         "window_name": f"{algo}",
