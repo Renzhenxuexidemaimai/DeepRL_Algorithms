@@ -1,5 +1,5 @@
 general:
-  training_epochs: 500
+  training_epochs: 800
   seed: 2020
 
 expert_data:

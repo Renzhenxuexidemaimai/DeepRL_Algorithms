@@ -24,8 +24,8 @@ from Algorithms.pytorch.GAIL.gail import GAIL
 @click.option("--load_model_path", type=str, default="trained_models",
               help="Path for loading trained model")
 @click.option("--log_path", type=str, default="./log/", help="Directory to save logs")
-def main(env_id, config_path, expert_data_path, render, num_process, eval_model_epoch, save_model_epoch, save_model_path, load_model,
-         load_model_path, log_path):
+def main(env_id, config_path, expert_data_path, render, num_process, eval_model_epoch, save_model_epoch,
+         save_model_path, load_model, load_model_path, log_path):
     base_dir = f"{log_path}/GAIL_{env_id}_{time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime())}"
     writer = SummaryWriter(base_dir)
 
