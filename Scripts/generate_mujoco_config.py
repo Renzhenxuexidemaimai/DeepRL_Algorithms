@@ -5,7 +5,7 @@ import multiprocessing
 import click
 import yaml
 
-COMMON_TEMPLATE = "conda activate rl && "
+COMMON_TEMPLATE = "rl && "
 GAIL_TEMPLATE = "python -m Algorithms.{0}.{1}.main --env_id {2} --save_model_path {3} " \
                 "--num_process {4}  --render {5} --config_path {6} --expert_data_path {7}"
 
