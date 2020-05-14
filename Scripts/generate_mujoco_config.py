@@ -12,10 +12,14 @@ GAIL_TEMPLATE = "python -m Algorithms.{0}.{1}.main --env_id {2} --save_model_pat
 PPO_TEMPLATE = "python -m Algorithms.{0}.{1}.main --env_id {2} --max_iter 500 --model_path {3} --num_process {4} " \
                "--render {5} --seed 2020 --log_path {6}"
 
+PPO_EXPERT_TEMPLATE = "python Algorithms/{0}/GAIL/expert_trajectory_collector.py --env_id {1} " \
+                      "--n_trajs 800 --model_path {2} --data_path {3}"
+
 
 @click.command()
 @click.option("--version", type=click.Choice(['pytorch', 'tf2']), default="pytorch", help="Version of implementation")
-@click.option("--algo", type=str, default="GAIL", help="Version of implementation")
+@click.option("--algo", type=click.Choice(['PPO', 'GAIL', 'PPO_EXPERT']), default="PPO_EXPERT",
+              help="Version of implementation")
 @click.option("--envs", type=str, default="HalfCheetah-v3,Hopper-v3,Walker2d-v3,Swimmer-v3,Ant-v3",
               help="Environment ids")
 def generate(version, algo, envs):
@@ -54,6 +58,11 @@ def generate(version, algo, envs):
                                                                 int(multiprocessing.cpu_count() / 2),
                                                                 False,
                                                                 f"./Algorithms/{version}/{algo}/log")
+        elif algo == "PPO_EXPERT":
+            run_command = COMMON_TEMPLATE + PPO_EXPERT_TEMPLATE.format(version,
+                                                                       env,
+                                                                       f"./Algorithms/{version}/PPO/trained_models/{env}_ppo.p",
+                                                                       f"./Algorithms/{version}/GAIL/data")
 
         panes_list.append(run_command)
 
