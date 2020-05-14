@@ -7,20 +7,23 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+import tensorflow as tf
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 
 """
-plot the performance of algorithms from TensorBoard Log History
+plot the performance of core from TensorBoard Log History
 """
 DEFAULT_SIZE_GUIDANCE = {
     "scalars": 0,
+    "tensors": 0,
 }
 
 # palette=sns.color_palette("hls", 8)
 # themes = ['deep', 'muted', 'pastel', 'bright', 'dark', 'colorblind']
-flatui = ["#9b59b6", "#3498db", "#95a5a6", "#e74c3c", "#34495e", "#2ecc71"]
 
-sns.set(style="white", font_scale=1.0, rc={"lines.linewidth": 1.5}, palette=sns.color_palette(flatui))
+flatui = ["#9b59b6", "#3498db", "#95a5a6", "#e74c3c", "#34495e", "#2ecc71", "#e67e22", "#f1c40f"]
+material = ["#E91E63", "#FFC107", "#9C27B0", "#3F51B5", "#2196F3", "#009688", "#795548", "#607D8B"]
+sns.set(style="white", font_scale=1.0, rc={"lines.linewidth": 1.2}, palette=sns.color_palette(flatui))
 
 
 # plt.style.use('bmh')
@@ -47,7 +50,7 @@ def plot_data(data, x_axis='num steps', y_axis="average reward", hue="algorithm"
     # ax.legend(loc='best').set_draggable(True)
     """Spining up style"""
 
-    ax.legend(loc='upper center', ncol=6, handlelength=1, frameon=False,
+    ax.legend(loc='upper center', ncol=8, handlelength=1, frameon=False,
               mode="expand", borderaxespad=0.02, prop={'size': 10})
 
     xscale = np.max(np.asarray(data[x_axis])) > 5e3
@@ -62,16 +65,27 @@ def load_event_scalars(log_path):
     print(f"Processing logfile: {os.path.abspath(log_path)}")
     if feature.find("_") != -1:
         feature = feature.split("_")[-1]
-    df = None
+    df = pd.DataFrame()
     try:
         event_acc = EventAccumulator(log_path, DEFAULT_SIZE_GUIDANCE)
         event_acc.Reload()
         tags = event_acc.Tags()["scalars"]
+        env_list = event_acc.Scalars
+        use_tensorflow = False
+        if not tags:
+            tags = event_acc.Tags()["tensors"]
+            env_list = event_acc.tensors.Items
+            use_tensorflow = True
         for tag in tags:
-            event_list = event_acc.Scalars(tag)
-            values = list(map(lambda x: x.value, event_list))
-            step = list(map(lambda x: x.step, event_list))
-            df = pd.DataFrame({feature: values}, index=step)
+            event_list =env_list(tag)
+            if use_tensorflow:
+                values = list(map(lambda x: float(tf.make_ndarray(x.tensor_proto)), event_list))
+                step = list(map(lambda x: x.step, event_list))
+                df[tag] = values
+            else:
+                values = list(map(lambda x: x.value, event_list))
+                step = list(map(lambda x: x.step, event_list))
+                df = pd.DataFrame({feature: values}, index=step)
     # Dirty catch of DataLossError
     except:
         print("Event file possibly corrupt: {}".format(os.path.abspath(log_path)))
@@ -90,12 +104,15 @@ def get_env_alg_log(log_path):
         alg = alg.rsplit("_", maxsplit=1)[0]
     env_alg_fulldir = lambda x: os.path.join(log_path, x)
     alg_features = [env_alg_fulldir(fea) for fea in os.listdir(log_path) if os.path.isdir(env_alg_fulldir(fea))]
-    df = pd.concat([load_event_scalars(feature) for feature in alg_features], axis=1)
-    #if "num steps" in df:
-        #df["num steps"] = df["num steps"].cumsum()
-    # else:
-    df["num steps"] = (np.ones((1, df.shape[0])) * 3750).cumsum()
-    df = df[df["num steps"] <= 3750000]
+    if alg_features:
+        df = pd.concat([load_event_scalars(feature) for feature in alg_features], axis=1)
+    else:
+        df = load_event_scalars(log_path)
+    if "num steps" in df:
+        df["num steps"] = df["num steps"].cumsum()
+    else:
+        df["num steps"] = (np.ones((1, df.shape[0])) * 4000).cumsum()
+        df = df[df["num steps"] <= 3500000]
     df["algorithm"] = [alg] * df.shape[0]
     return df
 
@@ -156,7 +173,7 @@ def make_plot(data, x_axis=None, y_axis=None, title=None, hue=None, smooth=1, es
 # @click.option("--x_axis", type=str, default="num steps", help="X axis data")
 # @click.option("--y_axis", type=list, default=["average reward"], help="Y axis data(can be multiple)")
 # @click.option("--hue", type=str, default="algorithm", help="Hue for legend")
-def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='algorithm',
+def main(log_dir='../Algorithms/pytorch/log/', x_axis='num steps', y_axis=['average reward'], hue='algorithm',
          env_filter_func=None, alg_filter_func=None):
     """
     1.遍历所有环境, 对每个环境下所有算法的log信息进行绘图
@@ -167,7 +184,6 @@ def main(log_dir='../log/', x_axis='num steps', y_axis=['average reward'], hue='
                   smooth=11,
                   env_filter_func=env_filter_func,
                   alg_filter_func=alg_filter_func)
-
 
 if __name__ == "__main__":
     env_filter_func_dqn = lambda x: x.split(os.sep)[-1] in ["CartPole-v1", "MountainCar-v0", "Acrobot-v1",
