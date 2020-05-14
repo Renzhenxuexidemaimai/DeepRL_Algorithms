@@ -9,13 +9,13 @@ COMMON_TEMPLATE = "rl && "
 GAIL_TEMPLATE = "python -m Algorithms.{0}.{1}.main --env_id {2} --save_model_path {3} " \
                 "--num_process {4}  --render {5} --config_path {6} --expert_data_path {7}"
 
-PPO_TEMPLATE = "python -m Algorithms.{0}.{1}.main --env_id {2} --max_iter 500 --model_path {3} --num_process {4}" \
+PPO_TEMPLATE = "python -m Algorithms.{0}.{1}.main --env_id {2} --max_iter 800 --model_path {3} --num_process {4} " \
                "--render {5} --seed 2020"
 
 
 @click.command()
 @click.option("--version", type=click.Choice(['pytorch', 'tf2']), default="pytorch", help="Version of implementation")
-@click.option("--algo", type=str, default="PPO", help="Version of implementation")
+@click.option("--algo", type=str, default="GAIL", help="Version of implementation")
 @click.option("--envs", type=str, default="HalfCheetah-v3,Hopper-v3,Walker2d-v3,Swimmer-v3,Ant-v3",
               help="Environment ids")
 def generate(version, algo, envs):

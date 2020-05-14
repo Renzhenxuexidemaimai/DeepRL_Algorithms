@@ -6,7 +6,7 @@ expert_data:
   shuffle: True
   batch_size: 2048
   train_fraction: !!float 0.7
-  traj_limitation: 20
+  traj_limitation: -1
 
 gae:
   gamma: 0.995
