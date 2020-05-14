@@ -5,10 +5,8 @@ general:
 expert_data:
   shuffle: True
   batch_size: 2048
-  expert_data_path: ./data/BipedalWalker-v3.npz
   train_fraction: !!float 0.7
   traj_limitation: 20
-  running_state_path: ./data/BipedalWalker-v3_running_state.p
 
 gae:
   gamma: 0.995

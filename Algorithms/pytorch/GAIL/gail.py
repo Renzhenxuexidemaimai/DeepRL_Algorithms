@@ -2,7 +2,6 @@
 # Created at 2020/5/9
 
 import math
-import pickle
 
 import numpy as np
 import torch
@@ -19,7 +18,6 @@ from Common.MemoryCollector import MemoryCollector
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
 from Utils.torch_util import FLOAT, to_device, device, resolve_activate_function
-from Utils.zfilter import ZFilter
 
 
 class GAIL:
@@ -27,18 +25,20 @@ class GAIL:
                  render=False,
                  num_process=4,
                  config=None,
+                 expert_data_path=None,
                  env_id=None):
 
         self.render = render
         self.env_id = env_id
         self.num_process = num_process
+        self.expert_data_path = expert_data_path
         self.config = config
 
         self._load_expert_trajectory()
         self._init_model()
 
     def _load_expert_trajectory(self):
-        self.expert_dataset = ExpertDataset(expert_data_path=self.config["expert_data"]["expert_data_path"],
+        self.expert_dataset = ExpertDataset(expert_data_path=self.expert_data_path,
                                             train_fraction=self.config["expert_data"]["train_fraction"],
                                             traj_limitation=self.config["expert_data"]["traj_limitation"],
                                             shuffle=self.config["expert_data"]["shuffle"],
@@ -76,10 +76,6 @@ class GAIL:
                                            activation=resolve_activate_function(
                                                self.config["discriminator"]["activation"])
                                            )
-        self.running_state = ZFilter((num_states,), clip=5)
-        if self.config["expert_data"]["running_state_path"]:
-            self.running_state = pickle.load(open(self.config["expert_data"]["running_state_path"], "rb"))
-            self.running_state.fix = True
 
         self.discriminator_func = nn.BCELoss()
 
@@ -213,7 +209,6 @@ class GAIL:
         while True:
             if render:
                 self.env.render()
-            # state = self.running_state(state)
             action, _ = self.choose_action(state)
             action = action.cpu().numpy()[0]
             state, reward, done, _ = self.env.step(action)
@@ -227,7 +222,6 @@ class GAIL:
     def save_model(self, save_path):
         check_path(save_path)
         # torch.save((self.discriminator, self.policy, self.value), f"{save_path}/{self.exp_name}.pt")
-        pickle.dump(self.running_state, open('{}/{}_RunningState.p'.format(save_path, self.env_id), 'wb'))
         torch.save(self.discriminator, f"{save_path}/{self.env_id}_Discriminator.pt")
         torch.save(self.policy, f"{save_path}/{self.env_id}_Policy.pt")
         torch.save(self.value, f"{save_path}/{self.env_id}_Value.pt")
@@ -235,7 +229,6 @@ class GAIL:
     def load_model(self, model_path):
         # load entire model
         # self.discriminator, self.policy, self.value = torch.load(model_path, map_location=device)
-        self.running_state = pickle.load(open(f'{model_path}_RunningState.p', 'rb'))
         self.discriminator = torch.load(f"{model_path}_Discriminator.pt", map_location=device)
         self.policy = torch.load(f"{model_path}_Policy.pt", map_location=device)
         self.value = torch.load(f"{model_path}_Value.pt", map_location=device)

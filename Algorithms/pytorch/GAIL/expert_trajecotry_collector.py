@@ -73,7 +73,6 @@ def main(env_id, n_trajs, model_path, data_path, render, seed):
 
     if data_path is not None:
         np.savez(f"{data_path}/{env_id}.npz", **numpy_dict)
-        pickle.dump(model.running_state, open(f"{data_path}/{env_id}_running_state.p", "wb"))
 
 
 if __name__ == '__main__':

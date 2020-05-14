@@ -12,8 +12,9 @@ from Algorithms.pytorch.GAIL.gail import GAIL
 
 @click.command()
 @click.option("--env_id", type=str, default="BipedalWalker-v3", help="Environment Id")
-@click.option("--config_path", type=str, default="./config/config_bipedalwalker-v3.yml",
+@click.option("--config_path", type=str, default="./config/config.yml",
               help="Model configuration file")
+@click.option("--expert_data_path", type=str, default="data/BipedalWalker-v3.npz", help="Expert data path")
 @click.option("--render", type=bool, default=False, help="Render environment or not")
 @click.option("--num_process", type=int, default=1, help="Number of process to run environment")
 @click.option("--eval_model_epoch", type=int, default=50, help="Intervals for evaluating model")
@@ -23,7 +24,7 @@ from Algorithms.pytorch.GAIL.gail import GAIL
 @click.option("--load_model_path", type=str, default="trained_models",
               help="Path for loading trained model")
 @click.option("--log_path", type=str, default="./log/", help="Directory to save logs")
-def main(env_id, config_path, render, num_process, eval_model_epoch, save_model_epoch, save_model_path, load_model,
+def main(env_id, config_path, expert_data_path, render, num_process, eval_model_epoch, save_model_epoch, save_model_path, load_model,
          load_model_path, log_path):
     base_dir = f"{log_path}/GAIL_{env_id}_{time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime())}"
     writer = SummaryWriter(base_dir)
@@ -33,6 +34,7 @@ def main(env_id, config_path, render, num_process, eval_model_epoch, save_model_
 
     gail = GAIL(env_id=env_id,
                 config=config,
+                expert_data_path=expert_data_path,
                 render=render,
                 num_process=num_process)
 
