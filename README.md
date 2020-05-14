@@ -15,12 +15,16 @@ This repo aims to implement Deep Reinforcement Learning algorithms using [Pytorc
 
 ### 2.1 Value based
 
+Value based algorithms include **DQNs**.
+
 [1]. DQN [Pytorch](Algorithms/pytorch/DQN) / [Tensorflow](Algorithms/tf2/DQN), Paper:  [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/abs/1312.5602)  
 [2]. Double DQN [Pytorch](Algorithms/pytorch/DoubleDQN) / [Tensorflow](Algorithms/tf2/DoubleDQN),  Paper: [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461)  
 [3]. Dueling DQN [Pytorch](Algorithms/pytorch/DuelingDQN) / [Tensorflow](Algorithms/tf2/DuelingDQN), Paper: [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/abs/1511.06581)   
 
 
 ### 2.2 Policy based
+
+Policy based algorithms is currently perform better, including **Policy Gradient Methods**.
 
 [1]. REINFORCE [Pytorch](Algorithms/pytorch/REINFORCE) / [Tensorflow](Algorithms/tf2/REINFORCE), Paper: [Policy Gradient Methods for Reinforcement Learning with Function Approximation](https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf)  
 [2]. VPG(Vanilla Policy Gradient) [Pytorch](Algorithms/pytorch/VPG) / [Tensorflow](Algorithms/tf2/VPG), Paper: [High Dimensional Continuous Control Using Generalized Advantage Estimation](https://arxiv.org/abs/1506.02438)  
@@ -34,6 +38,8 @@ This repo aims to implement Deep Reinforcement Learning algorithms using [Pytorc
     
 
 ### 2.3 Imitation Learning
+
+Imitation learning learn from expert data.
 
 [1]. GAIL [Pytorch](Algorithms/pytorch/GAIL), Paper: [Generative Adversarial Imitation Learning](https://arxiv.org/pdf/1606.03476.pdf)     
 

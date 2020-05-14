@@ -10,7 +10,7 @@ GAIL_TEMPLATE = "python -m Algorithms.{0}.{1}.main --env_id {2} --save_model_pat
                 "--num_process {4} --render {5} --config_path {6} --expert_data_path {7}"
 
 PPO_TEMPLATE = "python -m Algorithms.{0}.{1}.main --env_id {2} --max_iter 500 --model_path {3} --num_process {4} " \
-               "--render {5} --seed 2020"
+               "--render {5} --seed 2020 --log_path {6}"
 
 
 @click.command()
@@ -36,22 +36,23 @@ def generate(version, algo, envs):
         run_command = None
         if algo == "GAIL":
             run_command = COMMON_TEMPLATE + GAIL_TEMPLATE.format(version,
-                                               algo,
-                                               env,
-                                               f"./{version}/{algo}/trained_models",
-                                               int(multiprocessing.cpu_count() / 2),
-                                               False,
-                                               "config/config.yml",
-                                               f"data/{env}.npz")
+                                                                 algo,
+                                                                 env,
+                                                                 f"./{version}/{algo}/trained_models",
+                                                                 int(multiprocessing.cpu_count() / 2),
+                                                                 False,
+                                                                 "config/config.yml",
+                                                                 f"data/{env}.npz")
             tensor_board_command = f"tensorboard --logdir=./{version}/{algo}/log"  # run tensorboard for visualization
 
         elif algo == "PPO":
             run_command = COMMON_TEMPLATE + PPO_TEMPLATE.format(version,
-                                              algo,
-                                              env,
-                                              "trained_models",
-                                              int(multiprocessing.cpu_count() / 2),
-                                              False)
+                                                                algo,
+                                                                env,
+                                                                "trained_models",
+                                                                int(multiprocessing.cpu_count() / 2),
+                                                                False,
+                                                                f"./{version}/{algo}/log")
 
         panes_list.append(run_command)
 
