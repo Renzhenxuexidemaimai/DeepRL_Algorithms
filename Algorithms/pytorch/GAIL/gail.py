@@ -132,7 +132,7 @@ class GAIL:
         ####################################################
         for expert_batch_state, expert_batch_action in self.expert_dataset.train_loader:
             gen_r = self.discriminator(gen_batch_state, gen_batch_action)
-            expert_r = self.discriminator(expert_batch_state, expert_batch_action)
+            expert_r = self.discriminator(expert_batch_state.to(device), expert_batch_action.to(device))
 
             expert_labels = torch.ones_like(expert_r)
             gen_labels = torch.zeros_like(gen_r)

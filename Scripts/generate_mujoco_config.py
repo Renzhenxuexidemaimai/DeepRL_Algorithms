@@ -7,7 +7,7 @@ import yaml
 
 COMMON_TEMPLATE = "rl && "
 GAIL_TEMPLATE = "python -m Algorithms.{0}.{1}.main --env_id {2} --save_model_path {3} " \
-                "--num_process {4} --render {5} --config_path {6} --expert_data_path {7}"
+                "--num_process {4} --render {5} --config_path {6} --expert_data_path {7} --log_path {8}"
 
 PPO_TEMPLATE = "python -m Algorithms.{0}.{1}.main --env_id {2} --max_iter 500 --model_path {3} --num_process {4} " \
                "--render {5} --seed 2020 --log_path {6}"
@@ -29,7 +29,7 @@ def generate(version, algo, envs):
     }
 
     panes_list = []
-    tensor_board_command = f"tensorboard --logdir=./{version}/log"  # run tensorboard for visualization
+    tensor_board_command = f"tensorboard --logdir=./Algorithms/{version}/log"  # run tensorboard for visualization
     for env in envs_list:
         print(f"Generate config for env : {env}")
 
@@ -38,21 +38,22 @@ def generate(version, algo, envs):
             run_command = COMMON_TEMPLATE + GAIL_TEMPLATE.format(version,
                                                                  algo,
                                                                  env,
-                                                                 f"./{version}/{algo}/trained_models",
+                                                                 f"./Algorithms/{version}/{algo}/trained_models",
                                                                  int(multiprocessing.cpu_count() / 2),
                                                                  False,
-                                                                 "config/config.yml",
-                                                                 f"data/{env}.npz")
-            tensor_board_command = f"tensorboard --logdir=./{version}/{algo}/log"  # run tensorboard for visualization
+                                                                 f"./Algorithms/{version}/{algo}/config/config.yml",
+                                                                 f"./Algorithms/{version}/{algo}/data/{env}.npz",
+                                                                 f"./Algorithms/{version}/{algo}/log")
+            tensor_board_command = f"tensorboard --logdir=./Algorithms/{version}/{algo}/log"  # run tensorboard for visualization
 
         elif algo == "PPO":
             run_command = COMMON_TEMPLATE + PPO_TEMPLATE.format(version,
                                                                 algo,
                                                                 env,
-                                                                "trained_models",
+                                                                f"./Algorithms/{version}/{algo}/trained_models",
                                                                 int(multiprocessing.cpu_count() / 2),
                                                                 False,
-                                                                f"./{version}/{algo}/log")
+                                                                f"./Algorithms/{version}/{algo}/log")
 
         panes_list.append(run_command)
 

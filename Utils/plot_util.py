@@ -20,6 +20,7 @@ DEFAULT_SIZE_GUIDANCE = {
 
 # palette=sns.color_palette("hls", 8)
 # themes = ['deep', 'muted', 'pastel', 'bright', 'dark', 'colorblind']
+
 flatui = ["#9b59b6", "#3498db", "#95a5a6", "#e74c3c", "#34495e", "#2ecc71", "#e67e22", "#f1c40f"]
 material = ["#E91E63", "#FFC107", "#9C27B0", "#3F51B5", "#2196F3", "#009688", "#795548", "#607D8B"]
 sns.set(style="white", font_scale=1.0, rc={"lines.linewidth": 1.2}, palette=sns.color_palette(flatui))
@@ -48,6 +49,7 @@ def plot_data(data, x_axis='num steps', y_axis="average reward", hue="algorithm"
     sns.lineplot(data=data, x=x_axis, y=y_axis, hue=hue, ci='sd', ax=ax, **kwargs)
     # ax.legend(loc='best').set_draggable(True)
     """Spining up style"""
+
     ax.legend(loc='upper center', ncol=9, handlelength=1, frameon=False,
               mode="expand", borderaxespad=0.02, prop={'size': 8})
 
@@ -135,7 +137,7 @@ def plot_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, smooth=1, en
     envs_fulldir = lambda env_dir, alg_dir: os.path.join(env_dir, alg_dir)
     for y_ax in y_axis:
         k = 0
-        fig, axes = plt.subplots(sub_plot_height, sub_plot_width, figsize=(6 * sub_plot_width, 4 * sub_plot_height))
+        fig, axes = plt.subplots(sub_plot_height, sub_plot_width, figsize=(8 * sub_plot_width, 6 * sub_plot_height))
         for env_dir in envs_logdirs:
             if sub_plot_height == 1:
                 if sub_plot_width == 1:
@@ -160,7 +162,8 @@ def plot_all_logs(log_dir=None, x_axis=None, y_axis=None, hue=None, smooth=1, en
 
 def make_plot(data, x_axis=None, y_axis=None, title=None, hue=None, smooth=1, estimator='mean', ax=None):
     estimator = getattr(np, estimator)
-    plot_data(data, x_axis=x_axis, y_axis=y_axis, hue=hue, smooth=smooth, ax=ax, estimator=estimator)
+    if len(data) > 0:
+        plot_data(data, x_axis=x_axis, y_axis=y_axis, hue=hue, smooth=smooth, ax=ax, estimator=estimator)
     if title:
         ax.set_title(title)
 

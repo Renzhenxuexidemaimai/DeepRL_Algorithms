@@ -1,0 +1,7 @@
+session_name: test-session
+windows:
+- layout: tiled
+  panes:
+  - rl && python
+  - pwd
+  window_name: test-window

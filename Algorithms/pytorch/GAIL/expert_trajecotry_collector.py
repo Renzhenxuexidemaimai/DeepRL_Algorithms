@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # Created at 2020/5/13
 import pickle
-
 import click
 import numpy as np
 import torch
@@ -10,9 +9,9 @@ from Utils.env_util import get_env_info
 
 
 @click.command()
-@click.option("--env_id", type=str, default="BipedalWalker-v3", help="Environment Id")
+@click.option("--env_id", type=str, default="Swimmer-v3", help="Environment Id")
 @click.option("--n_trajs", type=int, default=50, help="Number of trajectories to sample")
-@click.option("--model_path", type=str, default="../PPO/trained_models/BipedalWalker-v3_ppo.p",
+@click.option("--model_path", type=str, default="../PPO/trained_models/Swimmer-v3_ppo.p",
               help="Directory to load pre-trained model")
 @click.option("--data_path", type=str, default="./data", help="Directory to store expert trajectories")
 @click.option("--render", type=bool, default=False, help="Render environment flag")
