@@ -52,8 +52,8 @@ class ExpertDataset:
         self.num_transition = len(self.states)
 
         self.data_loader = DataLoader(
-            TensorDataset(FLOAT(self.states).to(device),
-                          FLOAT(self.actions).to(device),
+            TensorDataset(FLOAT(self.states),
+                          FLOAT(self.actions),
                           ),
             shuffle=self.shuffle,
             batch_size=batch_size,
@@ -61,16 +61,16 @@ class ExpertDataset:
         )
 
         self.train_loader = DataLoader(
-            TensorDataset(FLOAT(self.states[:int(self.num_transition * train_fraction), :]).to(device),
-                          FLOAT(self.actions[:int(self.num_transition * train_fraction), :]).to(device),
+            TensorDataset(FLOAT(self.states[:int(self.num_transition * train_fraction), :]),
+                          FLOAT(self.actions[:int(self.num_transition * train_fraction), :]),
                           ),
             shuffle=self.shuffle,
             batch_size=batch_size,
             num_workers=num_workers
         )
         self.val_loader = DataLoader(
-            TensorDataset(FLOAT(self.states[int(self.num_transition * train_fraction):, :]).to(device),
-                          FLOAT(self.actions[int(self.num_transition * train_fraction):, :]).to(device),
+            TensorDataset(FLOAT(self.states[int(self.num_transition * train_fraction):, :]),
+                          FLOAT(self.actions[int(self.num_transition * train_fraction):, :]),
                           ),
             shuffle=self.shuffle,
             batch_size=batch_size,

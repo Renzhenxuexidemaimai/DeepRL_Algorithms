@@ -30,7 +30,7 @@ def generate(version, algo, envs):
     }
 
     panes_list = []
-    tensor_board_command = f"tensorboard --logdir=./{version}/log"  # run tensorboard for visualization
+    tensor_board_command = f"tensorboard --logdir=./Algorithms/{version}/log"  # run tensorboard for visualization
     for env in envs_list:
         print(f"Generate config for env : {env}")
 
@@ -39,19 +39,19 @@ def generate(version, algo, envs):
             run_command = COMMON_TEMPLATE + GAIL_TEMPLATE.format(version,
                                                algo,
                                                env,
-                                               f"./{version}/{algo}/trained_models",
+                                               f"./Algorithms/{version}/{algo}/trained_models",
                                                int(multiprocessing.cpu_count() / 2),
                                                False,
-                                               f"./{version}/{algo}/config/config.yml",
-                                               f"./{version}/{algo}/data/{env}.npz",
-                                                                 f"./{version}/{algo}/log")
-            tensor_board_command = f"tensorboard --logdir=./{version}/{algo}/log"  # run tensorboard for visualization
+                                               f"./Algorithms/{version}/{algo}/config/config.yml",
+                                               f"./Algorithms/{version}/{algo}/data/{env}.npz",
+                                                                 f"./Algorithms/{version}/{algo}/log")
+            tensor_board_command = f"tensorboard --logdir=./Algorithms/{version}/{algo}/log"  # run tensorboard for visualization
 
         elif algo == "PPO":
             run_command = COMMON_TEMPLATE + PPO_TEMPLATE.format(version,
                                               algo,
                                               env,
-                                              f"./{version}/{algo}/trained_models",
+                                              f"./Algorithms/{version}/{algo}/trained_models",
                                               int(multiprocessing.cpu_count() / 2),
                                               False)
 
