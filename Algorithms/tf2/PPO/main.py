@@ -3,10 +3,10 @@
 # Created at 2020/3/23
 
 import click
-
 import tensorflow as tf
 
 from Algorithms.tf2.PPO.ppo import PPO
+
 
 @click.command()
 @click.option("--env_id", type=str, default="BipedalWalker-v3", help="Environment Id")

@@ -66,16 +66,16 @@ class Policy(BasePolicy):
         u = dist.rsample()
         log_prob = dist.log_prob(u)
         action = torch.tanh(u)
-        log_prob -= torch.log(1. - action.pow(2) + eps)
-        # log_prob = dist.log_prob(u).sum(axis=-1) - (2*(np.log(2) - u - F.softplus(-2*u))).sum(axis=-1)
-        return action * self.max_action, log_prob.sum(dim=-1, keepdim=True)
+        log_prob -= (torch.log(1. - action.pow(2) + eps)).sum(dim=-1)
+        # log_prob = dist.log_prob(u).sum(dim=-1) - (2*(np.log(2) - u - F.softplus(-2*u))).sum(dim=-1)
+        return action * self.max_action, log_prob
 
     def get_entropy(self, states):
         dist = self.forward(states)
         return dist.entropy().mean()
 
     def get_kl(self, x):
-        assert self.use_sac == False, "Expect non SAC algorithm !!!"
+        assert not self.use_sac, "Expect non SAC algorithm !!!"
         mean = self.policy(x)
         mean_old = mean.detach()
         log_std = self.log_std.expand_as(mean)

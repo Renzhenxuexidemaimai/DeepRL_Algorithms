@@ -13,7 +13,7 @@ from Algorithms.pytorch.Models.Value_ddpg import Value
 from Common.fixed_size_replay_memory import FixedMemory
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
-from Utils.torch_util import device, DOUBLE
+from Utils.torch_util import device, FLOAT
 from Utils.zfilter import ZFilter
 
 
@@ -66,11 +66,11 @@ class DDPG:
         torch.manual_seed(self.seed)
         self.env.seed(self.seed)
 
-        self.policy_net = Policy(num_states, self.num_actions, self.action_high).double().to(device)
-        self.policy_net_target = Policy(num_states, self.num_actions, self.action_high).double().to(device)
+        self.policy_net = Policy(num_states, self.num_actions, self.action_high).to(device)
+        self.policy_net_target = Policy(num_states, self.num_actions, self.action_high).to(device)
 
-        self.value_net = Value(num_states, self.num_actions).double().to(device)
-        self.value_net_target = Value(num_states, self.num_actions).double().to(device)
+        self.value_net = Value(num_states, self.num_actions).to(device)
+        self.value_net_target = Value(num_states, self.num_actions).to(device)
 
         self.running_state = ZFilter((num_states,), clip=5)
 
@@ -87,7 +87,7 @@ class DDPG:
 
     def choose_action(self, state, noise_scale):
         """select action"""
-        state = DOUBLE(state).unsqueeze(0).to(device)
+        state = FLOAT(state).unsqueeze(0).to(device)
         with torch.no_grad():
             action, log_prob = self.policy_net.get_action_log_prob(state)
         action = action.cpu().numpy()[0]
@@ -188,11 +188,11 @@ class DDPG:
 
     def update(self, batch):
         """learn model"""
-        batch_state = DOUBLE(batch.state).to(device)
-        batch_action = DOUBLE(batch.action).to(device)
-        batch_reward = DOUBLE(batch.reward).to(device)
-        batch_next_state = DOUBLE(batch.next_state).to(device)
-        batch_mask = DOUBLE(batch.mask).to(device)
+        batch_state = FLOAT(batch.state).to(device)
+        batch_action = FLOAT(batch.action).to(device)
+        batch_reward = FLOAT(batch.reward).to(device)
+        batch_next_state = FLOAT(batch.next_state).to(device)
+        batch_mask = FLOAT(batch.mask).to(device)
 
         # update by DDPG
         ddpg_step(self.policy_net, self.policy_net_target, self.value_net, self.value_net_target, self.optimizer_p,

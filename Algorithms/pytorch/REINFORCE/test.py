@@ -20,7 +20,7 @@ from Algorithms.pytorch.REINFORCE.reinforce import REINFORCE
 def main(env_id, render, num_process, lr_p, gamma, batch_size,
          reinforce_epochs, model_path, seed, test_epochs):
     reinforce = REINFORCE(env_id, render, num_process, batch_size, lr_p, gamma,
-                          reinforce_epochs, seed=seed, model_path=model_path, )
+                          reinforce_epochs, seed=seed, model_path=model_path)
 
     for i_iter in range(1, test_epochs + 1):
         reinforce.eval(i_iter)

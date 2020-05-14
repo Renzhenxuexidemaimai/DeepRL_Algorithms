@@ -8,10 +8,10 @@ import time
 import torch
 
 from Common.replay_memory import Memory
-from Utils.torch_util import device, FLOAT, DOUBLE
+from Utils.torch_util import device, FLOAT
 
 
-def collect_samples(pid, queue, env, policy, render, running_state, min_batch_size):
+def collect_samples(pid, queue, env, policy, render, running_state, custom_reward, min_batch_size):
     torch.randn(pid)
     log = dict()
     memory = Memory()
@@ -31,12 +31,14 @@ def collect_samples(pid, queue, env, policy, render, running_state, min_batch_si
         for t in range(10000):
             if render:
                 env.render()
-            state_tensor = DOUBLE(state).unsqueeze(0)
+            state_tensor = FLOAT(state).unsqueeze(0)
             with torch.no_grad():
                 action, log_prob = policy.get_action_log_prob(state_tensor)
             action = action.cpu().numpy()[0]
             log_prob = log_prob.cpu().numpy()[0]
             next_state, reward, done, _ = env.step(action)
+            if custom_reward:
+                reward = custom_reward(state, action)
             episode_reward += reward
 
             if running_state:
@@ -83,14 +85,16 @@ def merge_log(log_list):
 
 
 class MemoryCollector:
-    def __init__(self, env, policy, render=False, running_state=None, num_process=1):
+    def __init__(self, env, policy, render=False, running_state=None, custom_reward=None, num_process=1):
         self.env = env
         self.policy = policy
         self.running_state = running_state
+        self.custom_reward = custom_reward
         self.render = render
         self.num_process = num_process
 
     def collect_samples(self, min_batch_size):
+        self.policy.eval()
         self.policy.to(torch.device('cpu'))
         t_start = time.time()
         process_batch_size = int(math.floor(min_batch_size / self.num_process))
@@ -100,15 +104,14 @@ class MemoryCollector:
         # don't render other parallel processes
         for i in range(self.num_process - 1):
             worker_args = (i + 1, queue, self.env, self.policy,
-                           False, self.running_state, process_batch_size)
+                           False, self.running_state, self.custom_reward, process_batch_size)
             workers.append(multiprocessing.Process(target=collect_samples, args=worker_args))
-
 
         for worker in workers:
             worker.start()
 
         memory, log = collect_samples(0, None, self.env, self.policy,
-                                      self.render, self.running_state, process_batch_size)
+                                      self.render, self.running_state, self.custom_reward, process_batch_size)
 
         worker_logs = [None] * len(workers)
         worker_memories = [None] * len(workers)

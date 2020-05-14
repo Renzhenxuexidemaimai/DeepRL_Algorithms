@@ -14,7 +14,7 @@ from Common.GAE import estimate_advantages
 from Common.MemoryCollector import MemoryCollector
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
-from Utils.torch_util import device, DOUBLE
+from Utils.torch_util import device, FLOAT
 from Utils.zfilter import ZFilter
 
 
@@ -55,11 +55,11 @@ class TRPO:
         self.env.seed(self.seed)
 
         if env_continuous:
-            self.policy_net = Policy(num_states, num_actions).double().to(device)  # current policy
+            self.policy_net = Policy(num_states, num_actions).to(device)  # current policy
         else:
-            self.policy_net = DiscretePolicy(num_states, num_actions).double().to(device)
+            self.policy_net = DiscretePolicy(num_states, num_actions).to(device)
 
-        self.value_net = Value(num_states).double().to(device)
+        self.value_net = Value(num_states).to(device)
         self.running_state = ZFilter((num_states,), clip=5)
 
         if self.model_path:
@@ -75,7 +75,7 @@ class TRPO:
 
     def choose_action(self, state):
         """select action"""
-        state = DOUBLE(state).unsqueeze(0).to(device)
+        state = FLOAT(state).unsqueeze(0).to(device)
         with torch.no_grad():
             action, log_prob = self.policy_net.get_action_log_prob(state)
         return action, log_prob
@@ -118,11 +118,11 @@ class TRPO:
 
         batch = memory.sample()  # sample all items in memory
 
-        batch_state = DOUBLE(batch.state).to(device)
-        batch_action = DOUBLE(batch.action).to(device)
-        batch_reward = DOUBLE(batch.reward).to(device)
-        batch_mask = DOUBLE(batch.mask).to(device)
-        batch_log_prob = DOUBLE(batch.log_prob).to(device)
+        batch_state = FLOAT(batch.state).to(device)
+        batch_action = FLOAT(batch.action).to(device)
+        batch_reward = FLOAT(batch.reward).to(device)
+        batch_mask = FLOAT(batch.mask).to(device)
+        batch_log_prob = FLOAT(batch.log_prob).to(device)
 
         with torch.no_grad():
             batch_value = self.value_net(batch_state)

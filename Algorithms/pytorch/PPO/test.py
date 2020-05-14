@@ -5,7 +5,6 @@
 import click
 
 from Algorithms.pytorch.PPO.ppo import PPO
-from Algorithms.pytorch.PPO.ppo_mini_batch import PPO_Minibatch
 
 
 @click.command()
@@ -18,21 +17,27 @@ from Algorithms.pytorch.PPO.ppo_mini_batch import PPO_Minibatch
 @click.option("--tau", type=float, default=0.95, help="GAE factor")
 @click.option("--epsilon", type=float, default=0.2, help="Clip rate for PPO")
 @click.option("--batch_size", type=int, default=2048, help="Batch size")
-@click.option("--mini_batch", type=bool, default=False, help="Update by mini-batch strategy")
-@click.option("--ppo_mini_batch_size", type=int, default=64, help="PPO mini-batch size")
+@click.option("--ppo_mini_batch_size", type=int, default=0,
+              help="PPO mini-batch size (default 0 -> don't use mini-batch update)")
 @click.option("--ppo_epochs", type=int, default=10, help="PPO step")
 @click.option("--model_path", type=str, default="trained_models", help="Directory to store model")
 @click.option("--seed", type=int, default=1, help="Seed for reproducing")
 @click.option("--test_epochs", type=int, default=50, help="Trials to test model")
-def main(env_id, render, num_process, lr_p, lr_v, gamma, tau, epsilon, batch_size, mini_batch,
+def main(env_id, render, num_process, lr_p, lr_v, gamma, tau, epsilon, batch_size,
          ppo_mini_batch_size, ppo_epochs, model_path, seed, test_epochs):
-    if mini_batch:
-        ppo = PPO_Minibatch(env_id, render, num_process, batch_size, lr_p, lr_v, gamma, tau, epsilon,
-                            ppo_mini_batch_size,
-                            ppo_epochs, seed=seed, model_path=model_path)
-    else:
-        ppo = PPO(env_id, render, num_process, batch_size, lr_p, lr_v, gamma, tau, epsilon,
-                  ppo_epochs, seed=seed, model_path=model_path)
+    ppo = PPO(env_id=env_id,
+              render=render,
+              num_process=num_process,
+              min_batch_size=batch_size,
+              lr_p=lr_p,
+              lr_v=lr_v,
+              gamma=gamma,
+              tau=tau,
+              clip_epsilon=epsilon,
+              ppo_epochs=ppo_epochs,
+              ppo_mini_batch_size=ppo_mini_batch_size,
+              seed=seed,
+              model_path=model_path)
 
     for i_iter in range(1, test_epochs):
         ppo.eval(i_iter)

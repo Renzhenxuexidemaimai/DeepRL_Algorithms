@@ -50,8 +50,8 @@ def plot_data(data, x_axis='num steps', y_axis="average reward", hue="algorithm"
     # ax.legend(loc='best').set_draggable(True)
     """Spining up style"""
 
-    ax.legend(loc='upper center', ncol=8, handlelength=1, frameon=False,
-              mode="expand", borderaxespad=0.02, prop={'size': 10})
+    ax.legend(loc='upper center', ncol=9, handlelength=1, frameon=False,
+              mode="expand", borderaxespad=0.02, prop={'size': 8})
 
     xscale = np.max(np.asarray(data[x_axis])) > 5e3
     if xscale:
@@ -109,8 +109,8 @@ def get_env_alg_log(log_path):
     else:
         df = load_event_scalars(log_path)
     if "num steps" in df:
-        df["num steps"] = df["num steps"].cumsum()
-    else:
+    #     df["num steps"] = df["num steps"].cumsum()
+    # else:
         df["num steps"] = (np.ones((1, df.shape[0])) * 4000).cumsum()
         df = df[df["num steps"] <= 3500000]
     df["algorithm"] = [alg] * df.shape[0]

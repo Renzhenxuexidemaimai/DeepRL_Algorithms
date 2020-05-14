@@ -11,7 +11,7 @@ from Algorithms.pytorch.Models.QNet_dqn import QNet_dqn
 from Common.fixed_size_replay_memory import FixedMemory
 from Utils.env_util import get_env_info
 from Utils.file_util import check_path
-from Utils.torch_util import device, DOUBLE, LONG
+from Utils.torch_util import device, LONG, FLOAT
 from Utils.zfilter import ZFilter
 
 
@@ -62,8 +62,8 @@ class DoubleDQN:
         self.env.seed(self.seed)
 
         # initialize networks
-        self.value_net = QNet_dqn(num_states, self.num_actions).double().to(device)
-        self.value_net_target = QNet_dqn(num_states, self.num_actions).double().to(device)
+        self.value_net = QNet_dqn(num_states, self.num_actions).to(device)
+        self.value_net_target = QNet_dqn(num_states, self.num_actions).to(device)
 
         self.running_state = ZFilter((num_states,), clip=5)
 
@@ -78,7 +78,7 @@ class DoubleDQN:
         self.optimizer = optim.Adam(self.value_net.parameters(), lr=self.lr_q)
 
     def choose_action(self, state):
-        state = DOUBLE(state).unsqueeze(0).to(device)
+        state = FLOAT(state).unsqueeze(0).to(device)
         if np.random.uniform() <= self.epsilon:
             with torch.no_grad():
                 action = self.value_net.get_action(state)
@@ -175,11 +175,11 @@ class DoubleDQN:
                             }, i_iter)
 
     def update(self, batch, global_steps):
-        batch_state = DOUBLE(batch.state).to(device)
+        batch_state = FLOAT(batch.state).to(device)
         batch_action = LONG(batch.action).to(device)
-        batch_reward = DOUBLE(batch.reward).to(device)
-        batch_next_state = DOUBLE(batch.next_state).to(device)
-        batch_mask = DOUBLE(batch.mask).to(device)
+        batch_reward = FLOAT(batch.reward).to(device)
+        batch_next_state = FLOAT(batch.next_state).to(device)
+        batch_mask = FLOAT(batch.mask).to(device)
 
         doubledqn_step(self.value_net, self.optimizer, self.value_net_target, batch_state, batch_action,
                        batch_reward, batch_next_state, batch_mask, self.gamma, self.polyak,

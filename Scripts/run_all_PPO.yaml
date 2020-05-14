@@ -1,0 +1,21 @@
+session_name: run-all-PPO
+start_directory: ~/PycharmProjects/DeepRL_Algorithms
+windows:
+- layout: tiled
+  panes:
+  - python -m Algorithms.pytorch.PPO.main --env_id HalfCheetah-v3 --max_iter 500 --model_path
+    ./pytorch/PPO/trained_models --num_process 16--render False
+  - tensorboard --logdir=./pytorch/log
+  - python -m Algorithms.pytorch.PPO.main --env_id Hopper-v3 --max_iter 500 --model_path
+    ./pytorch/PPO/trained_models --num_process 16--render False
+  - tensorboard --logdir=./pytorch/log
+  - python -m Algorithms.pytorch.PPO.main --env_id Walker2d-v3 --max_iter 500 --model_path
+    ./pytorch/PPO/trained_models --num_process 16--render False
+  - tensorboard --logdir=./pytorch/log
+  - python -m Algorithms.pytorch.PPO.main --env_id Swimmer-v3 --max_iter 500 --model_path
+    ./pytorch/PPO/trained_models --num_process 16--render False
+  - tensorboard --logdir=./pytorch/log
+  - python -m Algorithms.pytorch.PPO.main --env_id Ant-v3 --max_iter 500 --model_path
+    ./pytorch/PPO/trained_models --num_process 16--render False
+  - tensorboard --logdir=./pytorch/log
+  window_name: PPO

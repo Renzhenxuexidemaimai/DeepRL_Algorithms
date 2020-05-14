@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # Created at 2020/1/22
+import numpy as np
 import scipy.optimize as opt
 import torch
 import torch.autograd as autograd
 import torch.nn as nn
 
-from Utils.torch_util import device, set_flat_params, get_flat_grad_params, get_flat_params, DOUBLE
+from Utils.torch_util import device, set_flat_params, get_flat_grad_params, get_flat_params, FLOAT
 
 
 def trpo_step(policy_net, value_net, states, actions,
@@ -21,7 +22,7 @@ def trpo_step(policy_net, value_net, states, actions,
         :param value_net_flat_params: numpy
         :return:
         """
-        set_flat_params(value_net, DOUBLE(value_net_flat_params))
+        set_flat_params(value_net, FLOAT(value_net_flat_params))
         values_pred = value_net(states)
         value_loss = nn.MSELoss()(values_pred, returns)
         # weight decay
@@ -33,7 +34,7 @@ def trpo_step(policy_net, value_net, states, actions,
         return objective_value_loss
 
     def value_objective_grad_func(value_net_flat_params):
-        set_flat_params(value_net, DOUBLE(value_net_flat_params))
+        set_flat_params(value_net, FLOAT(value_net_flat_params))
         for param in value_net.parameters():
             if param.grad is not None:
                 param.grad.data.fill_(0)
@@ -44,7 +45,7 @@ def trpo_step(policy_net, value_net, states, actions,
             value_loss += param.pow(2).sum() * l2_reg
 
         value_loss.backward()  # to get the grad
-        objective_value_loss_grad = get_flat_grad_params(value_net).detach().cpu().numpy()
+        objective_value_loss_grad = get_flat_grad_params(value_net).detach().cpu().numpy().astype(np.float64)
         return objective_value_loss_grad
 
     # update by NN method
@@ -53,12 +54,13 @@ def trpo_step(policy_net, value_net, states, actions,
         update by scipy optimizing, for detail about L-BFGS-B: ref: 
         https://docs.scipy.org/doc/scipy/reference/optimize.minimize-lbfgsb.html#optimize-minimize-lbfgsb
         """
-        value_net_flat_params_old = get_flat_params(value_net).detach().cpu().numpy()  # initial guess
+        value_net_flat_params_old = get_flat_params(value_net).detach().cpu().numpy().astype(
+            np.float64)  # initial guess
         res = opt.minimize(value_objective_func, value_net_flat_params_old, method='L-BFGS-B',
                            jac=value_objective_grad_func, options={"maxiter": 30, "disp": False})
         # print("Call L-BFGS-B, result: ", res)
         value_net_flat_params_new = res.x
-        set_flat_params(value_net, DOUBLE(value_net_flat_params_new))
+        set_flat_params(value_net, FLOAT(value_net_flat_params_new))
 
     else:
         for _ in range(10):

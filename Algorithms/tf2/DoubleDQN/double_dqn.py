@@ -173,7 +173,6 @@ class DoubleDQN:
             tf.summary.scalar("max reward", log['max_episode_reward'], step=i_iter)
             tf.summary.scalar("num steps", log['num_steps'], step=i_iter)
 
-
     def update(self, batch, global_steps):
         batch_state = NDOUBLE(batch.state)
         batch_action = NLONG(batch.action)
