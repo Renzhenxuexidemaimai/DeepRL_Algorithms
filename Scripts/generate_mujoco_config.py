@@ -5,6 +5,7 @@ import multiprocessing
 import click
 import yaml
 
+COMMON_TEMPLATE = "conda activate rl && "
 GAIL_TEMPLATE = "python -m Algorithms.{0}.{1}.main --env_id {2} --save_model_path {3} " \
                 "--num_process {4}  --render {5} --config_path {6} --expert_data_path {7}"
 
@@ -34,7 +35,7 @@ def generate(version, algo, envs):
         run_command = None
         tensor_board_command = f"tensorboard --logdir=./{version}/log"  # run tensorboard for visualization
         if algo == "GAIL":
-            run_command = GAIL_TEMPLATE.format(version,
+            run_command = COMMON_TEMPLATE + GAIL_TEMPLATE.format(version,
                                                algo,
                                                env,
                                                f"./{version}/{algo}/trained_models",
@@ -45,7 +46,7 @@ def generate(version, algo, envs):
             tensor_board_command = f"tensorboard --logdir=./{version}/{algo}/log"  # run tensorboard for visualization
 
         elif algo == "PPO":
-            run_command = PPO_TEMPLATE.format(version,
+            run_command = COMMON_TEMPLATE + PPO_TEMPLATE.format(version,
                                               algo,
                                               env,
                                               f"./{version}/{algo}/trained_models",
@@ -53,7 +54,7 @@ def generate(version, algo, envs):
                                               False)
 
         panes_list.append(run_command)
-        panes_list.append(tensor_board_command)
+        panes_list.append(COMMON_TEMPLATE + tensor_board_command)
 
     config_dict["windows"].append({
         "window_name": f"{algo}",
