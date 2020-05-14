@@ -11,7 +11,7 @@ from Algorithms.pytorch.PPO.ppo import PPO
 
 
 @click.command()
-@click.option("--env_id", type=str, default="BipedalWalker-v3", help="Environment Id")
+@click.option("--env_id", type=str, default="HalfCheetah-v3", help="Environment Id")
 @click.option("--render", type=bool, default=False, help="Render environment or not")
 @click.option("--num_process", type=int, default=1, help="Number of process to run environment")
 @click.option("--lr_p", type=float, default=3e-4, help="Learning rate for Policy Net")
@@ -23,7 +23,7 @@ from Algorithms.pytorch.PPO.ppo import PPO
 @click.option("--ppo_mini_batch_size", type=int, default=0,
               help="PPO mini-batch size (default 0 -> don't use mini-batch update)")
 @click.option("--ppo_epochs", type=int, default=10, help="PPO step")
-@click.option("--max_iter", type=int, default=500, help="Maximum iterations to run")
+@click.option("--max_iter", type=int, default=800, help="Maximum iterations to run")
 @click.option("--eval_iter", type=int, default=50, help="Iterations to evaluate the model")
 @click.option("--save_iter", type=int, default=50, help="Iterations to save the model")
 @click.option("--model_path", type=str, default="trained_models", help="Directory to store model")

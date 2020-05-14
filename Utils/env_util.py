@@ -1,6 +1,8 @@
 import gym
 from gym.spaces import Discrete
 
+__all__ = ['get_env_info', 'get_env_space']
+
 
 def get_env_space(env_id):
     env = gym.make(env_id)
