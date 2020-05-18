@@ -5,7 +5,7 @@ import multiprocessing
 import numpy as np
 from torch.utils.data import TensorDataset, DataLoader
 
-from Utils.torch_util import FLOAT, device
+from Utils.torch_util import FLOAT
 
 """
 This dataset implementation reference stable_baselines and make some adaptation to pytorch
@@ -21,14 +21,27 @@ class ExpertDataset:
         """
         traj_data = np.load(expert_data_path, allow_pickle=True)
 
-        self._num_states = traj_data['state'].shape[-1]
-        self._num_actions = traj_data['action'].shape[-1]
+        if 'state' in traj_data:
+            states = traj_data['state']
+            self._num_states = traj_data['state'].shape[-1]
+        else:
+            states = traj_data['obs']
+            self._num_states = traj_data['obs'].shape[-1]
+        if 'action' in traj_data:
+            actions = traj_data['action']
+            self._num_actions = traj_data['action'].shape[-1]
+        else:
+            actions = traj_data['acs']
+            self._num_actions = traj_data['acs'].shape[-1]
+
+        if 'ep_reward' in traj_data:
+            self.ep_ret = traj_data['ep_reward']
+        else:
+            self.ep_ret = traj_data['ep_rets']
 
         if traj_limitation < 0:
-            traj_limitation = len(traj_data['ep_reward'])
-
-        states = traj_data['state']
-        actions = traj_data['action']
+            traj_limitation = len(self.ep_ret)
+            self.ep_ret = self.ep_ret[:traj_limitation]
 
         # states, actions: shape (N, L, ) + S where N = # episodes, L = episode length
         # and S is the environment observation/action space.
@@ -40,15 +53,17 @@ class ExpertDataset:
             self.states = np.vstack(states)
             self.actions = np.vstack(actions)
 
-        self.ep_ret = traj_data['ep_reward'][:traj_limitation]
         self.avg_ret = sum(self.ep_ret) / len(self.ep_ret)
         self.std_ret = np.std(np.array(self.ep_ret))
         self.shuffle = shuffle
 
         assert len(self.states) == len(self.actions), "The number of actions and observations differ " \
                                                       "please check your expert dataset"
+        if 'ep_reward' in traj_data:
+            self.num_traj = min(traj_limitation, len(traj_data['ep_reward']))
+        else:
+            self.num_traj = min(traj_limitation, len(traj_data['ep_rets']))
 
-        self.num_traj = min(traj_limitation, len(traj_data['ep_reward']))
         self.num_transition = len(self.states)
 
         self.data_loader = DataLoader(

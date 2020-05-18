@@ -102,10 +102,14 @@ class Policy(BasePolicy):
 
     def get_entropy(self, states):
         dist_discrete, dist_continuous = self.forward(states)
-        ent_discrete = dist_discrete.entropy()
-        ent_continuous = dist_continuous.entropy()
-
-        ent = torch.cat([ent_discrete, ent_continuous], dim=-1).unsqueeze_(-1)  # [batch_size, 2]
+        ents = []
+        if dist_discrete:
+            ent_discrete = dist_discrete.entropy()
+            ents.append(ent_discrete)
+        if dist_continuous:
+            ent_continuous = dist_continuous.entropy()
+            ents.append(ent_continuous)
+        ent = torch.cat(ents, dim=-1)
         return ent
 
     def get_kl(self, states):

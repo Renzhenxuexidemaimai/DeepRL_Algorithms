@@ -7,7 +7,7 @@ import yaml
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
-from Algorithms.pytorch.GAIL.gail import GAIL
+from Algorithms.pytorch.GAIL.gail_new import GAIL
 
 
 @click.command()
@@ -30,7 +30,7 @@ def main(env_id, config_path, expert_data_path, render, num_process, eval_model_
     writer = SummaryWriter(base_dir)
 
     config = config_loader(path=config_path)  # load model configuration
-    training_epochs = config["general"]["training_epochs"]
+    training_epochs = config["train"]["general"]["training_epochs"]
 
     gail = GAIL(env_id=env_id,
                 config=config,

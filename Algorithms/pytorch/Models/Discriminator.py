@@ -24,13 +24,13 @@ class Discriminator(nn.Module):
             activation(),
             nn.Linear(self.dim_hidden, self.dim_hidden),
             activation(),
-            nn.Linear(self.dim_hidden, 1),
-            nn.Sigmoid()
+            nn.Linear(self.dim_hidden, 1)
         )
 
         self.model.apply(init_weight)
 
     def forward(self, state, action):
         state_action = torch.cat([state, action], dim=-1)
-        prob = self.model(state_action)
-        return prob
+        logits = self.model(state_action)
+        prob = torch.sigmoid(logits)
+        return prob, logits

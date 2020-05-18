@@ -1,22 +1,22 @@
-general:
-  training_epochs: 800
-  seed: 2020
-
 expert_data:
   shuffle: True
-  batch_size: 2048
+  batch_size: 1024
   train_fraction: !!float 0.7
   traj_limitation: -1
 
-gae:
-  gamma: 0.995
-  tau: 0.96
-
-ppo:
-  clip_ratio: 0.1
-  ppo_optim_i_iters: 5
-  ppo_mini_batch_size: 128
-  sample_batch_size: 2048
+train:
+  general:
+    training_epochs: 2000
+    seed: 2020
+  generator:
+    gamma: 0.995
+    tau: 0.97
+    clip_ratio: 0.1
+    optim_step: 1
+    mini_batch_size: -1
+    sample_batch_size: 1024
+  discriminator:
+    optim_step: 1
 
 
 policy:
@@ -37,7 +37,7 @@ value:
   activation: LeakyReLU
   optim_value_iter: 1
   learning_rate: !!float 3e-4
-  l2_reg: !!float 3e-4
+  l2_reg: !!float 1e-3
 
 
 discriminator:
