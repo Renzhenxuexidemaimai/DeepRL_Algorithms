@@ -36,7 +36,6 @@ class GAIL:
 
         self._load_expert_trajectory()
         self._init_model()
-        self._init_buffers()
 
     def _load_expert_trajectory(self):
         self.expert_dataset = ExpertDataset(expert_data_path=self.expert_data_path,
@@ -98,11 +97,6 @@ class GAIL:
 
         to_device(self.value, self.policy, self.discriminator, self.discriminator_func)
 
-    def _init_buffers(self):
-        self.r_buffer = deque(maxlen=20)
-        self.true_r_buffer = deque(maxlen=20)
-        self.len_buffer = deque(maxlen=20)
-
     def choose_action(self, state):
         """select action"""
         state = FLOAT(state).unsqueeze(0).to(device)
@@ -119,7 +113,9 @@ class GAIL:
         ####################################################
         # update policy by ppo [mini_batch]
         ####################################################
-
+        r_buffer = []
+        true_r_buffer = []
+        len_buffer = []
         g_step = self.config["train"]["generator"]["optim_step"]
         for _ in range(g_step):
             # collect samples
@@ -138,9 +134,9 @@ class GAIL:
                 gen_batch_reward = d_out
 
             # record infos
-            self.true_r_buffer.append(log['avg_reward'])
-            self.r_buffer.append(gen_batch_reward.sum().item())
-            self.len_buffer.append(log['num_steps'])
+            true_r_buffer.append(log['avg_reward'])
+            r_buffer.append(gen_batch_reward.sum().item())
+            len_buffer.append(log['num_steps'])
 
             gen_batch_advantage, gen_batch_return = estimate_advantages(gen_batch_reward, gen_batch_mask,
                                                                         gen_batch_value,
@@ -236,17 +232,14 @@ class GAIL:
         writer.add_scalar("discriminator/gen_acc", gen_acc.item(), i_iter)
         writer.add_scalar("discriminator/expert_acc", expert_acc.item(), i_iter)
 
-        writer.add_scalar('gail/ep_len_mean', np.mean(self.len_buffer), i_iter)
-        writer.add_scalar('gail/ep_rew_mean', np.mean(self.r_buffer), i_iter)
-        writer.add_scalar('gail/ep_true_rew_mean', np.mean(self.true_r_buffer), i_iter)
-        writer.add_scalar('gail/ep_len_iter', np.mean(self.len_buffer[-g_step:]), i_iter)
-        writer.add_scalar('gail/ep_rew_iter', np.mean(self.r_buffer[-g_step:]), i_iter)
-        writer.add_scalar('gail/ep_true_rew_iter', np.mean(self.true_r_buffer[-g_step:]), i_iter)
+        writer.add_scalar('gail/ep_len_mean', np.mean(len_buffer), i_iter)
+        writer.add_scalar('gail/ep_rew_mean', np.mean(r_buffer), i_iter)
+        writer.add_scalar('gail/ep_true_rew_mean', np.mean(true_r_buffer), i_iter)
 
         print(f" Training episode:{i_iter} ".center(80, "#"))
-        print('ep/len:', np.mean(self.len_buffer))
-        print('ep/reward', np.mean(self.r_buffer))
-        print('ep/true_reward', np.mean(self.true_r_buffer))
+        print('ep/len:', np.mean(len_buffer))
+        print('ep/reward', np.mean(r_buffer))
+        print('ep/true_reward', np.mean(true_r_buffer))
         print('d/loss:', d_loss.item())
         print("d/bernoulli_entropy:", entropy.item())
         print('d/gen_prob:', gen_prob.mean().item())
