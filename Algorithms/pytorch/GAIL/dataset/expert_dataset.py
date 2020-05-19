@@ -23,17 +23,12 @@ class ExpertDataset:
 
         if 'state' in traj_data:
             states = traj_data['state']
-            self._num_states = traj_data['state'].shape[-1]
         else:
             states = traj_data['obs']
-            self._num_states = traj_data['obs'].shape[-1]
         if 'action' in traj_data:
             actions = traj_data['action']
-            self._num_actions = traj_data['action'].shape[-1]
         else:
             actions = traj_data['acs']
-            self._num_actions = traj_data['acs'].shape[-1]
-
         if 'ep_reward' in traj_data:
             self.ep_ret = traj_data['ep_reward']
         else:
@@ -52,6 +47,9 @@ class ExpertDataset:
         else:
             self.states = np.vstack(states)
             self.actions = np.vstack(actions)
+
+        self._num_states = self.states.shape[-1]
+        self._num_actions = self.actions.shape[-1]
 
         self.avg_ret = sum(self.ep_ret) / len(self.ep_ret)
         self.std_ret = np.std(np.array(self.ep_ret))

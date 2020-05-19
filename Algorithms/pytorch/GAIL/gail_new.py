@@ -2,13 +2,14 @@
 # Created at 2020/5/9
 
 import math
-from collections import deque
+
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset
 
-from Algorithms.pytorch.GAIL.dataset.expert_dataset import ExpertDataset
+from Algorithms.pytorch.GAIL.dataset.dataset import ExpertDataset
 from Algorithms.pytorch.Models.ConfigPolicy import Policy
 from Algorithms.pytorch.Models.Discriminator import Discriminator
 from Algorithms.pytorch.Models.Value import Value
@@ -33,16 +34,18 @@ class GAIL:
         self.num_process = num_process
         self.expert_data_path = expert_data_path
         self.config = config
+        self.expert_dataset = None
 
         self._load_expert_trajectory()
         self._init_model()
 
     def _load_expert_trajectory(self):
-        self.expert_dataset = ExpertDataset(expert_data_path=self.expert_data_path,
+        self.expert_dataset = ExpertDataset(expert_path=self.expert_data_path,
                                             train_fraction=self.config["expert_data"]["train_fraction"],
                                             traj_limitation=self.config["expert_data"]["traj_limitation"],
-                                            shuffle=self.config["expert_data"]["shuffle"],
-                                            batch_size=self.config["expert_data"]["batch_size"])
+                                            randomize=self.config["expert_data"]["shuffle"],
+                                            verbose=1)
+        self.init_expert_dataset_data_loader = False
 
     def _init_model(self):
         """seeding"""
@@ -116,6 +119,10 @@ class GAIL:
         r_buffer = []
         true_r_buffer = []
         len_buffer = []
+
+        gen_batch_state = None
+        gen_batch_action = None
+
         g_step = self.config["train"]["generator"]["optim_step"]
         for _ in range(g_step):
             # collect samples
@@ -190,17 +197,20 @@ class GAIL:
         ####################################################
         # update discriminator
         ####################################################
-        # d_step = self.config["train"]["discriminator"]["d_step"]
-        # mini_batch_size = gen_batch_state.shape[0] // d_step
-        # for gen_mini_batch_state, gen_min_batch_action in DataLoader(TensorDataset(gen_batch_state,
-        #                                                                            gen_batch_action),
-        #                                                              batch_size=mini_batch_size):
-        #
-        for expert_batch_state, expert_batch_action in self.expert_dataset.train_loader:
+        d_step = self.config["train"]["discriminator"]["optim_step"]
+        mini_batch_size = gen_batch_state.shape[0] // d_step
+        if not self.init_expert_dataset_data_loader:
+            self.expert_dataset.init_dataloader(mini_batch_size)
+
+        for gen_mini_batch_state, gen_min_batch_action in DataLoader(
+                TensorDataset(gen_batch_state, gen_batch_action),
+                batch_size=mini_batch_size):
+
+            expert_mini_batch_state, expert_mini_batch_action = self.expert_dataset.get_next_batch()
             # calculate probs and logits
-            gen_prob, gen_logits = self.discriminator(gen_batch_state, gen_batch_action)
-            expert_prob, expert_logits = self.discriminator(expert_batch_state.to(device),
-                                                            expert_batch_action.to(device))
+            gen_prob, gen_logits = self.discriminator(gen_mini_batch_state, gen_min_batch_action)
+            expert_prob, expert_logits = self.discriminator(FLOAT(expert_mini_batch_state).to(device),
+                                                            FLOAT(expert_mini_batch_action).to(device))
 
             # calculate accuracy
             gen_acc = torch.mean((gen_prob < 0.5).float())
@@ -224,6 +234,34 @@ class GAIL:
             total_loss.backward()
             self.optimizer_discriminator.step()
 
+        # for expert_batch_state, expert_batch_action in self.expert_dataset.train_loader:
+        #     # calculate probs and logits
+        #     gen_prob, gen_logits = self.discriminator(gen_batch_state, gen_batch_action)
+        #     expert_prob, expert_logits = self.discriminator(expert_batch_state.to(device),
+        #                                                     expert_batch_action.to(device))
+        #
+        #     # calculate accuracy
+        #     gen_acc = torch.mean((gen_prob < 0.5).float())
+        #     expert_acc = torch.mean((expert_prob > 0.5).float())
+        #
+        #     # calculate regression loss
+        #     expert_labels = torch.ones_like(expert_prob)
+        #     gen_labels = torch.zeros_like(gen_prob)
+        #     e_loss = self.discriminator_func(expert_prob, target=expert_labels)
+        #     g_loss = self.discriminator_func(gen_prob, target=gen_labels)
+        #     d_loss = e_loss + g_loss
+        #
+        #     # calculate entropy loss
+        #     logits = torch.cat([gen_logits, expert_logits], 0)
+        #     entropy = ((1. - torch.sigmoid(logits)) * logits - torch.nn.functional.logsigmoid(logits)).mean()
+        #     entropy_loss = -coeff_ent * entropy
+        #
+        #     total_loss = d_loss + entropy_loss
+        #
+        #     self.optimizer_discriminator.zero_grad()
+        #     total_loss.backward()
+        #     self.optimizer_discriminator.step()
+
         writer.add_scalar('discriminator/d_loss', d_loss.item(), i_iter)
         writer.add_scalar("discriminator/e_loss", e_loss.item(), i_iter)
         writer.add_scalar("discriminator/g_loss", g_loss.item(), i_iter)
@@ -240,7 +278,9 @@ class GAIL:
         print('ep/len:', np.mean(len_buffer))
         print('ep/reward', np.mean(r_buffer))
         print('ep/true_reward', np.mean(true_r_buffer))
-        print('d/loss:', d_loss.item())
+        print('d/total_loss:', d_loss.item())
+        print('d/g_loss', g_loss.item())
+        print('d/e_loss', e_loss.item())
         print("d/bernoulli_entropy:", entropy.item())
         print('d/gen_prob:', gen_prob.mean().item())
         print('d/expert_prob:', expert_prob.mean().item())
