@@ -2,7 +2,7 @@
 # Created at 2020/5/9
 
 import math
-
+from collections import deque
 import numpy as np
 import torch
 import torch.nn as nn
@@ -36,6 +36,7 @@ class GAIL:
 
         self._load_expert_trajectory()
         self._init_model()
+        self._init_buffers()
 
     def _load_expert_trajectory(self):
         self.expert_dataset = ExpertDataset(expert_data_path=self.expert_data_path,
@@ -97,6 +98,11 @@ class GAIL:
 
         to_device(self.value, self.policy, self.discriminator, self.discriminator_func)
 
+    def _init_buffers(self):
+        self.r_buffer = deque(maxlen=20)
+        self.true_r_buffer = deque(maxlen=20)
+        self.len_buffer = deque(maxlen=20)
+
     def choose_action(self, state):
         """select action"""
         state = FLOAT(state).unsqueeze(0).to(device)
@@ -118,6 +124,7 @@ class GAIL:
         for _ in range(g_step):
             # collect samples
             memory, log = self.collector.collect_samples(self.config["train"]["generator"]["sample_batch_size"])
+
             gen_batch = memory.sample()
 
             gen_batch_state = FLOAT(gen_batch.state).to(device)  # [batch size, state size]
@@ -129,6 +136,11 @@ class GAIL:
                 gen_batch_value = self.value(gen_batch_state)
                 d_out, _ = self.discriminator(gen_batch_state, gen_batch_action)
                 gen_batch_reward = d_out
+
+            # record infos
+            self.true_r_buffer.append(log['avg_reward'])
+            self.r_buffer.append(gen_batch_reward.sum().item())
+            self.len_buffer.append(log['num_steps'])
 
             gen_batch_advantage, gen_batch_return = estimate_advantages(gen_batch_reward, gen_batch_mask,
                                                                         gen_batch_value,
@@ -225,11 +237,21 @@ class GAIL:
         writer.add_scalar('accuracy/expert', gen_acc.item(), i_iter)
         writer.add_scalar('accuracy/gen', expert_acc.item(), i_iter)
 
+        writer.add_scalar('gail/ep_len_mean', np.mean(self.len_buffer))
+        writer.add_scalar('gail/ep_rew_mean', np.mean(self.r_buffer))
+        writer.add_scalar('gail/ep_true_rew_mean', np.mean(self.true_r_buffer))
+        writer.add_scalar('gail/ep_len_iter', np.mean(self.len_buffer[-g_step:]))
+        writer.add_scalar('gail/ep_rew_iter', np.mean(self.r_buffer[-g_step:]))
+        writer.add_scalar('gail/ep_true_rew_iter', np.mean(self.true_r_buffer[-g_step:]))
+
         print(f" Training episode:{i_iter} ".center(80, "#"))
-        print('gen_r:', gen_prob.mean().item())
-        print('expert_r:', expert_prob.mean().item())
-        print('d_loss:', d_loss.item())
-        print("d_entropy:", entropy.item())
+        print('ep/len:', np.mean(self.len_buffer))
+        print('ep/reward', np.mean(self.r_buffer))
+        print('ep/true_reward', np.mean(self.true_r_buffer))
+        print('d/loss:', d_loss.item())
+        print("d/bernoulli_entropy:", entropy.item())
+        print('d/gen_prob:', gen_prob.mean().item())
+        print('d/expert_prob:', expert_prob.mean().item())
 
     def eval(self, i_iter, render=False):
         self.policy.eval()

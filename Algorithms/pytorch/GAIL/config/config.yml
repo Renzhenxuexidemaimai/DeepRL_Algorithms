@@ -12,7 +12,7 @@ train:
     gamma: 0.995
     tau: 0.97
     clip_ratio: 0.1
-    optim_step: 1
+    optim_step: 5
     mini_batch_size: -1
     sample_batch_size: 1024
   discriminator:
