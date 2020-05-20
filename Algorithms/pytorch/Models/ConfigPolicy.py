@@ -40,11 +40,14 @@ class Policy(BasePolicy):
             nn.Linear(self.dim_state, self.dim_hidden),
             self.activation(),
             nn.Linear(self.dim_hidden, self.dim_hidden),
-            MultiSoftMax(dim_begin=0, dim_end=self.dim_disc_action,
-                         sections=self.disc_action_sections)
+            self.activation(),
         )
 
         self.dim_cont_action = self.dim_action - self.dim_disc_action  # dimension of continuous action
+        self.disc_action = nn.Sequential(
+            nn.Linear(self.dim_hidden, self.dim_disc_action),
+            MultiSoftMax(0, self.dim_disc_action, self.disc_action_sections)
+        )
         self.cont_action_mean = nn.Linear(self.dim_hidden,
                                           self.dim_cont_action)  # mean of continuous action approximation
         self.cont_action_log_std = nn.Parameter(torch.ones(1, self.dim_cont_action) * self.action_log_std,
@@ -57,7 +60,7 @@ class Policy(BasePolicy):
 
     def forward(self, x):
         x = self.common(x)  # [batch_size, dim_disc_action + dim_cont_action]
-        cont_mean = self.cont_action_mean(self.activation()(x))
+        cont_mean = self.cont_action_mean(x)
         cont_log_std = self.cont_action_log_std.expand_as(cont_mean)
         cont_std = torch.exp(cont_log_std)
 
@@ -68,7 +71,8 @@ class Policy(BasePolicy):
 
         dist_disc = None
         if self.dim_disc_action:
-            dist_disc = MultiOneHotCategorical(x[..., :self.dim_disc_action],
+            disc_probs = self.disc_action(x)
+            dist_disc = MultiOneHotCategorical(disc_probs,
                                                sections=self.disc_action_sections
                                                )
         return dist_disc, dist_cont

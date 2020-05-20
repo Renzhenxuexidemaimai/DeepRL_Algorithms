@@ -99,7 +99,6 @@ class MemoryCollector:
                            False, self.running_state, process_batch_size)
             workers.append(multiprocessing.Process(target=collect_samples, args=worker_args))
 
-
         for worker in workers:
             worker.start()
 

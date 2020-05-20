@@ -234,34 +234,6 @@ class GAIL:
             total_loss.backward()
             self.optimizer_discriminator.step()
 
-        # for expert_batch_state, expert_batch_action in self.expert_dataset.train_loader:
-        #     # calculate probs and logits
-        #     gen_prob, gen_logits = self.discriminator(gen_batch_state, gen_batch_action)
-        #     expert_prob, expert_logits = self.discriminator(expert_batch_state.to(device),
-        #                                                     expert_batch_action.to(device))
-        #
-        #     # calculate accuracy
-        #     gen_acc = torch.mean((gen_prob < 0.5).float())
-        #     expert_acc = torch.mean((expert_prob > 0.5).float())
-        #
-        #     # calculate regression loss
-        #     expert_labels = torch.ones_like(expert_prob)
-        #     gen_labels = torch.zeros_like(gen_prob)
-        #     e_loss = self.discriminator_func(expert_prob, target=expert_labels)
-        #     g_loss = self.discriminator_func(gen_prob, target=gen_labels)
-        #     d_loss = e_loss + g_loss
-        #
-        #     # calculate entropy loss
-        #     logits = torch.cat([gen_logits, expert_logits], 0)
-        #     entropy = ((1. - torch.sigmoid(logits)) * logits - torch.nn.functional.logsigmoid(logits)).mean()
-        #     entropy_loss = -coeff_ent * entropy
-        #
-        #     total_loss = d_loss + entropy_loss
-        #
-        #     self.optimizer_discriminator.zero_grad()
-        #     total_loss.backward()
-        #     self.optimizer_discriminator.step()
-
         writer.add_scalar('discriminator/d_loss', d_loss.item(), i_iter)
         writer.add_scalar("discriminator/e_loss", e_loss.item(), i_iter)
         writer.add_scalar("discriminator/g_loss", g_loss.item(), i_iter)

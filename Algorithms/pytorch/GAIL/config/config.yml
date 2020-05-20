@@ -16,14 +16,14 @@ train:
     mini_batch_size: -1
     sample_batch_size: 1024
   discriminator:
-    optim_step: 1
+    optim_step: 2
 
 
 policy:
   dim_state: 155
   dim_action: 6
-  dim_hidden: 64
-  activation: LeakyReLU
+  dim_hidden: 128
+  activation: Tanh
   dim_disc_action: 0
   action_log_std: 0.0
   disc_action_sections: !!python/tuple [0]
@@ -33,8 +33,8 @@ policy:
 
 value:
   dim_state: 155
-  dim_hidden: 64
-  activation: LeakyReLU
+  dim_hidden: 128
+  activation: Tanh
   optim_value_iter: 1
   learning_rate: !!float 3e-4
   l2_reg: !!float 1e-3
@@ -43,6 +43,6 @@ value:
 discriminator:
   dim_state: 155
   dim_action: 6
-  dim_hidden: 100
-  activation: LeakyReLU
+  dim_hidden: 128
+  activation: Tanh
   learning_rate: !!float 3e-4

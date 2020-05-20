@@ -104,7 +104,7 @@ class GAIL:
             action, log_prob = self.policy.get_action_log_prob(state)
         return action, log_prob
 
-    def learn(self, writer, i_iter, coeff_ent=0.001):
+    def learn(self, writer, i_iter):
         memory, log = self.collector.collect_samples(self.config["train"]["generator"]["sample_batch_size"])
 
         self.policy.train()
@@ -148,25 +148,15 @@ class GAIL:
             g_loss = self.discriminator_func(gen_prob, target=gen_labels)
             d_loss = e_loss + g_loss
 
-            # calculate entropy loss
-            logits = torch.cat([gen_logits, expert_logits], 0)
-            entropy = ((1. - torch.sigmoid(logits)) * logits - torch.nn.functional.logsigmoid(logits)).mean()
-            entropy_loss = coeff_ent * entropy
-
-            total_loss = d_loss + entropy_loss
-
             self.optimizer_discriminator.zero_grad()
-            total_loss.backward()
+            d_loss.backward()
             self.optimizer_discriminator.step()
 
         writer.add_scalar('discriminator/d_loss', d_loss.item(), i_iter)
         writer.add_scalar("discriminator/e_loss", e_loss.item(), i_iter)
         writer.add_scalar("discriminator/g_loss", g_loss.item(), i_iter)
-        writer.add_scalar("discriminator/entropy", entropy.item(), i_iter)
-        writer.add_scalar("discriminator/entropy_loss", entropy_loss.item(), i_iter)
-
-        writer.add_scalar('accuracy/expert', gen_acc.item(), i_iter)
-        writer.add_scalar('accuracy/gen', expert_acc.item(), i_iter)
+        writer.add_scalar('discriminator/expert_acc', gen_acc.item(), i_iter)
+        writer.add_scalar('discriminator/gen_acc', expert_acc.item(), i_iter)
 
         ####################################################
         # update policy by ppo [mini_batch]
@@ -175,51 +165,65 @@ class GAIL:
         with torch.no_grad():
             gen_batch_value = self.value(gen_batch_state)
             d_out, _ = self.discriminator(gen_batch_state, gen_batch_action)
-            gen_batch_reward = torch.log(d_out)
+            gen_batch_reward = d_out
 
         gen_batch_advantage, gen_batch_return = estimate_advantages(gen_batch_reward, gen_batch_mask,
                                                                     gen_batch_value,
                                                                     self.config["train"]["generator"]["gamma"],
                                                                     self.config["train"]["generator"]["tau"])
 
-        ppo_optim_i_iters = self.config["train"]["generator"]["ppo_optim_i_iters"]
-        ppo_mini_batch_size = self.config["train"]["generator"]["ppo_mini_batch_size"]
-        gen_batch_size = gen_batch_state.shape[0]
-        optim_iter_num = int(math.ceil(gen_batch_size / ppo_mini_batch_size))
+        ppo_optim_i_iters = self.config["train"]["generator"]["optim_step"]
+        ppo_mini_batch_size = self.config["train"]["generator"]["mini_batch_size"]
+        if ppo_mini_batch_size > 0:
+            gen_batch_size = gen_batch_state.shape[0]
+            optim_iter_num = int(math.ceil(gen_batch_size / ppo_mini_batch_size))
 
-        for _ in range(ppo_optim_i_iters):
-            perm = torch.randperm(gen_batch_size)
+            for _ in range(ppo_optim_i_iters):
+                perm = torch.randperm(gen_batch_size)
 
-            for i in range(optim_iter_num):
-                ind = perm[slice(i * ppo_mini_batch_size,
-                                 min((i + 1) * ppo_mini_batch_size, gen_batch_size))]
-                mini_batch_state, mini_batch_action, mini_batch_advantage, mini_batch_return, \
-                mini_batch_old_log_prob = gen_batch_state[ind], gen_batch_action[ind], \
-                                          gen_batch_advantage[ind], gen_batch_return[ind], gen_batch_old_log_prob[
-                                              ind]
+                for i in range(optim_iter_num):
+                    ind = perm[slice(i * ppo_mini_batch_size,
+                                     min((i + 1) * ppo_mini_batch_size, gen_batch_size))]
+                    mini_batch_state, mini_batch_action, mini_batch_advantage, mini_batch_return, \
+                    mini_batch_old_log_prob = gen_batch_state[ind], gen_batch_action[ind], \
+                                              gen_batch_advantage[ind], gen_batch_return[ind], gen_batch_old_log_prob[
+                                                  ind]
 
+                    v_loss, p_loss, ent_loss = ppo_step(policy_net=self.policy,
+                                                        value_net=self.value,
+                                                        optimizer_policy=self.optimizer_policy,
+                                                        optimizer_value=self.optimizer_value,
+                                                        optim_value_iternum=self.config["value"]["optim_value_iter"],
+                                                        states=mini_batch_state,
+                                                        actions=mini_batch_action,
+                                                        returns=mini_batch_return,
+                                                        old_log_probs=mini_batch_old_log_prob,
+                                                        advantages=mini_batch_advantage,
+                                                        clip_epsilon=self.config["train"]["generator"]["clip_ratio"],
+                                                        l2_reg=self.config["value"]["l2_reg"])
+        else:
+            for _ in range(ppo_optim_i_iters):
                 v_loss, p_loss, ent_loss = ppo_step(policy_net=self.policy,
                                                     value_net=self.value,
                                                     optimizer_policy=self.optimizer_policy,
                                                     optimizer_value=self.optimizer_value,
                                                     optim_value_iternum=self.config["value"]["optim_value_iter"],
-                                                    states=mini_batch_state,
-                                                    actions=mini_batch_action,
-                                                    returns=mini_batch_return,
-                                                    old_log_probs=mini_batch_old_log_prob,
-                                                    advantages=mini_batch_advantage,
+                                                    states=gen_batch_state,
+                                                    actions=gen_batch_action,
+                                                    returns=gen_batch_return,
+                                                    old_log_probs=gen_batch_old_log_prob,
+                                                    advantages=gen_batch_advantage,
                                                     clip_epsilon=self.config["train"]["generator"]["clip_ratio"],
                                                     l2_reg=self.config["value"]["l2_reg"])
 
-                writer.add_scalar('generator/p_loss', p_loss, i_iter)
-                writer.add_scalar('generator/v_loss', v_loss, i_iter)
-                writer.add_scalar('generator/ent_loss', ent_loss, i_iter)
+        writer.add_scalar('generator/p_loss', p_loss, i_iter)
+        writer.add_scalar('generator/v_loss', v_loss, i_iter)
+        writer.add_scalar('generator/ent_loss', ent_loss, i_iter)
 
         print(f" Training episode:{i_iter} ".center(80, "#"))
-        print('gen_r:', gen_prob.mean().item())
-        print('expert_r:', expert_prob.mean().item())
+        print('d_gen_prob:', gen_prob.mean().item())
+        print('d_expert_prob:', expert_prob.mean().item())
         print('d_loss:', d_loss.item())
-        print("d_entropy:", entropy.item())
 
     def eval(self, i_iter, render=False):
         self.policy.eval()

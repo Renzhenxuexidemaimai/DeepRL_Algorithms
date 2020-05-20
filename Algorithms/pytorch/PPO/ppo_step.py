@@ -25,7 +25,7 @@ def ppo_step(policy_net, value_net, optimizer_policy, optimizer_value, optim_val
     policy_surr = -torch.min(surr1, surr2).mean()
 
     ent = policy_net.get_entropy(states)
-    entbonous = ent_coeff * ent.mean()
+    entbonous = -ent_coeff * ent.mean()
     optim_gain = policy_surr + entbonous
 
     optimizer_policy.zero_grad()
