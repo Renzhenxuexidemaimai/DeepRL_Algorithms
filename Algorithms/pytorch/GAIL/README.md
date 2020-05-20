@@ -14,4 +14,17 @@ This GAIL implementation is highly correlated to [PPO](../PPO) algorithm:
 
 ## 2. Performance
 
-To be added !
+Run the algorithm on [BipedalWalker-v3](http://gym.openai.com/envs/BipedalWalker-v2/) for continuous control.
+
+Expert trajectories are collected by running [PPO](../PPO), trajectories are saved as `.npz` format,
+then `GAIL` utilizes `PPO` algorithm for policy optimization.
+
+The performance(average reward) curve looks like this:
+
+GAIL:
+![GAIL](https://tva1.sinaimg.cn/large/007S8ZIlgy1gezddkse3cj30zi0ch74y.jpg)
+
+PPO:
+![PPO](https://tva1.sinaimg.cn/large/007S8ZIlgy1gezbk63ddaj30z90c53z3.jpg)
+
+You may see that `GAIL` is not as good as `PPO`, however for imitating, `GAIL`  is good.

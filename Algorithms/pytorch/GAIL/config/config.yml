@@ -2,21 +2,21 @@ expert_data:
   shuffle: True
   train_fraction: !!float 0.7
   traj_limitation: -1
-  batch_size: 1024
+  batch_size: 4000
 
 train:
   general:
-    training_epochs: 4000
+    training_epochs: 2000
     seed: 2020
   generator:
     gamma: 0.995
     tau: 0.97
     clip_ratio: 0.2
-    optim_step: 5
+    optim_step: 10
     mini_batch_size: -1
-    sample_batch_size: 1024
+    sample_batch_size: 4000
   discriminator:
-    optim_step: 5
+    optim_step: 8
 
 
 policy:
