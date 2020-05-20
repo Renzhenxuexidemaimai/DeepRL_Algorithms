@@ -7,7 +7,7 @@ import yaml
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
-from Algorithms.pytorch.GAIL.gail_new import GAIL
+from Algorithms.pytorch.GAIL.gail import GAIL
 
 
 @click.command()

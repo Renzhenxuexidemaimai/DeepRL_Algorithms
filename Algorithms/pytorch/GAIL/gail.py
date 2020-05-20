@@ -148,13 +148,21 @@ class GAIL:
             g_loss = self.discriminator_func(gen_prob, target=gen_labels)
             d_loss = e_loss + g_loss
 
+            # calculate entropy loss
+            logits = torch.cat([gen_logits, expert_logits], 0)
+            entropy = ((1. - torch.sigmoid(logits)) * logits - torch.nn.functional.logsigmoid(logits)).mean()
+            entropy_loss = -1e-3 * entropy
+
+            total_loss = d_loss + entropy_loss
+
             self.optimizer_discriminator.zero_grad()
-            d_loss.backward()
+            total_loss.backward()
             self.optimizer_discriminator.step()
 
         writer.add_scalar('discriminator/d_loss', d_loss.item(), i_iter)
         writer.add_scalar("discriminator/e_loss", e_loss.item(), i_iter)
         writer.add_scalar("discriminator/g_loss", g_loss.item(), i_iter)
+        writer.add_scalar("discriminator/ent", entropy.item(), i_iter)
         writer.add_scalar('discriminator/expert_acc', gen_acc.item(), i_iter)
         writer.add_scalar('discriminator/gen_acc', expert_acc.item(), i_iter)
 

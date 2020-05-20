@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Created at 2020/5/9
+from functools import partial
 
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.distributions import Normal, MultivariateNormal
@@ -12,9 +14,9 @@ from Algorithms.pytorch.Models.MultiSoftMax import MultiSoftMax
 from Utils.torch_util import resolve_activate_function
 
 
-def init_weight(m):
+def init_weight(m, gain=1):
     if isinstance(m, nn.Linear):
-        nn.init.xavier_normal_(m.weight)
+        nn.init.orthogonal_(m.weight, gain=gain)
         nn.init.constant_(m.bias, 0.0)
 
 
@@ -42,21 +44,24 @@ class Policy(BasePolicy):
             nn.Linear(self.dim_hidden, self.dim_hidden),
             self.activation(),
         )
+        self.common.apply(partial(init_weight, gain=np.sqrt(2)))
 
         self.dim_cont_action = self.dim_action - self.dim_disc_action  # dimension of continuous action
-        self.disc_action = nn.Sequential(
-            nn.Linear(self.dim_hidden, self.dim_disc_action),
-            MultiSoftMax(0, self.dim_disc_action, self.disc_action_sections)
-        )
+
+        if self.dim_disc_action:
+            self.disc_action = nn.Sequential(
+                nn.Linear(self.dim_hidden, self.dim_disc_action),
+                MultiSoftMax(0, self.dim_disc_action, self.disc_action_sections)
+            )
+            self.disc_action.apply(partial(init_weight, gain=np.sqrt(2)))
         self.cont_action_mean = nn.Linear(self.dim_hidden,
                                           self.dim_cont_action)  # mean of continuous action approximation
+        self.cont_action_mean.apply(partial(init_weight, gain=0.01))
         self.cont_action_log_std = nn.Parameter(torch.ones(1, self.dim_cont_action) * self.action_log_std,
                                                 requires_grad=True)  # log_std of continuous action approximation
 
         # check disc actions
         assert sum(self.disc_action_sections) == self.dim_disc_action, "Wrong discrete action configuration !!!!"
-
-        self.apply(init_weight)
 
     def forward(self, x):
         x = self.common(x)  # [batch_size, dim_disc_action + dim_cont_action]

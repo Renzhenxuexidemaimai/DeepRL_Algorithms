@@ -6,24 +6,24 @@ expert_data:
 
 train:
   general:
-    training_epochs: 2000
+    training_epochs: 4000
     seed: 2020
   generator:
     gamma: 0.995
     tau: 0.97
-    clip_ratio: 0.1
+    clip_ratio: 0.2
     optim_step: 5
     mini_batch_size: -1
     sample_batch_size: 1024
   discriminator:
-    optim_step: 2
+    optim_step: 5
 
 
 policy:
   dim_state: 155
   dim_action: 6
   dim_hidden: 128
-  activation: Tanh
+  activation: LeakyReLU
   dim_disc_action: 0
   action_log_std: 0.0
   disc_action_sections: !!python/tuple [0]
@@ -34,8 +34,8 @@ policy:
 value:
   dim_state: 155
   dim_hidden: 128
-  activation: Tanh
-  optim_value_iter: 1
+  activation: LeakyReLU
+  optim_value_iter: 3
   learning_rate: !!float 3e-4
   l2_reg: !!float 1e-3
 
@@ -44,5 +44,5 @@ discriminator:
   dim_state: 155
   dim_action: 6
   dim_hidden: 128
-  activation: Tanh
+  activation: LeakyReLU
   learning_rate: !!float 3e-4
