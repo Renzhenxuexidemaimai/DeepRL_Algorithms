@@ -16,7 +16,7 @@ from Algorithms.pytorch.GAIL.gail import GAIL
               help="Model configuration file")
 @click.option("--expert_data_path", type=str, default="data/BipedalWalker-v3.npz", help="Expert data path")
 @click.option("--render", type=bool, default=False, help="Render environment or not")
-@click.option("--num_process", type=int, default=1, help="Number of process to run environment")
+@click.option("--num_process", type=int, default=4, help="Number of process to run environment")
 @click.option("--eval_model_epoch", type=int, default=50, help="Intervals for evaluating model")
 @click.option("--save_model_epoch", type=int, default=50, help="Intervals for saving model")
 @click.option("--save_model_path", type=str, default="trained_models", help="Path for saving trained model")

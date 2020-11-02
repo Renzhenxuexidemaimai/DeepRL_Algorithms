@@ -21,19 +21,9 @@ class ExpertDataset:
         """
         traj_data = np.load(expert_data_path, allow_pickle=True)
 
-        if 'state' in traj_data:
-            states = traj_data['state']
-        else:
-            states = traj_data['obs']
-        if 'action' in traj_data:
-            actions = traj_data['action']
-        else:
-            actions = traj_data['acs']
-        if 'ep_reward' in traj_data:
-            self.ep_ret = traj_data['ep_reward']
-        else:
-            self.ep_ret = traj_data['ep_rets']
-
+        states = traj_data['state' or 'obs']
+        actions = traj_data['action' or 'acs']
+        self.ep_ret = traj_data['ep_reward' or 'ep_rets']
         if traj_limitation < 0:
             traj_limitation = len(self.ep_ret)
             self.ep_ret = self.ep_ret[:traj_limitation]
@@ -42,8 +32,8 @@ class ExpertDataset:
         # and S is the environment observation/action space.
         # Flatten to (N * L, prod(S))
         if len(states.shape) > 2:
-            self.states = np.reshape(states, [-1, np.prod(actions.shape[2:])])
-            self.actions = np.reshape(states, [-1, np.prod(actions.shape[2:])])
+            self.states = np.reshape(states, [-1, np.prod(states.shape[2:])])
+            self.actions = np.reshape(actions, [-1, np.prod(actions.shape[2:])])
         else:
             self.states = np.vstack(states)
             self.actions = np.vstack(actions)
@@ -57,11 +47,7 @@ class ExpertDataset:
 
         assert len(self.states) == len(self.actions), "The number of actions and observations differ " \
                                                       "please check your expert dataset"
-        if 'ep_reward' in traj_data:
-            self.num_traj = min(traj_limitation, len(traj_data['ep_reward']))
-        else:
-            self.num_traj = min(traj_limitation, len(traj_data['ep_rets']))
-
+        self.num_traj = min(traj_limitation, len(traj_data['ep_reward' or 'ep_rets']))
         self.num_transition = len(self.states)
 
         self.data_loader = DataLoader(

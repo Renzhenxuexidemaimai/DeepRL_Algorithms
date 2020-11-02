@@ -45,10 +45,11 @@ class GAIL:
                                             batch_size=self.config["expert_data"]["batch_size"])
 
     def _init_model(self):
-        """seeding"""
+        # seeding
         seed = self.config["train"]["general"]["seed"]
         torch.manual_seed(seed)
         np.random.seed(seed)
+
         self.env, env_continuous, num_states, num_actions = get_env_info(self.env_id)
 
         # check env
@@ -122,7 +123,6 @@ class GAIL:
         # collect generated batch
         # gen_batch = self.collect_samples(self.config["ppo"]["sample_batch_size"])
         gen_batch = memory.sample()
-
         gen_batch_state = FLOAT(gen_batch.state).to(device)  # [batch size, state size]
         gen_batch_action = FLOAT(gen_batch.action).to(device)  # [batch size, action size]
         gen_batch_old_log_prob = FLOAT(gen_batch.log_prob).to(device)  # [batch size, 1]
@@ -131,33 +131,35 @@ class GAIL:
         ####################################################
         # update discriminator
         ####################################################
-        for expert_batch_state, expert_batch_action in self.expert_dataset.train_loader:
-            # calculate probs and logits
-            gen_prob, gen_logits = self.discriminator(gen_batch_state, gen_batch_action)
-            expert_prob, expert_logits = self.discriminator(expert_batch_state.to(device),
-                                                            expert_batch_action.to(device))
+        d_optim_i_iters = self.config["train"]["discriminator"]["optim_step"]
+        if i_iter % d_optim_i_iters == 0:
+            for expert_batch_state, expert_batch_action in self.expert_dataset.train_loader:
+                # calculate probs and logits
+                gen_prob, gen_logits = self.discriminator(gen_batch_state, gen_batch_action)
+                expert_prob, expert_logits = self.discriminator(expert_batch_state.to(device),
+                                                                expert_batch_action.to(device))
 
-            # calculate accuracy
-            gen_acc = torch.mean((gen_prob < 0.5).float())
-            expert_acc = torch.mean((expert_prob > 0.5).float())
+                # calculate accuracy
+                gen_acc = torch.mean((gen_prob < 0.5).float())
+                expert_acc = torch.mean((expert_prob > 0.5).float())
 
-            # calculate regression loss
-            expert_labels = torch.ones_like(expert_prob)
-            gen_labels = torch.zeros_like(gen_prob)
-            e_loss = self.discriminator_func(expert_prob, target=expert_labels)
-            g_loss = self.discriminator_func(gen_prob, target=gen_labels)
-            d_loss = e_loss + g_loss
+                # calculate regression loss
+                expert_labels = torch.ones_like(expert_prob)
+                gen_labels = torch.zeros_like(gen_prob)
+                e_loss = self.discriminator_func(expert_prob, target=expert_labels)
+                g_loss = self.discriminator_func(gen_prob, target=gen_labels)
+                d_loss = e_loss + g_loss
 
-            # calculate entropy loss
-            logits = torch.cat([gen_logits, expert_logits], 0)
-            entropy = ((1. - torch.sigmoid(logits)) * logits - torch.nn.functional.logsigmoid(logits)).mean()
-            entropy_loss = -1e-3 * entropy
+                # calculate entropy loss
+                logits = torch.cat([gen_logits, expert_logits], 0)
+                entropy = ((1. - torch.sigmoid(logits)) * logits - torch.nn.functional.logsigmoid(logits)).mean()
+                entropy_loss = - self.config["train"]["discriminator"]["ent_coeff"] * entropy
 
-            total_loss = d_loss + entropy_loss
+                total_loss = d_loss + entropy_loss
 
-            self.optimizer_discriminator.zero_grad()
-            total_loss.backward()
-            self.optimizer_discriminator.step()
+                self.optimizer_discriminator.zero_grad()
+                total_loss.backward()
+                self.optimizer_discriminator.step()
 
         writer.add_scalar('discriminator/d_loss', d_loss.item(), i_iter)
         writer.add_scalar("discriminator/e_loss", e_loss.item(), i_iter)
@@ -173,7 +175,7 @@ class GAIL:
         with torch.no_grad():
             gen_batch_value = self.value(gen_batch_state)
             d_out, _ = self.discriminator(gen_batch_state, gen_batch_action)
-            gen_batch_reward = d_out
+            gen_batch_reward = -torch.log(1 - d_out + 1e-6)
 
         gen_batch_advantage, gen_batch_return = estimate_advantages(gen_batch_reward, gen_batch_mask,
                                                                     gen_batch_value,
@@ -182,11 +184,11 @@ class GAIL:
 
         ppo_optim_i_iters = self.config["train"]["generator"]["optim_step"]
         ppo_mini_batch_size = self.config["train"]["generator"]["mini_batch_size"]
-        if ppo_mini_batch_size > 0:
-            gen_batch_size = gen_batch_state.shape[0]
-            optim_iter_num = int(math.ceil(gen_batch_size / ppo_mini_batch_size))
 
-            for _ in range(ppo_optim_i_iters):
+        for _ in range(ppo_optim_i_iters):
+            if ppo_mini_batch_size > 0:
+                gen_batch_size = gen_batch_state.shape[0]
+                optim_iter_num = int(math.ceil(gen_batch_size / ppo_mini_batch_size))
                 perm = torch.randperm(gen_batch_size)
 
                 for i in range(optim_iter_num):
@@ -209,8 +211,7 @@ class GAIL:
                                                         advantages=mini_batch_advantage,
                                                         clip_epsilon=self.config["train"]["generator"]["clip_ratio"],
                                                         l2_reg=self.config["value"]["l2_reg"])
-        else:
-            for _ in range(ppo_optim_i_iters):
+            else:
                 v_loss, p_loss, ent_loss = ppo_step(policy_net=self.policy,
                                                     value_net=self.value,
                                                     optimizer_policy=self.optimizer_policy,
@@ -232,6 +233,11 @@ class GAIL:
         print('d_gen_prob:', gen_prob.mean().item())
         print('d_expert_prob:', expert_prob.mean().item())
         print('d_loss:', d_loss.item())
+        print('e_loss:', e_loss.item())
+        print("d/bernoulli_entropy:", entropy.item())
+
+
+
 
     def eval(self, i_iter, render=False):
         self.policy.eval()
