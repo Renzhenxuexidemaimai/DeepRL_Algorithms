@@ -44,7 +44,7 @@ Imitation learning learn from expert data.
 [1]. GAIL [Pytorch](Algorithms/pytorch/GAIL), Paper: [Generative Adversarial Imitation Learning](https://arxiv.org/pdf/1606.03476.pdf)     
 
 
-### 3.Project Dependencies
+## 3.Project Dependencies
 
 - Python >=3.6  
 - Tensorflow >= 2.1.0
@@ -52,7 +52,7 @@ Imitation learning learn from expert data.
 - Seaborn >= 0.10.0  
 - Click >= 7.0  
 
-### 4.Run
+## 4.Run
 
 Each algorithm is implemented in a single package including:
 ```
@@ -67,25 +67,25 @@ You can run algorithm from the  `main.py` or `bash scripts`.
 - You can simply type `python main.py --help` in the algorithm package to view all parameters. 
 - The directory [Scripts](Scripts) gives some bash scripts, you can modify them at will.
 
-### 5.Visualization of performance
+## 5.Visualization of performance
 
 [Utils/plot_util.py](Utils/plot_util.py) provide a simple plot tool based on `Seaborn` and `Matplotlib`.
 All the plots in this project are drawn by this plot util.
 
-#### 5.1 Benchmarks for DQNs
+### 5.1 Benchmarks for DQNs
 
-##### **Pytorch Versions**
+#### **Pytorch Versions**
 
 ![bench_dqn](Algorithms/images/bench_dqn.png)
 
-##### **Tensorflow Versions**
+#### **Tensorflow Versions**
 
 ![bench_dqn_tf](Algorithms/images/bench_dqn_tf2.png)
 
  
-#### 5.2 Benchmarks for PolicyGradients
+### 5.2 Benchmarks for PolicyGradients
 
-##### **Pytorch Versions**
+#### **Pytorch Versions**
 
 ![bench_pg](Algorithms/images/bench_pg.png)
 
